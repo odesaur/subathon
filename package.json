@@ -1,0 +1,9 @@
+{
+  "name": "subathon-tracker",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "pkill -f \"bun.*server.ts\" || true; bun --watch src/server.ts",
+    "start": "bun src/server.ts"
+  }
+}

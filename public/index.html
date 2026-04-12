@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>subathon tracker</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #0a0a0f;
+      --surface: #111118;
+      --surface2:#1a1a24;
+      --border:  #2a2a38;
+      --green:   #50fa7b;
+      --cyan:    #8be9fd;
+      --purple:  #bd93f9;
+      --pink:    #ff79c6;
+      --orange:  #ffb86c;
+      --red:     #ff5555;
+      --yellow:  #f1fa8c;
+      --text:    #f8f8f2;
+      --muted:   #6272a4;
+      --dim:     #44475a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 14px;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Search */
+    #search-screen {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .search-card {
+      width: 100%;
+      max-width: 440px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 2rem;
+      position: relative;
+    }
+    .search-close {
+      position: absolute;
+      top: .75rem;
+      right: .75rem;
+      background: none;
+      border: none;
+      color: var(--comment);
+      font-size: .85rem;
+      cursor: pointer;
+      padding: .2rem .4rem;
+      border-radius: 4px;
+      line-height: 1;
+    }
+    .search-close:hover { color: var(--fg); background: var(--border); }
+    .search-title {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .setup-copy {
+      color: var(--muted);
+      font-size: .82rem;
+      margin-bottom: .6rem;
+    }
+    .search-row {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .5rem .75rem;
+      color: var(--text);
+      font-family: inherit;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-input:focus { border-color: var(--purple); }
+    .search-input::placeholder { color: var(--dim); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .45rem 1rem; border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit; font-size: .8rem; font-weight: 500;
+      cursor: pointer; text-decoration: none; white-space: nowrap;
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .btn:hover { border-color: var(--muted); color: var(--text); }
+    .btn.primary { border-color: var(--purple); color: var(--purple); }
+    .btn.primary:hover { background: color-mix(in srgb,var(--purple) 15%,transparent); color: var(--text); }
+    .btn.easter { border-color: var(--orange); color: var(--orange); }
+    .btn.easter:hover { background: color-mix(in srgb,var(--orange) 12%,transparent); color: var(--text); }
+
+    .search-result {
+      margin-top: 1rem;
+      display: none;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface2);
+    }
+    .search-result.visible { display: flex; }
+    .search-result img {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .result-name { font-weight: 700; font-size: .95rem; }
+    .result-status { font-size: .72rem; color: var(--muted); }
+    .result-status.live { color: var(--red); }
+    .result-status.offline { color: var(--dim); }
+    .result-actions { margin-left: auto; }
+    .search-error { margin-top: .75rem; font-size: .8rem; color: var(--red); display: none; }
+
+    /* Tracker */
+    #tracker-screen {
+      display: none;
+      padding: 2rem;
+    }
+    .app { max-width: 860px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: .75rem 1.25rem;
+      margin-bottom: 1.5rem;
+      border-radius: 6px;
+      gap: 1rem;
+    }
+    .header-left {
+      display: flex; align-items: center; gap: .75rem;
+      min-width: 0;
+    }
+    .channel-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .channel-name {
+      font-size: 1rem; font-weight: 700;
+      color: var(--purple); letter-spacing: -.02em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .channel-name span { color: var(--muted); font-weight: 400; }
+    .header-right {
+      display: flex; align-items: center; gap: .75rem; flex-shrink: 0;
+    }
+    .mode-strip {
+      margin: -0.5rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      color: var(--muted);
+      font-size: .72rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .mode-label strong { color: var(--text); font-weight: 500; }
+    .mode-help {
+      position: relative;
+    }
+    .mode-help summary {
+      list-style: none;
+      cursor: pointer;
+      color: var(--purple);
+    }
+    .mode-help summary::-webkit-details-marker { display: none; }
+    .mode-help[open] summary { color: var(--text); }
+    .mode-popover {
+      position: absolute;
+      top: calc(100% + .45rem);
+      left: 0;
+      width: min(320px, calc(100vw - 3rem));
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .7rem .8rem;
+      color: var(--text);
+      text-transform: none;
+      letter-spacing: 0;
+      line-height: 1.55;
+      z-index: 20;
+      box-shadow: 0 8px 24px rgba(0,0,0,.28);
+    }
+    .broadcaster-badge {
+      display: none;
+      font-size: .65rem; color: var(--green);
+      border: 1px solid color-mix(in srgb,var(--green) 30%,transparent);
+      padding: 2px 7px; border-radius: 3px;
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    .stream-badge { display: flex; align-items: center; gap: .4rem; font-size: .75rem; }
+    .stream-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
+    .stream-dot.live { background: var(--red); box-shadow: 0 0 6px var(--red); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .stream-label { color: var(--muted); }
+    .stream-label.live { color: var(--text); }
+
+    /* Cards */
+    .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    @media(max-width:600px){ .cards{grid-template-columns:1fr} }
+    .card {
+      border: 1px solid var(--border); background: var(--surface);
+      border-radius: 6px; padding: 1.25rem 1.5rem;
+      position: relative; overflow: hidden;
+    }
+    .card::before { content:''; position:absolute; top:0;left:0;right:0;height:2px; background:var(--accent,var(--purple)); opacity:.7; }
+    .card.subs { --accent: var(--green); }
+    .card.bits { --accent: var(--cyan); }
+    .card.gifts{ --accent: var(--pink); }
+    .card-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:.5rem; }
+    .card-value { font-size:2rem; font-weight:700; line-height:1.1; letter-spacing:-.03em; }
+    .card.subs  .card-value { color: var(--green); }
+    .card.bits  .card-value { color: var(--cyan); }
+    .card.gifts .card-value { color: var(--pink); }
+    .card-sub { font-size:.7rem; color:var(--muted); margin-top:.25rem; }
+    @keyframes flash { 0%{opacity:.3} 100%{opacity:1} }
+    .flash { animation: flash .4s ease-out; }
+
+    /* Leaderboard */
+    .leaderboard { border:1px solid var(--border); background:var(--surface); border-radius:6px; overflow:hidden; }
+    .lb-header { display:flex; align-items:center; justify-content:space-between; padding:.75rem 1.25rem; border-bottom:1px solid var(--border); background:var(--surface2); }
+    .lb-title { font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+    .lb-title strong { color:var(--text); font-weight:700; }
+    .lb-empty { padding:2.5rem; text-align:center; color:var(--muted); font-size:.85rem; }
+    table { width:100%; border-collapse:collapse; }
+    thead th { padding:.5rem 1.25rem; text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); border-bottom:1px solid var(--border); font-weight:500; }
+    thead th.right { text-align:right; }
+    tbody tr { border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent); transition:background .1s; }
+    tbody tr:last-child { border-bottom:none; }
+    tbody tr:hover { background:var(--surface2); }
+    tbody td { padding:.65rem 1.25rem; font-size:.85rem; }
+    tbody td.right { text-align:right; }
+    .rank-num { color:var(--muted); font-size:.75rem; width:2.5rem; }
+    .rank-num.top3 { color:var(--text); font-weight:700; }
+    .gifter-name { font-weight:500; }
+    .rank-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.7rem; padding:2px 7px; border-radius:3px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; }
+    .rank-badge.diamond  { color:var(--cyan);   background:color-mix(in srgb,var(--cyan)   12%,transparent); border:1px solid color-mix(in srgb,var(--cyan)   30%,transparent); }
+    .rank-badge.platinum { color:var(--purple); background:color-mix(in srgb,var(--purple) 12%,transparent); border:1px solid color-mix(in srgb,var(--purple) 30%,transparent); }
+    .rank-badge.gold     { color:var(--orange); background:color-mix(in srgb,var(--orange) 12%,transparent); border:1px solid color-mix(in srgb,var(--orange) 30%,transparent); }
+    .rank-badge.silver   { color:#aab4cc;       background:color-mix(in srgb,#aab4cc       12%,transparent); border:1px solid color-mix(in srgb,#aab4cc       30%,transparent); }
+    .rank-badge.bronze   { color:#c87941;       background:color-mix(in srgb,#c87941       12%,transparent); border:1px solid color-mix(in srgb,#c87941       30%,transparent); }
+    .rank-badge.member   { color:var(--green);  background:color-mix(in srgb,var(--green)  10%,transparent); border:1px solid color-mix(in srgb,var(--green)  25%,transparent); }
+    .gift-count { color:var(--pink); font-weight:700; }
+
+    footer {
+      margin-top:1.25rem; display:flex; align-items:center; justify-content:space-between;
+      font-size:.7rem; color:var(--dim); padding:0 .25rem;
+    }
+    .footer-actions { display:flex; gap:.5rem; align-items:center; }
+
+    /* Toasts */
+    #toast-container { position:fixed; bottom:1.5rem; right:1.5rem; display:flex; flex-direction:column; gap:.5rem; z-index:100; pointer-events:none; }
+    .toast { background:var(--surface2); border:1px solid var(--border); border-left:3px solid var(--green); padding:.6rem 1rem; border-radius:4px; font-size:.78rem; color:var(--text); max-width:300px; animation:slide-in .25s ease-out, fade-out .3s ease-in 3.7s forwards; }
+    .toast.bits  { border-left-color:var(--cyan); }
+    .toast.gift  { border-left-color:var(--pink); }
+    .toast.reset { border-left-color:var(--yellow); }
+    @keyframes slide-in { from{transform:translateX(110%);opacity:0} to{transform:translateX(0);opacity:1} }
+    @keyframes fade-out { to{opacity:0;transform:translateX(110%)} }
+  </style>
+</head>
+<body>
+
+  <!-- Search -->
+  <div id="search-screen">
+    <div class="search-card">
+      <button class="search-close" id="search-close" style="display:none" title="close">✕</button>
+      <div class="search-title">subathon tracker — broadcaster login</div>
+      <div class="setup-copy">Anonymous mode tracks <strong>fruitberries</strong> only.</div>
+      <div class="setup-copy">Use Twitch login to switch this tracker to your own channel and seed accurate sub counts.</div>
+      <div class="search-row">
+        <a href="/" class="btn">track fruitberries</a>
+        <a href="/auth/fruitberries" class="btn easter">ARE YOU FRUITBERRIES?</a>
+        <a href="/auth/twitch" class="btn primary">track my channel →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tracker -->
+  <div id="tracker-screen">
+    <div class="app">
+
+      <header>
+        <div class="header-left">
+          <img class="channel-avatar" id="channel-avatar" src="" alt="" />
+          <div class="channel-name" id="channel-name">—</div>
+        </div>
+        <div class="header-right">
+          <span class="broadcaster-badge" id="broadcaster-badge">broadcaster ✓</span>
+          <div class="stream-badge">
+            <div class="stream-dot" id="stream-dot"></div>
+            <span class="stream-label" id="stream-label">offline</span>
+          </div>
+          <button class="btn" id="btn-change" style="display:none">change</button>
+        </div>
+      </header>
+
+      <div class="mode-strip" id="mode-strip">
+        <span class="mode-label" id="mode-label"></span>
+        <details class="mode-help" id="mode-help">
+          <summary>why?</summary>
+          <div class="mode-popover">
+            Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster's own authorized channel token. Use "track my channel" to switch this tracker to yours.
+          </div>
+        </details>
+      </div>
+
+      <div class="cards">
+        <div class="card subs">
+          <div class="card-label" id="label-subs">subs gained</div>
+          <div class="card-value" id="val-subs">0</div>
+          <div class="card-sub" id="sub-subs">tracked since startup</div>
+        </div>
+        <div class="card bits">
+          <div class="card-label">bits cheered</div>
+          <div class="card-value" id="val-bits">0</div>
+          <div class="card-sub">this subathon</div>
+        </div>
+        <div class="card gifts">
+          <div class="card-label">gifted subs</div>
+          <div class="card-value" id="val-gifts">0</div>
+          <div class="card-sub">this subathon</div>
+        </div>
+      </div>
+
+      <div class="leaderboard">
+        <div class="lb-header">
+          <span class="lb-title"><strong>gifter</strong> leaderboard</span>
+          <span class="lb-title" id="lb-since"></span>
+        </div>
+        <div id="lb-body"><div class="lb-empty">no gifters yet this subathon</div></div>
+      </div>
+
+      <footer>
+        <span id="footer-tracking">tracking since server start</span>
+        <div class="footer-actions">
+          <a href="/auth/fruitberries" class="btn easter" id="btn-auth-fruit" style="display:none">ARE YOU FRUITBERRIES?</a>
+          <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">track my channel →</a>
+          <a href="/auth/logout" class="btn" id="btn-logout" style="display:none">back to fruitberries</a>
+          <button class="btn" id="btn-reset" style="display:none">reset timer</button>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script>
+    const RANK_ICON = { diamond:'◆', platinum:'●', gold:'★', silver:'○', bronze:'▲', member:'·' };
+
+    function fmt(n) { return (n ?? 0).toLocaleString(); }
+    function timeAgo(u) {
+      if (!u) return '';
+      const d = Math.floor(Date.now()/1000) - u;
+      if (d < 60)   return `${d}s ago`;
+      if (d < 3600) return `${Math.floor(d/60)}m ago`;
+      const h = Math.floor(d/3600), m = Math.floor((d%3600)/60);
+      return m ? `${h}h ${m}m ago` : `${h}h ago`;
+    }
+    function fmtDate(u) {
+      if (!u) return '';
+      return new Date(u*1000).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    }
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function toast(msg, cls='') {
+      const el = document.createElement('div');
+      el.className = 'toast ' + cls;
+      el.textContent = msg;
+      document.getElementById('toast-container').appendChild(el);
+      setTimeout(() => el.remove(), 4200);
+    }
+    function flashEl(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('flash');
+      void el.offsetWidth;
+      el.classList.add('flash');
+    }
+
+    /* Screens */
+    let searchOpen = false;
+    let searchPinnedOpen = false;
+
+    function showSearch(canClose = false) {
+      searchOpen = true;
+      searchPinnedOpen = canClose;
+      document.getElementById('search-screen').style.display  = 'flex';
+      document.getElementById('tracker-screen').style.display = 'none';
+      document.getElementById('search-close').style.display   = canClose ? 'block' : 'none';
+      document.title = 'subathon tracker';
+    }
+    function showTracker() {
+      searchOpen = false;
+      searchPinnedOpen = false;
+      document.getElementById('search-screen').style.display  = 'none';
+      document.getElementById('tracker-screen').style.display = 'block';
+    }
+
+    function renderEmptyLeaderboard() {
+      document.getElementById('lb-body').innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
+    }
+
+    /* Render */
+    function renderStats(stats) {
+      if (!stats.channel) {
+        if (!searchOpen) showSearch();
+        return;
+      }
+      if (!searchPinnedOpen) showTracker();
+
+      document.getElementById('val-subs').textContent  = fmt(stats.totalSubs);
+      document.getElementById('val-bits').textContent  = fmt(stats.totalBits);
+      document.getElementById('val-gifts').textContent = fmt(stats.giftedSubs);
+      document.getElementById('label-subs').textContent = stats.subsCardLabel || 'subs gained';
+      document.getElementById('sub-subs').textContent = stats.subsCardSub || 'tracked since startup';
+
+      document.getElementById('channel-name').textContent = stats.channelDisplay || stats.channel;
+      if (stats.channelAvatar) document.getElementById('channel-avatar').src = stats.channelAvatar;
+      document.title = `${stats.channelDisplay || stats.channel} · subathon`;
+
+      const authed = stats.hasBroadcasterAuth;
+      const anonymousMode = !!stats.anonymousMode;
+      document.getElementById('broadcaster-badge').style.display = authed ? 'inline-block' : 'none';
+      document.getElementById('btn-auth-fruit').style.display = anonymousMode ? 'inline-flex' : 'none';
+      document.getElementById('btn-auth').style.display   = authed ? 'none' : 'inline-flex';
+      document.getElementById('btn-logout').style.display = authed ? 'inline-flex' : 'none';
+      document.getElementById('btn-reset').style.display  = authed ? 'inline-flex' : 'none';
+      document.getElementById('mode-label').innerHTML = anonymousMode
+        ? `anonymous mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`
+        : `broadcaster mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`;
+      document.getElementById('mode-help').style.display = anonymousMode ? 'block' : 'none';
+
+      const t = stats.subathonStart;
+      document.getElementById('footer-tracking').textContent =
+        t ? `tracking since ${fmtDate(t)} · ${timeAgo(t)}` : 'tracking since server start';
+      document.getElementById('lb-since').textContent = t ? `since ${fmtDate(t)}` : '';
+
+      const body = document.getElementById('lb-body');
+      if (!stats.gifters?.length) {
+        body.innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
+      } else {
+        body.innerHTML = `
+          <table>
+            <thead><tr><th>#</th><th>user</th><th>tier</th><th class="right">gifts</th></tr></thead>
+            <tbody>${stats.gifters.map((g,i) => `
+              <tr>
+                <td class="rank-num ${i<3?'top3':''}">${i+1}</td>
+                <td class="gifter-name">${escHtml(g.name)}</td>
+                <td><span class="rank-badge ${g.rank}">${RANK_ICON[g.rank]||'·'} ${g.rank}</span></td>
+                <td class="right gift-count">${fmt(g.gifts)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+      }
+    }
+
+    function renderStream(d) {
+      if (!d) return;
+      const dot = document.getElementById('stream-dot');
+      const lbl = document.getElementById('stream-label');
+      if (d.live) {
+        dot.className = 'stream-dot live';
+        lbl.className = 'stream-label live';
+        lbl.textContent = d.viewers ? `${fmt(d.viewers)} viewers` : 'live';
+      } else {
+        dot.className = 'stream-dot';
+        lbl.className = 'stream-label';
+        lbl.textContent = 'offline';
+      }
+    }
+
+    document.getElementById('search-close').addEventListener('click', () => {
+      showTracker();
+    });
+
+    document.getElementById('btn-change').addEventListener('click', () => {
+      showSearch(true);
+    });
+
+    /* Reset */
+    document.getElementById('btn-reset').addEventListener('click', async () => {
+      if (!confirm('Reset the tracking timer to now?')) return;
+      await fetch('/api/start', { method: 'POST' });
+    });
+
+    /* SSE */
+    let sse, reconnectDelay = 1000;
+    function connect() {
+      sse = new EventSource('/api/events');
+      sse.onopen = () => { reconnectDelay = 1000; };
+      sse.onmessage = (e) => {
+        let msg; try { msg = JSON.parse(e.data); } catch { return; }
+        if (msg.stats)  renderStats(msg.stats);
+        if (msg.stream) renderStream(msg.stream);
+        switch (msg.type) {
+          case 'sub':         flashEl('val-subs'); toast(`✦ ${msg.userName} subscribed`); break;
+          case 'resub':       flashEl('val-subs'); toast(`↺ ${msg.userName} resubscribed`); break;
+          case 'gift':        flashEl('val-gifts'); flashEl('val-subs'); toast(`♡ ${msg.gifterName} gifted ${msg.total} sub${msg.total!==1?'s':''}`, 'gift'); break;
+          case 'bits':        flashEl('val-bits'); toast(`◈ ${fmt(msg.bits)} bits cheered`, 'bits'); break;
+          case 'stream_live': toast(`● ${msg.stats?.channelDisplay||'stream'} is live`, 'reset'); break;
+          case 'channel_set': renderStats(msg.stats); break;
+          case 'reset':       flashEl('val-subs'); flashEl('val-bits'); flashEl('val-gifts'); toast('⊙ timer reset', 'reset'); break;
+        }
+      };
+      sse.onerror = () => { sse.close(); setTimeout(connect, reconnectDelay); reconnectDelay = Math.min(reconnectDelay*2,15000); };
+    }
+
+    /* Refresh */
+    setInterval(async () => {
+      try { renderStats(await fetch('/api/stats').then(r=>r.json())); } catch {}
+    }, 30_000);
+
+    async function initApp() {
+      try {
+        const stats = await fetch('/api/stats').then(r => r.json());
+        renderStats(stats);
+        if (stats.channel) {
+          renderStream({ live: !!stats.streamLive, viewers: stats.streamViewers || 0 });
+        }
+      } catch {
+        showSearch();
+      }
+      connect();
+    }
+
+    initApp();
+  </script>
+</body>
+</html>
