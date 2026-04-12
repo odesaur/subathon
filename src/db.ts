@@ -82,12 +82,18 @@ const FRUITBERRIES_GIFTER_SEED = [
   ["chandylire", 5],
   ["maybekenzie", 2],
   ["naurtilus", 1],
-  [ANON_GIFTER_NAME, 3],
+  [ANON_GIFTER_NAME, 83],
 ] as const;
 const FRUITBERRIES_BITS_SEED = [
   ["baseline", 1928],
 ] as const;
-const FRUITBERRIES_TOTAL_SUBS_SEED = 291;
+const FRUITBERRIES_TOTAL_SUBS_SEED = 371;
+
+function normalizeGifterName(name: string) {
+  const key = name.trim().toLowerCase();
+  if (key === "anonymous" || key === ANON_GIFTER_NAME.toLowerCase()) return ANON_GIFTER_NAME;
+  return name;
+}
 
 function initCounters() {
   initCounterStmt.run("trackedSubs");
@@ -137,20 +143,21 @@ function loadState() {
 
   gifterCounts.clear();
   for (const row of getAllGiftersStmt.all() as { key: string; name: string; id: string | null; gifts: number }[]) {
-    gifterCounts.set(row.key, { name: row.name, id: row.id, gifts: row.gifts });
+    gifterCounts.set(row.key, { name: normalizeGifterName(row.name), id: row.id, gifts: row.gifts });
   }
 }
 
 function seedFruitberriesGifters() {
-  if (config.get("fruitberries_gifter_seed_v5") === "1") return;
+  if (config.get("fruitberries_gifter_seed_v6") === "1") return;
   const seedTotal = FRUITBERRIES_GIFTER_SEED.reduce((sum, [, gifts]) => sum + gifts, 0);
   const nonGiftSeed = Math.max(0, FRUITBERRIES_TOTAL_SUBS_SEED - seedTotal);
   const tx = db.transaction(() => {
     clearGiftersStmt.run();
     gifterCounts.clear();
     for (const [name, gifts] of FRUITBERRIES_GIFTER_SEED) {
-      const key = `manual:${name.toLowerCase()}`;
-      const current = { name, id: null, gifts };
+      const normalizedName = normalizeGifterName(name);
+      const key = `manual:${normalizedName.toLowerCase()}`;
+      const current = { name: normalizedName, id: null, gifts };
       gifterCounts.set(key, current);
       upsertGifterStmt.run(key, current.name, current.id, current.gifts);
     }
@@ -158,8 +165,8 @@ function seedFruitberriesGifters() {
     persistCounter("giftedSubs", giftedSubs);
     trackedSubs = nonGiftSeed;
     persistCounter("trackedSubs", trackedSubs);
-    upsertConfigStmt.run("fruitberries_gifter_seed_v5", "1");
-    config.set("fruitberries_gifter_seed_v5", "1");
+    upsertConfigStmt.run("fruitberries_gifter_seed_v6", "1");
+    config.set("fruitberries_gifter_seed_v6", "1");
   });
   tx();
 }
@@ -317,8 +324,9 @@ export function getStats(connected = false): Stats {
   const baselineSubs = parseInt(getConfig("baseline_subs") ?? "0", 10);
   const mergedGifters = new Map<string, { name: string; id: string | null; gifts: number }>();
   for (const gifter of gifterCounts.values()) {
-    const key = gifter.name.trim().toLowerCase();
-    const current = mergedGifters.get(key) ?? { name: gifter.name, id: gifter.id, gifts: 0 };
+    const normalizedName = normalizeGifterName(gifter.name);
+    const key = normalizedName.trim().toLowerCase();
+    const current = mergedGifters.get(key) ?? { name: normalizedName, id: gifter.id, gifts: 0 };
     current.gifts += gifter.gifts;
     if (!current.id && gifter.id) current.id = gifter.id;
     mergedGifters.set(key, current);
@@ -360,7 +368,7 @@ export function addSubEvent(event: {
 
   const tx = db.transaction(() => {
     const recentText = event.isGift
-      ? `${event.gifterName ?? ANON_GIFTER_NAME} gifted ${event.giftCount ?? 1}`
+      ? `${normalizeGifterName(event.gifterName ?? ANON_GIFTER_NAME)} gifted ${event.giftCount ?? 1}`
       : event.kind === "resub"
         ? `${event.userName} resubscribed`
         : `${event.userName} subscribed`;
@@ -368,9 +376,10 @@ export function addSubEvent(event: {
     if (event.isGift) {
       giftedSubs += 1;
       persistCounter("giftedSubs", giftedSubs);
-      const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? ANON_GIFTER_NAME}`;
+      const normalizedName = normalizeGifterName(event.gifterName ?? ANON_GIFTER_NAME);
+      const key = `${event.gifterId ?? "anon"}:${normalizedName}`;
       const current = gifterCounts.get(key) ?? {
-        name: event.gifterName ?? ANON_GIFTER_NAME,
+        name: normalizedName,
         id: event.gifterId ?? null,
         gifts: 0,
       };
