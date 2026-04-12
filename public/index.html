@@ -24,6 +24,9 @@
       --text:    #f8f8f2;
       --muted:   #6272a4;
       --dim:     #44475a;
+      --rp-rose: #ebbcba;
+      --rp-foam: #9ccfd8;
+      --rp-iris: #c4a7e7;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -244,14 +247,14 @@
       position: relative; overflow: hidden;
     }
     .card::before { content:''; position:absolute; top:0;left:0;right:0;height:2px; background:var(--accent,var(--purple)); opacity:.7; }
-    .card.subs { --accent: var(--green); }
-    .card.bits { --accent: var(--cyan); }
-    .card.gifts{ --accent: var(--pink); }
+    .card.subs { --accent: var(--rp-rose); }
+    .card.bits { --accent: var(--rp-foam); }
+    .card.gifts{ --accent: var(--rp-iris); }
     .card-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:.5rem; }
     .card-value { font-size:2rem; font-weight:700; line-height:1.1; letter-spacing:-.03em; }
-    .card.subs  .card-value { color: var(--green); }
-    .card.bits  .card-value { color: var(--cyan); }
-    .card.gifts .card-value { color: var(--pink); }
+    .card.subs  .card-value { color: var(--rp-rose); }
+    .card.bits  .card-value { color: var(--rp-foam); }
+    .card.gifts .card-value { color: var(--rp-iris); }
     .card-sub { display:none; }
     @keyframes flash { 0%{opacity:.3} 100%{opacity:1} }
     .flash { animation: flash .4s ease-out; }
@@ -263,6 +266,7 @@
       padding: .9rem 1.1rem 1rem;
       margin-bottom: 1.5rem;
     }
+    .goal-panel.hidden { display: none; }
     .goal-head {
       display: flex;
       align-items: baseline;
@@ -322,7 +326,7 @@
     .goal-copy {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 1rem;
       font-size: .78rem;
       color: var(--muted);
@@ -490,7 +494,7 @@
         </div>
       </div>
 
-      <div class="goal-panel">
+      <div class="goal-panel" id="goal-panel">
         <div class="goal-head">
           <div class="goal-nav">
             <button class="btn goal-nav-btn" id="goal-prev" aria-label="previous goal">←</button>
@@ -503,7 +507,6 @@
         <div class="goal-bar"><div class="goal-fill" id="goal-fill"></div></div>
         <div class="goal-copy">
           <span id="goal-status">50 more to next sub goal</span>
-          <span id="goal-range">0-50</span>
         </div>
       </div>
 
@@ -688,6 +691,9 @@
     }
 
     function renderGoal(stats) {
+      const showGoal = (stats?.channel || '').toLowerCase() === 'fruitberries';
+      document.getElementById('goal-panel').classList.toggle('hidden', !showGoal);
+      if (!showGoal) return;
       const goal = goalState((stats?.totalSubs || 0) + (stats?.giftedSubs || 0), selectedGoalIndex);
       selectedGoalIndex = goal.index;
       document.getElementById('goal-current').textContent = fmt(goal.total);
@@ -695,9 +701,8 @@
       document.getElementById('goal-name').textContent = goal.nextLabel || '—';
       document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
       document.getElementById('goal-status').innerHTML = goal.complete
-        ? `cleared${goal.index < SUBATHON_GOALS.length - 1 ? ' · keep going' : ' · all listed goals cleared'}`
+        ? 'completed'
         : `<strong>${fmt(goal.remaining)}</strong> more to unlock`;
-      document.getElementById('goal-range').textContent = `${fmt(goal.prev)}-${fmt(goal.next)}`;
       document.getElementById('goal-prev').disabled = goal.index <= 0;
       document.getElementById('goal-next-btn').disabled = goal.index >= SUBATHON_GOALS.length - 1;
     }
