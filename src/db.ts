@@ -263,8 +263,8 @@ function giftRank(gifts: number): string {
   if (gifts >= 150) return "oiler";
   if (gifts >= 100) return "netherite";
   if (gifts >= 50) return "diamond";
-  if (gifts >= 25) return "gold";
-  if (gifts >= 10) return "emerald";
+  if (gifts >= 25) return "emerald";
+  if (gifts >= 20) return "gold";
   if (gifts >= 5) return "iron";
   return "coal";
 }

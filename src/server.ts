@@ -146,8 +146,8 @@ function sessionStats(tracker: SessionTracker) {
       rank: gifter.gifts >= 150 ? "oiler"
         : gifter.gifts >= 100 ? "netherite"
         : gifter.gifts >= 50 ? "diamond"
-        : gifter.gifts >= 25 ? "gold"
-        : gifter.gifts >= 10 ? "emerald"
+        : gifter.gifts >= 25 ? "emerald"
+        : gifter.gifts >= 20 ? "gold"
         : gifter.gifts >= 5 ? "iron"
         : "coal",
     }));
