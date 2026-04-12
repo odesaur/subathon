@@ -272,7 +272,7 @@ export function giftRankBase(gifts: number): string {
 function subdividedRank(base: string, gifts: number, min: number, max: number): string {
   const step = Math.ceil((max - min + 1) / 3);
   const idx = Math.min(2, Math.floor((gifts - min) / step));
-  const suffix = ["iii", "ii", "i"][idx];
+  const suffix = ["i", "ii", "iii"][idx];
   return `${base} ${suffix}`;
 }
 
