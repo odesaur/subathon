@@ -8,18 +8,22 @@ import {
   initTwitch, switchChannel, lookupChannel,
   connected, currentChannel,
   fetchStreamStatus, fetchStreamStatusForChannel, fetchChannelSubCount,
-  getBroadcasterIdByToken,
+  getBroadcasterIdByToken, refreshUserAccessToken,
   setStatsProvider,
+  startPublicModFeed, stopPublicModFeed,
 } from "./twitch.ts";
 
 const PORT          = parseInt(process.env.PORT || "3000");
 const CLIENT_ID     = process.env.TWITCH_CLIENT_ID!;
 const CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET!;
 const REDIRECT_URI  = process.env.REDIRECT_URI || `http://localhost:${PORT}/auth/callback`;
+const FRUIT_MOD_KEY = process.env.FRUIT_MOD_KEY || "";
 const DEFAULT_CHANNEL = "fruitberries";
 const AUTH_KEYS = ["broadcaster_token", "broadcaster_id", "broadcaster_refresh", "baseline_subs"];
+const FRUIT_MOD_KEYS = ["fruit_mod_token", "fruit_mod_refresh", "fruit_mod_user_id", "fruit_mod_user_login"];
 const AUTH_MODE_SELF = "self";
 const AUTH_MODE_FRUIT = "fruitberries";
+const AUTH_MODE_FRUIT_MOD = "fruitberries_mod";
 const TRACKING_ANON = "anonymous";
 const TRACKING_LOGIN = "since_login";
 const TRACKING_RESET = "since_reset";
@@ -39,9 +43,10 @@ type SessionTracker = {
   channel: string;
   channelDisplay: string;
   channelAvatar: string;
-  authToken: string;
+  authToken: string | null;
   refreshToken: string | null;
-  broadcasterId: string;
+  broadcasterId: string | null;
+  persistent: boolean;
   connected: boolean;
   streamStatus: { live: boolean; title: string; viewers: number; startedAt: number };
   wasLive: boolean;
@@ -59,6 +64,7 @@ type SessionTracker = {
   ws: WebSocket | null;
   reconnectTimer: ReturnType<typeof setTimeout> | null;
   pollTimer: ReturnType<typeof setInterval> | null;
+  destroyTimer: ReturnType<typeof setTimeout> | null;
   socketVersion: number;
   createdAt: number;
   expiresAt: number;
@@ -115,6 +121,20 @@ function withSessionState(res: Response, req: Request, sessionId: string, viewMo
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
+function encodeAuthState(mode: string, key = "") {
+  return btoa(JSON.stringify({ mode, key }));
+}
+
+function decodeAuthState(raw: string | null) {
+  if (!raw) return { mode: AUTH_MODE_SELF, key: "" };
+  try {
+    const decoded = JSON.parse(atob(raw)) as { mode?: string; key?: string };
+    return { mode: decoded.mode || AUTH_MODE_SELF, key: decoded.key || "" };
+  } catch {
+    return { mode: raw, key: "" };
+  }
+}
+
 /* Stream */
 let wasLive = false;
 let streamStatus = { live: false, title: "", viewers: 0, startedAt: 0 };
@@ -147,18 +167,24 @@ function sessionStats(tracker: SessionTracker) {
     streamStart: tracker.streamStatus.startedAt,
     streamLive: tracker.streamStatus.live,
     streamViewers: tracker.streamStatus.viewers,
-    hasBroadcasterAuth: true,
+    hasBroadcasterAuth: !!tracker.authToken,
     channel: tracker.channel,
     channelDisplay: tracker.channelDisplay,
     channelAvatar: tracker.channelAvatar,
     defaultChannel: DEFAULT_CHANNEL,
     anonymousMode: false,
+    temporaryMode: !tracker.persistent,
+    privateTrackerPersistent: tracker.persistent,
     subsCardLabel: "subs gained",
     subsCardSub: tracker.trackingMode === TRACKING_STREAM
       ? "this stream"
       : tracker.trackingMode === TRACKING_RESET
         ? "tracked since reset"
-        : "tracked since login",
+        : !!tracker.authToken
+          ? "tracked since login"
+          : "tracked since search",
+    hasPrivateTracker: true,
+    viewingPrivateTracker: true,
   };
 }
 
@@ -205,6 +231,7 @@ function serializeSessionTracker(tracker: SessionTracker): PersistedSessionTrack
 }
 
 function persistSessionTrackerState(tracker: SessionTracker) {
+  if (!tracker.persistent) return;
   saveSessionTracker(serializeSessionTracker(tracker));
 }
 
@@ -217,6 +244,7 @@ function hydrateSessionTracker(state: PersistedSessionTracker): SessionTracker {
     authToken: state.authToken,
     refreshToken: state.refreshToken,
     broadcasterId: state.broadcasterId,
+    persistent: true,
     connected: false,
     streamStatus: state.streamStatus,
     wasLive: state.wasLive,
@@ -238,6 +266,7 @@ function hydrateSessionTracker(state: PersistedSessionTracker): SessionTracker {
     ws: null,
     reconnectTimer: null,
     pollTimer: null,
+    destroyTimer: null,
     socketVersion: 0,
     createdAt: state.createdAt,
     expiresAt: state.expiresAt,
@@ -305,6 +334,7 @@ function applySessionBits(tracker: SessionTracker, id: string, bits: number) {
 }
 
 async function seedSessionBaseline(tracker: SessionTracker) {
+  if (!tracker.authToken || !tracker.broadcasterId) return;
   const count = await fetchChannelSubCount(tracker.authToken, tracker.broadcasterId);
   if (count == null) return;
   tracker.baselineSubs = count;
@@ -438,21 +468,37 @@ function connectSessionIRC(tracker: SessionTracker) {
   };
 }
 
+function cancelSessionDestroy(tracker: SessionTracker) {
+  if (!tracker.destroyTimer) return;
+  clearTimeout(tracker.destroyTimer);
+  tracker.destroyTimer = null;
+}
+
+function scheduleSessionDestroy(tracker: SessionTracker) {
+  if (tracker.persistent || tracker.clients.size) return;
+  cancelSessionDestroy(tracker);
+  tracker.destroyTimer = setTimeout(() => {
+    if (!tracker.clients.size) destroySessionTracker(tracker.sessionId, true);
+  }, 30_000);
+}
+
 async function createSessionTracker(
   sessionId: string,
   info: { login: string; displayName: string; avatarUrl: string },
-  auth: { token: string; refreshToken?: string; broadcasterId: string }
+  auth?: { token: string; refreshToken?: string; broadcasterId: string }
 ) {
   destroySessionTracker(sessionId, true);
   const now = Math.floor(Date.now() / 1000);
+  const persistent = !!auth;
   const tracker: SessionTracker = {
     sessionId,
     channel: info.login,
     channelDisplay: info.displayName,
     channelAvatar: info.avatarUrl,
-    authToken: auth.token,
-    refreshToken: auth.refreshToken || null,
-    broadcasterId: auth.broadcasterId,
+    authToken: auth?.token || null,
+    refreshToken: auth?.refreshToken || null,
+    broadcasterId: auth?.broadcasterId || null,
+    persistent,
     connected: false,
     streamStatus: { live: false, title: "", viewers: 0, startedAt: 0 },
     wasLive: false,
@@ -470,9 +516,10 @@ async function createSessionTracker(
     ws: null,
     reconnectTimer: null,
     pollTimer: null,
+    destroyTimer: null,
     socketVersion: 0,
     createdAt: now,
-    expiresAt: uncappedSession(info.login) ? 0 : now + SESSION_TTL,
+    expiresAt: persistent ? (uncappedSession(info.login) ? 0 : now + SESSION_TTL) : 0,
   };
   sessionTrackers.set(sessionId, tracker);
   persistSessionTrackerState(tracker);
@@ -486,13 +533,14 @@ async function createSessionTracker(
 function destroySessionTracker(sessionId: string, removeSaved = true) {
   const tracker = sessionTrackers.get(sessionId);
   if (tracker) {
+    cancelSessionDestroy(tracker);
     if (tracker.reconnectTimer) clearTimeout(tracker.reconnectTimer);
     if (tracker.pollTimer) clearInterval(tracker.pollTimer);
     tracker.ws?.close();
     tracker.ws = null;
     sessionTrackers.delete(sessionId);
   }
-  if (removeSaved) deleteSavedSessionTracker(sessionId);
+  if (removeSaved && (!tracker || tracker.persistent)) deleteSavedSessionTracker(sessionId);
 }
 
 async function restoreSessionTracker(sessionId: string) {
@@ -592,7 +640,7 @@ async function sessionTrackerForRequest(req: Request) {
 async function savedTrackerForRequest(req: Request) {
   const sessionId = sessionIdFromReq(req);
   if (!sessionId) return null;
-  return restoreSessionTracker(sessionId);
+  return sessionTrackers.get(sessionId) || restoreSessionTracker(sessionId);
 }
 
 async function statsForRequest(req: Request) {
@@ -601,17 +649,20 @@ async function statsForRequest(req: Request) {
   const savedTracker = tracker ?? (viewMode === VIEW_PRIVATE ? null : await savedTrackerForRequest(req));
   const hasPrivateTracker = !!savedTracker;
   const viewingPrivateTracker = !!tracker;
+  const privateTrackerPersistent = !!savedTracker?.persistent;
   if (tracker) {
     return {
       ...sessionStats(tracker),
       hasPrivateTracker,
       viewingPrivateTracker,
+      privateTrackerPersistent,
     };
   }
   return {
     ...fullStats(),
     hasPrivateTracker,
     viewingPrivateTracker,
+    privateTrackerPersistent,
   };
 }
 
@@ -638,6 +689,7 @@ function buildStats(connectedState: boolean) {
     channelAvatar:  getConfig("channel_avatar"),
     defaultChannel: DEFAULT_CHANNEL,
     anonymousMode: !hasBroadcasterAuth && channel === DEFAULT_CHANNEL,
+    temporaryMode: false,
     subsCardLabel: "subs gained",
     subsCardSub,
   };
@@ -690,6 +742,55 @@ async function activateDefaultChannel() {
   await activateChannel(info);
 }
 
+async function enableFruitberriesModFeed(auth: {
+  token: string;
+  refreshToken?: string;
+  userId: string;
+  userLogin: string;
+}) {
+  const channel = await lookupChannel(DEFAULT_CHANNEL);
+  if (!channel?.id) throw new Error("Could not resolve fruitberries channel");
+  setConfig("fruit_mod_token", auth.token);
+  setConfig("fruit_mod_user_id", auth.userId);
+  setConfig("fruit_mod_user_login", auth.userLogin);
+  if (auth.refreshToken) setConfig("fruit_mod_refresh", auth.refreshToken);
+  await startPublicModFeed({
+    token: auth.token,
+    userId: auth.userId,
+    broadcasterId: channel.id,
+  }, broadcast);
+}
+
+async function resumeFruitberriesModFeed() {
+  const savedUserId = getConfig("fruit_mod_user_id");
+  const savedUserLogin = getConfig("fruit_mod_user_login");
+  let token = getConfig("fruit_mod_token");
+  let refresh = getConfig("fruit_mod_refresh");
+  if (!savedUserId || !savedUserLogin || !token) return;
+
+  if (refresh) {
+    const refreshed = await refreshUserAccessToken(refresh);
+    if (refreshed) {
+      token = refreshed.accessToken;
+      refresh = refreshed.refreshToken;
+      setConfig("fruit_mod_token", token);
+      setConfig("fruit_mod_refresh", refresh);
+    }
+  }
+
+  try {
+    await enableFruitberriesModFeed({
+      token,
+      refreshToken: refresh || undefined,
+      userId: savedUserId,
+      userLogin: savedUserLogin,
+    });
+    console.log(`[eventsub] public fruitberries mod feed ready via ${savedUserLogin}`);
+  } catch (err) {
+    console.error("[eventsub] public fruitberries mod feed failed:", (err as Error).message);
+  }
+}
+
 /* Server */
 Bun.serve({
   port: PORT,
@@ -722,9 +823,6 @@ Bun.serve({
       if (req.method === "GET") {
         const q = url.searchParams.get("q")?.trim().toLowerCase();
         if (!q) return Response.json({ error: "missing q" }, { status: 400 });
-        if (q !== DEFAULT_CHANNEL) {
-          return Response.json({ error: "log in as the broadcaster to track another channel" }, { status: 403 });
-        }
         const info = await lookupChannel(q);
         if (!info) return Response.json({ error: "channel not found" }, { status: 404 });
         const stream = await fetchStreamStatusForChannel(info.login);
@@ -735,13 +833,13 @@ Bun.serve({
         const body = await req.json().catch(() => ({})) as { login?: string };
         const login = body.login?.trim().toLowerCase();
         if (!login) return Response.json({ error: "missing login" }, { status: 400 });
-        if (login !== DEFAULT_CHANNEL) {
-          return Response.json({ error: "anonymous mode only tracks fruitberries" }, { status: 403 });
-        }
-        const info = await lookupChannel(DEFAULT_CHANNEL);
+        const info = await lookupChannel(login);
         if (!info) return Response.json({ error: "channel not found" }, { status: 404 });
-        await activateChannel(info);
-        return Response.json({ ok: true, ...info });
+        if (info.login.toLowerCase() === DEFAULT_CHANNEL) {
+          return withSessionState(Response.json({ ok: true, public: true, ...info }), req, sessionId, VIEW_PUBLIC);
+        }
+        await createSessionTracker(sessionId, info);
+        return withSessionState(Response.json({ ok: true, public: false, ...sessionStats(sessionTrackers.get(sessionId)!) }), req, sessionId, VIEW_PRIVATE);
       }
     }
 
@@ -777,15 +875,19 @@ Bun.serve({
       const stream = new ReadableStream<Uint8Array>({
         start(c) {
           ctrl = c;
-          if (privateTracker) privateTracker.clients.add(ctrl);
-          else sseClients.add(ctrl);
+          if (privateTracker) {
+            cancelSessionDestroy(privateTracker);
+            privateTracker.clients.add(ctrl);
+          } else sseClients.add(ctrl);
           ctrl.enqueue(new TextEncoder().encode(
             `data: ${JSON.stringify({ type: "init", stats: privateTracker ? sessionStats(privateTracker) : fullStats() })}\n\n`
           ));
         },
         cancel() {
-          if (privateTracker) privateTracker.clients.delete(ctrl);
-          else sseClients.delete(ctrl);
+          if (privateTracker) {
+            privateTracker.clients.delete(ctrl);
+            scheduleSessionDestroy(privateTracker);
+          } else sseClients.delete(ctrl);
         },
       });
       return withSessionState(new Response(stream, {
@@ -803,25 +905,36 @@ Bun.serve({
       return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PRIVATE);
     }
 
-    if (url.pathname === "/auth/twitch" || url.pathname === "/auth/fruitberries") {
+    if (url.pathname === "/auth/twitch" || url.pathname === "/auth/fruitberries" || url.pathname === "/auth/fruitberries-mod") {
       if (url.pathname === "/auth/twitch") {
         const savedTracker = await restoreSessionTracker(sessionId);
-        if (savedTracker) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PRIVATE);
+        if (savedTracker?.persistent) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PRIVATE);
       }
-      const authMode = url.pathname === "/auth/fruitberries" ? AUTH_MODE_FRUIT : AUTH_MODE_SELF;
+      if (url.pathname === "/auth/fruitberries-mod") {
+        if (!FRUIT_MOD_KEY || url.searchParams.get("key") !== FRUIT_MOD_KEY) {
+          return new Response("Not Found", { status: 404 });
+        }
+      }
+      const authMode = url.pathname === "/auth/fruitberries"
+        ? AUTH_MODE_FRUIT
+        : url.pathname === "/auth/fruitberries-mod"
+          ? AUTH_MODE_FRUIT_MOD
+          : AUTH_MODE_SELF;
+      const scope = authMode === AUTH_MODE_FRUIT_MOD ? "user:read:chat" : "channel:read:subscriptions";
       const params = new URLSearchParams({
         client_id:     CLIENT_ID,
         redirect_uri:  REDIRECT_URI,
         response_type: "code",
-        scope:         "channel:read:subscriptions",
-        state:         authMode,
+        scope,
+        state:         encodeAuthState(authMode, authMode === AUTH_MODE_FRUIT_MOD ? FRUIT_MOD_KEY : ""),
       });
       return withSessionState(Response.redirect(`https://id.twitch.tv/oauth2/authorize?${params}`), req, sessionId);
     }
 
     if (url.pathname === "/auth/callback") {
       const code = url.searchParams.get("code");
-      const authMode = url.searchParams.get("state") || AUTH_MODE_SELF;
+      const state = decodeAuthState(url.searchParams.get("state"));
+      const authMode = state.mode;
       const authError = url.searchParams.get("error");
       if (authError || !code) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PUBLIC);
 
@@ -848,6 +961,33 @@ Bun.serve({
       const authedUser = userData.data?.[0];
       if (!authedUser?.login) return new Response("Could not fetch user", { status: 500 });
       const authedLogin = authedUser.login.toLowerCase();
+
+      if (authMode === AUTH_MODE_FRUIT_MOD) {
+        if (!FRUIT_MOD_KEY || state.key !== FRUIT_MOD_KEY) {
+          return new Response("Not Found", { status: 404 });
+        }
+        try {
+          await enableFruitberriesModFeed({
+            token: td.access_token,
+            refreshToken: td.refresh_token,
+            userId: bid,
+            userLogin: authedLogin,
+          });
+          console.log(`[eventsub] public fruitberries mod feed authenticated as ${authedLogin}`);
+          return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PUBLIC);
+        } catch (err) {
+          stopPublicModFeed();
+          deleteConfigKeys(FRUIT_MOD_KEYS);
+          return new Response(
+            `<html><body style="font-family:monospace;background:#0a0a0f;color:#f8f8f2;padding:2rem">
+              <p style="color:#ff5555;margin-bottom:1rem">Fruitberries mod feed setup failed.</p>
+              <p style="color:#6272a4;margin-bottom:1rem">${String((err as Error).message || err)}</p>
+              <p><a href="/" style="color:#bd93f9">← back</a></p>
+            </body></html>`,
+            { status: 403, headers: { "Content-Type": "text/html; charset=utf-8" } }
+          );
+        }
+      }
 
       if (authMode === AUTH_MODE_FRUIT && authedLogin !== DEFAULT_CHANNEL) {
         return new Response(
@@ -916,6 +1056,7 @@ initTwitch(broadcast)
   .then(async () => {
     if (hasFruitberriesCheckpoint) await resumeSavedFruitberriesSession();
     else await activateDefaultChannel();
+    await resumeFruitberriesModFeed();
     await restoreSavedSessionTrackers();
   })
   .catch((err) => console.error("[twitch] init failed:", (err as Error).message));

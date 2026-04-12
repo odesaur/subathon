@@ -83,6 +83,9 @@
       gap: .5rem;
       flex-wrap: wrap;
     }
+    .search-row.top {
+      margin-bottom: .75rem;
+    }
     .search-input {
       flex: 1;
       background: var(--surface2);
@@ -136,6 +139,14 @@
     .result-status.offline { color: var(--dim); }
     .result-actions { margin-left: auto; }
     .search-error { margin-top: .75rem; font-size: .8rem; color: var(--red); display: none; }
+    .search-note {
+      margin-top: .85rem;
+      font-size: .76rem;
+      color: var(--orange);
+      line-height: 1.5;
+      display: none;
+    }
+    .search-note.visible { display: block; }
 
     /* Tracker */
     #tracker-screen {
@@ -241,7 +252,7 @@
     .card.subs  .card-value { color: var(--green); }
     .card.bits  .card-value { color: var(--cyan); }
     .card.gifts .card-value { color: var(--pink); }
-    .card-sub { font-size:.7rem; color:var(--muted); margin-top:.25rem; }
+    .card-sub { display:none; }
     @keyframes flash { 0%{opacity:.3} 100%{opacity:1} }
     .flash { animation: flash .4s ease-out; }
 
@@ -293,9 +304,27 @@
   <div id="search-screen">
     <div class="search-card">
       <button class="search-close" id="search-close" style="display:none" title="close">✕</button>
-      <div class="search-title">subathon tracker — broadcaster login</div>
-      <div class="setup-copy">Anonymous mode tracks <strong>fruitberries</strong> only.</div>
-      <div class="setup-copy">Use Twitch login to switch this tracker to your own channel and seed accurate sub counts.</div>
+      <div class="search-title">subathon tracker</div>
+      <div class="setup-copy">Search any Twitch streamer to open a temporary tracker in this browser.</div>
+      <div class="setup-copy">Use Twitch login to keep your own channel persistent and private.</div>
+      <div class="search-row top">
+        <input class="search-input" id="search-input" type="text" placeholder="search twitch channel" autocomplete="off" spellcheck="false" />
+        <button class="btn" id="search-btn">search</button>
+      </div>
+      <div class="search-result" id="search-result">
+        <img id="result-avatar" src="" alt="" />
+        <div>
+          <div class="result-name" id="result-name">—</div>
+          <div class="result-status" id="result-status">offline</div>
+        </div>
+        <div class="result-actions">
+          <button class="btn primary" id="result-track">track →</button>
+        </div>
+      </div>
+      <div class="search-note" id="search-note">
+        Temporary tracking does not persist for searched channels. Closing this tab will reset it unless you log in as that streamer.
+      </div>
+      <div class="search-error" id="search-error"></div>
       <div class="search-row">
         <a href="/" class="btn">track fruitberries</a>
         <a href="/auth/fruitberries" class="btn easter">ARE YOU FRUITBERRIES?</a>
@@ -429,6 +458,7 @@
     }
 
     let latestStats = null;
+    let latestSearchResult = null;
 
     function renderEmptyLeaderboard() {
       document.getElementById('lb-body').innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
@@ -464,18 +494,26 @@
       const anonymousMode = !!stats.anonymousMode;
       const hasPrivateTracker = !!stats.hasPrivateTracker;
       const viewingPrivateTracker = !!stats.viewingPrivateTracker;
+      const privateTrackerPersistent = !!stats.privateTrackerPersistent;
+      const temporaryMode = !!stats.temporaryMode;
       document.getElementById('broadcaster-badge').style.display = authed ? 'inline-block' : 'none';
       document.getElementById('btn-auth-fruit').style.display = anonymousMode && !hasPrivateTracker ? 'inline-flex' : 'none';
       document.getElementById('btn-auth').style.display = authed ? 'none' : 'inline-flex';
-      document.getElementById('btn-auth').textContent = hasPrivateTracker ? 'my tracker →' : 'track my channel →';
-      document.getElementById('btn-auth').dataset.mode = hasPrivateTracker ? 'resume' : 'login';
+      document.getElementById('btn-auth').textContent = hasPrivateTracker && privateTrackerPersistent && !viewingPrivateTracker ? 'my tracker →' : 'track my channel →';
+      document.getElementById('btn-auth').dataset.mode = hasPrivateTracker && privateTrackerPersistent && !viewingPrivateTracker ? 'resume' : 'login';
       document.getElementById('btn-view-public').style.display = viewingPrivateTracker ? 'inline-flex' : 'none';
-      document.getElementById('btn-logout').style.display = hasPrivateTracker ? 'inline-flex' : 'none';
+      document.getElementById('btn-logout').style.display = privateTrackerPersistent ? 'inline-flex' : 'none';
       document.getElementById('btn-reset').style.display  = authed ? 'inline-flex' : 'none';
-      document.getElementById('mode-label').innerHTML = anonymousMode
-        ? `anonymous mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`
-        : `broadcaster mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`;
-      document.getElementById('mode-help').style.display = anonymousMode ? 'block' : 'none';
+      document.getElementById('btn-change').style.display = authed ? 'none' : 'inline-flex';
+      document.getElementById('mode-label').innerHTML = temporaryMode
+        ? `temporary mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`
+        : anonymousMode
+          ? `anonymous mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`
+          : `broadcaster mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`;
+      document.querySelector('#mode-help .mode-popover').textContent = temporaryMode
+        ? 'Temporary tracking for searched channels is not persistent. Closing this tab will reset it unless you log in as that streamer.'
+        : 'Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster\'s own authorized channel token. Use "track my channel" to open your own private tracker.';
+      document.getElementById('mode-help').style.display = (!authed || temporaryMode) ? 'block' : 'none';
 
       renderTrackingTimes(stats);
 
@@ -521,6 +559,40 @@
       showSearch(true);
     });
 
+    function showSearchError(message = '') {
+      const el = document.getElementById('search-error');
+      el.textContent = message;
+      el.style.display = message ? 'block' : 'none';
+    }
+
+    function renderSearchResult(result) {
+      latestSearchResult = result;
+      document.getElementById('search-result').classList.add('visible');
+      document.getElementById('result-avatar').src = result.avatarUrl || '';
+      document.getElementById('result-name').textContent = result.displayName || result.login;
+      const status = document.getElementById('result-status');
+      status.textContent = result.live ? 'live' : 'offline';
+      status.className = `result-status ${result.live ? 'live' : 'offline'}`;
+      document.getElementById('search-note').classList.toggle('visible', result.login !== 'fruitberries');
+    }
+
+    async function searchChannel() {
+      const q = document.getElementById('search-input').value.trim();
+      if (!q) return;
+      showSearchError('');
+      try {
+        const res = await fetch(`/api/channel?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'channel not found');
+        renderSearchResult(data);
+      } catch (err) {
+        latestSearchResult = null;
+        document.getElementById('search-result').classList.remove('visible');
+        document.getElementById('search-note').classList.remove('visible');
+        showSearchError(err.message || 'channel not found');
+      }
+    }
+
     async function refreshStats() {
       const stats = await fetch('/api/stats').then(r => r.json());
       renderStats(stats);
@@ -545,6 +617,26 @@
 
     document.getElementById('btn-view-public').addEventListener('click', async () => {
       await fetch('/api/view/public', { method: 'POST' });
+      await refreshStats();
+      reconnectSSE();
+    });
+
+    document.getElementById('search-btn').addEventListener('click', searchChannel);
+    document.getElementById('search-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchChannel();
+    });
+    document.getElementById('result-track').addEventListener('click', async () => {
+      if (!latestSearchResult) return;
+      const res = await fetch('/api/channel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login: latestSearchResult.login }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showSearchError(data.error || 'could not start tracking');
+        return;
+      }
       await refreshStats();
       reconnectSSE();
     });
