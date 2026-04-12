@@ -1,75 +1,124 @@
-import { existsSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { Database } from "bun:sqlite";
+import { existsSync, readFileSync, rmSync } from "fs";
 import { join } from "path";
 
-const CHECKPOINT_PATH = process.env.DATA_DIR
+const DB_PATH = process.env.DATA_DIR
+  ? join(process.env.DATA_DIR, "subathon.db")
+  : join(import.meta.dir, "..", "subathon.db");
+const LEGACY_CHECKPOINT_PATH = process.env.DATA_DIR
   ? join(process.env.DATA_DIR, "fruitberries-checkpoint.json")
   : join(import.meta.dir, "..", "fruitberries-checkpoint.json");
-const CHECKPOINT_CHANNEL = "fruitberries";
-const CHECKPOINT_KEYS = [
-  "channel_login",
-  "channel_display_name",
-  "channel_avatar",
-  "subathon_start",
-  "baseline_subs",
-  "broadcaster_token",
-  "broadcaster_id",
-  "broadcaster_refresh",
-  "tracking_mode",
-];
+
+const db = new Database(DB_PATH);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS config (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS seen_sub_ids (
+    id TEXT PRIMARY KEY
+  );
+
+  CREATE TABLE IF NOT EXISTS seen_bit_ids (
+    id TEXT PRIMARY KEY
+  );
+
+  CREATE TABLE IF NOT EXISTS counters (
+    key TEXT PRIMARY KEY,
+    value INTEGER NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS gifters (
+    key TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    id TEXT,
+    gifts INTEGER NOT NULL
+  );
+`);
+
+const upsertConfigStmt = db.query("INSERT INTO config (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
+const getConfigStmt = db.query("SELECT value FROM config WHERE key = ?");
+const deleteConfigStmt = db.query("DELETE FROM config WHERE key = ?");
+const insertSeenSubStmt = db.query("INSERT OR IGNORE INTO seen_sub_ids (id) VALUES (?)");
+const insertSeenBitStmt = db.query("INSERT OR IGNORE INTO seen_bit_ids (id) VALUES (?)");
+const clearSeenSubsStmt = db.query("DELETE FROM seen_sub_ids");
+const clearSeenBitsStmt = db.query("DELETE FROM seen_bit_ids");
+const initCounterStmt = db.query("INSERT OR IGNORE INTO counters (key, value) VALUES (?, 0)");
+const setCounterStmt = db.query("INSERT INTO counters (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
+const getAllCountersStmt = db.query("SELECT key, value FROM counters");
+const clearGiftersStmt = db.query("DELETE FROM gifters");
+const getAllGiftersStmt = db.query("SELECT key, name, id, gifts FROM gifters");
+const upsertGifterStmt = db.query("INSERT INTO gifters (key, name, id, gifts) VALUES (?, ?, ?, ?) ON CONFLICT(key) DO UPDATE SET name = excluded.name, id = excluded.id, gifts = excluded.gifts");
 
 const config = new Map<string, string>();
-const seenSubIds = new Set<string>();
-const seenBitIds = new Set<string>();
 let trackedSubs = 0;
 let trackedBits = 0;
 let giftedSubs = 0;
 const gifterCounts = new Map<string, { name: string; id: string | null; gifts: number }>();
 
-function shouldPersistCheckpoint() {
-  return getConfig("channel_login") === CHECKPOINT_CHANNEL;
+function initCounters() {
+  initCounterStmt.run("trackedSubs");
+  initCounterStmt.run("trackedBits");
+  initCounterStmt.run("giftedSubs");
 }
 
-function loadCheckpoint() {
-  if (!existsSync(CHECKPOINT_PATH)) return;
+function migrateLegacyCheckpoint() {
+  if (db.query("SELECT COUNT(*) AS count FROM config").get()!.count) return;
+  if (!existsSync(LEGACY_CHECKPOINT_PATH)) return;
   try {
-    const raw = readFileSync(CHECKPOINT_PATH, "utf8");
+    const raw = readFileSync(LEGACY_CHECKPOINT_PATH, "utf8");
     const data = JSON.parse(raw) as {
       config?: Record<string, string>;
       counters?: { trackedSubs?: number; trackedBits?: number; giftedSubs?: number };
       gifters?: { key: string; name: string; id: string | null; gifts: number }[];
     };
-    for (const [key, value] of Object.entries(data.config ?? {})) {
-      config.set(key, value);
-    }
-    trackedSubs = data.counters?.trackedSubs ?? 0;
-    trackedBits = data.counters?.trackedBits ?? 0;
-    giftedSubs = data.counters?.giftedSubs ?? 0;
-    gifterCounts.clear();
-    for (const gifter of data.gifters ?? []) {
-      gifterCounts.set(gifter.key, { name: gifter.name, id: gifter.id, gifts: gifter.gifts });
-    }
+    const tx = db.transaction(() => {
+      for (const [key, value] of Object.entries(data.config ?? {})) {
+        upsertConfigStmt.run(key, value);
+      }
+      setCounterStmt.run("trackedSubs", data.counters?.trackedSubs ?? 0);
+      setCounterStmt.run("trackedBits", data.counters?.trackedBits ?? 0);
+      setCounterStmt.run("giftedSubs", data.counters?.giftedSubs ?? 0);
+      clearGiftersStmt.run();
+      for (const gifter of data.gifters ?? []) {
+        upsertGifterStmt.run(gifter.key, gifter.name, gifter.id, gifter.gifts);
+      }
+    });
+    tx();
+    rmSync(LEGACY_CHECKPOINT_PATH, { force: true });
   } catch {}
 }
 
-loadCheckpoint();
-
-export function syncFruitberriesCheckpoint(): void {
-  if (!shouldPersistCheckpoint()) {
-    try { rmSync(CHECKPOINT_PATH, { force: true }); } catch {}
-    return;
+function loadState() {
+  config.clear();
+  for (const row of db.query("SELECT key, value FROM config").all() as { key: string; value: string }[]) {
+    config.set(row.key, row.value);
   }
-  const persistedConfig = Object.fromEntries(
-    [...config.entries()].filter(([key]) => CHECKPOINT_KEYS.includes(key))
+
+  const counters = new Map(
+    (getAllCountersStmt.all() as { key: string; value: number }[]).map((row) => [row.key, row.value])
   );
-  const payload = {
-    config: persistedConfig,
-    counters: { trackedSubs, trackedBits, giftedSubs },
-    gifters: [...gifterCounts.entries()].map(([key, gifter]) => ({ key, ...gifter })),
-  };
-  try {
-    writeFileSync(CHECKPOINT_PATH, JSON.stringify(payload), "utf8");
-  } catch {}
+  trackedSubs = counters.get("trackedSubs") ?? 0;
+  trackedBits = counters.get("trackedBits") ?? 0;
+  giftedSubs = counters.get("giftedSubs") ?? 0;
+
+  gifterCounts.clear();
+  for (const row of getAllGiftersStmt.all() as { key: string; name: string; id: string | null; gifts: number }[]) {
+    gifterCounts.set(row.key, { name: row.name, id: row.id, gifts: row.gifts });
+  }
 }
+
+initCounters();
+migrateLegacyCheckpoint();
+loadState();
+
+function persistCounter(key: string, value: number) {
+  setCounterStmt.run(key, value);
+}
+
+export function syncFruitberriesCheckpoint(): void {}
 
 export function getConfig(key: string): string | null {
   return config.get(key) ?? null;
@@ -77,19 +126,30 @@ export function getConfig(key: string): string | null {
 
 export function setConfig(key: string, value: string): void {
   config.set(key, value);
+  upsertConfigStmt.run(key, value);
 }
 
 export function deleteConfigKeys(keys: string[]): void {
-  for (const key of keys) config.delete(key);
+  for (const key of keys) {
+    config.delete(key);
+    deleteConfigStmt.run(key);
+  }
 }
 
 export function clearTrackedEvents(): void {
-  seenSubIds.clear();
-  seenBitIds.clear();
   trackedSubs = 0;
   trackedBits = 0;
   giftedSubs = 0;
   gifterCounts.clear();
+  const tx = db.transaction(() => {
+    clearSeenSubsStmt.run();
+    clearSeenBitsStmt.run();
+    clearGiftersStmt.run();
+    persistCounter("trackedSubs", 0);
+    persistCounter("trackedBits", 0);
+    persistCounter("giftedSubs", 0);
+  });
+  tx();
 }
 
 export function getSubathonStart(): number {
@@ -143,11 +203,15 @@ export function addSubEvent(event: {
   gifterId?: string | null;
   gifterName?: string | null;
 }) {
-  if (seenSubIds.has(event.id)) return;
-  seenSubIds.add(event.id);
+  const inserted = insertSeenSubStmt.run(event.id);
+  if (!inserted.changes) return;
+
   trackedSubs += 1;
-  if (event.isGift) {
+  const tx = db.transaction(() => {
+    persistCounter("trackedSubs", trackedSubs);
+    if (!event.isGift) return;
     giftedSubs += 1;
+    persistCounter("giftedSubs", giftedSubs);
     const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? "Anonymous"}`;
     const current = gifterCounts.get(key) ?? {
       name: event.gifterName ?? "Anonymous",
@@ -156,8 +220,9 @@ export function addSubEvent(event: {
     };
     current.gifts += 1;
     gifterCounts.set(key, current);
-  }
-  syncFruitberriesCheckpoint();
+    upsertGifterStmt.run(key, current.name, current.id, current.gifts);
+  });
+  tx();
 }
 
 export function addBitEvent(event: {
@@ -166,8 +231,8 @@ export function addBitEvent(event: {
   userName: string | null;
   bits: number;
 }) {
-  if (seenBitIds.has(event.id)) return;
-  seenBitIds.add(event.id);
+  const inserted = insertSeenBitStmt.run(event.id);
+  if (!inserted.changes) return;
   trackedBits += event.bits;
-  syncFruitberriesCheckpoint();
+  persistCounter("trackedBits", trackedBits);
 }
