@@ -82,12 +82,12 @@ const FRUITBERRIES_GIFTER_SEED = [
   ["chandylire", 5],
   ["maybekenzie", 2],
   ["naurtilus", 1],
-  [ANON_GIFTER_NAME, 83],
+  [ANON_GIFTER_NAME, 85],
 ] as const;
 const FRUITBERRIES_BITS_SEED = [
   ["baseline", 1928],
 ] as const;
-const FRUITBERRIES_TOTAL_SUBS_SEED = 371;
+const FRUITBERRIES_TOTAL_SUBS_SEED = 373;
 
 function normalizeGifterName(name: string) {
   const key = name.trim().toLowerCase();
@@ -148,7 +148,7 @@ function loadState() {
 }
 
 function seedFruitberriesGifters() {
-  if (config.get("fruitberries_gifter_seed_v6") === "1") return;
+  if (config.get("fruitberries_gifter_seed_v7") === "1") return;
   const seedTotal = FRUITBERRIES_GIFTER_SEED.reduce((sum, [, gifts]) => sum + gifts, 0);
   const nonGiftSeed = Math.max(0, FRUITBERRIES_TOTAL_SUBS_SEED - seedTotal);
   const tx = db.transaction(() => {
@@ -165,8 +165,8 @@ function seedFruitberriesGifters() {
     persistCounter("giftedSubs", giftedSubs);
     trackedSubs = nonGiftSeed;
     persistCounter("trackedSubs", trackedSubs);
-    upsertConfigStmt.run("fruitberries_gifter_seed_v6", "1");
-    config.set("fruitberries_gifter_seed_v6", "1");
+    upsertConfigStmt.run("fruitberries_gifter_seed_v7", "1");
+    config.set("fruitberries_gifter_seed_v7", "1");
   });
   tx();
 }
