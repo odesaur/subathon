@@ -68,6 +68,29 @@ let trackedSubs = 0;
 let trackedBits = 0;
 let giftedSubs = 0;
 const gifterCounts = new Map<string, { name: string; id: string | null; gifts: number }>();
+const FRUITBERRIES_GIFTER_SEED = [
+  ["4x6xj", 50],
+  ["chlorop1ast", 37],
+  ["relaysslive", 22],
+  ["ozcanaliburak", 20],
+  ["SophiaMantequilla", 19],
+  ["kristachubs", 10],
+  ["CupcakeGaming882", 10],
+  ["kqmad0", 5],
+  ["JohnDubuc", 5],
+  ["chandylire", 5],
+] as const;
+const FRUITBERRIES_BITS_SEED = [
+  ["CommanderXander_", 1000],
+  ["valentrines", 245],
+  ["RedVaporeonYt", 195],
+  ["chlorop1ast", 100],
+  ["mdad1427", 100],
+  ["1cubealot_", 100],
+  ["Eken321", 100],
+  ["minhduc12b", 93],
+  ["naurtilus", 30],
+] as const;
 
 function initCounters() {
   initCounterStmt.run("trackedSubs");
@@ -121,9 +144,48 @@ function loadState() {
   }
 }
 
+function seedFruitberriesGifters() {
+  if (config.get("fruitberries_gifter_seed_v1") === "1") return;
+  const seedTotal = FRUITBERRIES_GIFTER_SEED.reduce((sum, [, gifts]) => sum + gifts, 0);
+  const tx = db.transaction(() => {
+    for (const [name, gifts] of FRUITBERRIES_GIFTER_SEED) {
+      const key = `manual:${name.toLowerCase()}`;
+      const current = gifterCounts.get(key) ?? { name, id: null, gifts: 0 };
+      if (current.gifts >= gifts) continue;
+      current.name = name;
+      current.gifts = gifts;
+      gifterCounts.set(key, current);
+      upsertGifterStmt.run(key, current.name, current.id, current.gifts);
+    }
+    if (giftedSubs < seedTotal) {
+      giftedSubs = seedTotal;
+      persistCounter("giftedSubs", giftedSubs);
+    }
+    upsertConfigStmt.run("fruitberries_gifter_seed_v1", "1");
+    config.set("fruitberries_gifter_seed_v1", "1");
+  });
+  tx();
+}
+
+function seedFruitberriesBits() {
+  if (config.get("fruitberries_bits_seed_v1") === "1") return;
+  const seedTotal = FRUITBERRIES_BITS_SEED.reduce((sum, [, bits]) => sum + bits, 0);
+  const tx = db.transaction(() => {
+    if (trackedBits < seedTotal) {
+      trackedBits = seedTotal;
+      persistCounter("trackedBits", trackedBits);
+    }
+    upsertConfigStmt.run("fruitberries_bits_seed_v1", "1");
+    config.set("fruitberries_bits_seed_v1", "1");
+  });
+  tx();
+}
+
 initCounters();
 migrateLegacyCheckpoint();
 loadState();
+seedFruitberriesGifters();
+seedFruitberriesBits();
 
 function persistCounter(key: string, value: number) {
   setCounterStmt.run(key, value);
@@ -213,7 +275,15 @@ function giftRank(gifts: number): string {
 
 export function getStats(connected = false): Stats {
   const baselineSubs = parseInt(getConfig("baseline_subs") ?? "0", 10);
-  const gifters = [...gifterCounts.values()]
+  const mergedGifters = new Map<string, { name: string; id: string | null; gifts: number }>();
+  for (const gifter of gifterCounts.values()) {
+    const key = gifter.name.trim().toLowerCase();
+    const current = mergedGifters.get(key) ?? { name: gifter.name, id: gifter.id, gifts: 0 };
+    current.gifts += gifter.gifts;
+    if (!current.id && gifter.id) current.id = gifter.id;
+    mergedGifters.set(key, current);
+  }
+  const gifters = [...mergedGifters.values()]
     .sort((a, b) => b.gifts - a.gifts || a.name.localeCompare(b.name))
     .slice(0, 50)
     .map((gifter) => ({ ...gifter, rank: giftRank(gifter.gifts) }));
