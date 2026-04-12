@@ -71,18 +71,16 @@ const gifterCounts = new Map<string, { name: string; id: string | null; gifts: n
 const ANON_GIFTER_NAME = "AnAnonymousGifter";
 const FRUITBERRIES_GIFTER_SEED = [
   ["4x6xj", 50],
-  ["chlorop1ast", 37],
+  ["chlorop1ast", 38],
+  ["ozcanaliburak", 30],
+  ["SophiaMantequilla", 24],
   ["relaysslive", 22],
-  ["ozcanaliburak", 20],
-  ["SophiaMantequilla", 19],
-  ["kristachubs", 10],
+  ["portsy14", 20],
+  ["kqmad0", 18],
+  ["kristachubs", 15],
   ["CupcakeGaming882", 10],
-  ["kqmad0", 5],
-  ["JohnDubuc", 5],
-  ["chandylire", 5],
-  ["maybekenzie", 2],
-  ["naurtilus", 1],
-  [ANON_GIFTER_NAME, 85],
+  ["poachedeisbar", 6],
+  [ANON_GIFTER_NAME, 38],
 ] as const;
 const FRUITBERRIES_BITS_SEED = [
   ["baseline", 1928],
@@ -148,7 +146,7 @@ function loadState() {
 }
 
 function seedFruitberriesGifters() {
-  if (config.get("fruitberries_gifter_seed_v7") === "1") return;
+  if (config.get("fruitberries_gifter_seed_v8") === "1") return;
   const seedTotal = FRUITBERRIES_GIFTER_SEED.reduce((sum, [, gifts]) => sum + gifts, 0);
   const nonGiftSeed = Math.max(0, FRUITBERRIES_TOTAL_SUBS_SEED - seedTotal);
   const tx = db.transaction(() => {
@@ -165,8 +163,8 @@ function seedFruitberriesGifters() {
     persistCounter("giftedSubs", giftedSubs);
     trackedSubs = nonGiftSeed;
     persistCounter("trackedSubs", trackedSubs);
-    upsertConfigStmt.run("fruitberries_gifter_seed_v7", "1");
-    config.set("fruitberries_gifter_seed_v7", "1");
+    upsertConfigStmt.run("fruitberries_gifter_seed_v8", "1");
+    config.set("fruitberries_gifter_seed_v8", "1");
   });
   tx();
 }
