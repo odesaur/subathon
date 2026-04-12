@@ -229,7 +229,7 @@ export interface Stats {
   totalSubs: number;
   totalBits: number;
   giftedSubs: number;
-  gifters: { name: string; id: string | null; gifts: number; rank: string }[];
+  gifters: { name: string; id: string | null; gifts: number; rank: string; rankBase: string }[];
   subathonStart: number;
   baselineSubs: number;
   connected: boolean;
@@ -259,7 +259,7 @@ export interface PersistedSessionTracker {
   expiresAt: number;
 }
 
-function giftRank(gifts: number): string {
+export function giftRankBase(gifts: number): string {
   if (gifts >= 150) return "oiler";
   if (gifts >= 100) return "netherite";
   if (gifts >= 50) return "diamond";
@@ -267,6 +267,23 @@ function giftRank(gifts: number): string {
   if (gifts >= 20) return "gold";
   if (gifts >= 5) return "iron";
   return "coal";
+}
+
+function subdividedRank(base: string, gifts: number, min: number, max: number): string {
+  const step = Math.ceil((max - min + 1) / 3);
+  const idx = Math.min(2, Math.floor((gifts - min) / step));
+  const suffix = ["iii", "ii", "i"][idx];
+  return `${base} ${suffix}`;
+}
+
+export function giftRankLabel(gifts: number): string {
+  const base = giftRankBase(gifts);
+  if (base === "oiler" || base === "netherite") return base;
+  if (base === "diamond") return subdividedRank(base, gifts, 50, 99);
+  if (base === "emerald") return subdividedRank(base, gifts, 25, 49);
+  if (base === "gold") return subdividedRank(base, gifts, 20, 24);
+  if (base === "iron") return subdividedRank(base, gifts, 5, 19);
+  return subdividedRank(base, gifts, 0, 4);
 }
 
 export function getStats(connected = false): Stats {
@@ -282,7 +299,11 @@ export function getStats(connected = false): Stats {
   const gifters = [...mergedGifters.values()]
     .sort((a, b) => b.gifts - a.gifts || a.name.localeCompare(b.name))
     .slice(0, 50)
-    .map((gifter) => ({ ...gifter, rank: giftRank(gifter.gifts) }));
+    .map((gifter) => ({
+      ...gifter,
+      rankBase: giftRankBase(gifter.gifts),
+      rank: giftRankLabel(gifter.gifts),
+    }));
 
   return {
     totalSubs: trackedSubs,

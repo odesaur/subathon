@@ -449,7 +449,7 @@
   </div>
 
   <script>
-    const RANK_ICON = { oiler:'✹', netherite:'⬢', diamond:'◆', gold:'★', emerald:'✦', iron:'○', coal:'·' };
+    const RANK_ICON = { oiler:'✹', netherite:'⬢', diamond:'◆', emerald:'✦', gold:'★', iron:'○', coal:'·' };
 
     function fmt(n) { return (n ?? 0).toLocaleString(); }
     function timeAgo(u) {
@@ -606,7 +606,7 @@
               <tr>
                 <td class="rank-num ${i<3?'top3':''}">${i+1}</td>
                 <td class="gifter-name">${escHtml(g.name)}</td>
-                <td><span class="rank-badge ${g.rank}">${RANK_ICON[g.rank]||'·'} ${g.rank}</span></td>
+                <td><span class="rank-badge ${g.rankBase || g.rank}">${RANK_ICON[g.rankBase || g.rank]||'·'} ${g.rank}</span></td>
                 <td class="right gift-count">${fmt(g.gifts)}</td>
               </tr>`).join('')}
             </tbody>

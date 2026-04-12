@@ -2,6 +2,7 @@ import {
   getStats, getConfig, setConfig, deleteConfigKeys, clearTrackedEvents, syncFruitberriesCheckpoint,
   saveSessionTracker, loadSessionTracker, listSessionTrackers,
   deleteSessionTracker as deleteSavedSessionTracker, deleteExpiredSessionTrackers,
+  giftRankBase, giftRankLabel,
   type PersistedSessionTracker,
 } from "./db.ts";
 import {
@@ -143,13 +144,8 @@ function sessionStats(tracker: SessionTracker) {
     .slice(0, 50)
     .map((gifter) => ({
       ...gifter,
-      rank: gifter.gifts >= 150 ? "oiler"
-        : gifter.gifts >= 100 ? "netherite"
-        : gifter.gifts >= 50 ? "diamond"
-        : gifter.gifts >= 25 ? "emerald"
-        : gifter.gifts >= 20 ? "gold"
-        : gifter.gifts >= 5 ? "iron"
-        : "coal",
+      rankBase: giftRankBase(gifter.gifts),
+      rank: giftRankLabel(gifter.gifts),
     }));
 
   return {
