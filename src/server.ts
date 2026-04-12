@@ -19,7 +19,6 @@ const REDIRECT_URI  = process.env.REDIRECT_URI || `http://localhost:${PORT}/auth
 const DEFAULT_CHANNEL = "fruitberries";
 const AUTH_KEYS = ["broadcaster_token", "broadcaster_id", "broadcaster_refresh", "baseline_subs"];
 const AUTH_MODE_SELF = "self";
-const AUTH_MODE_FRUIT = "fruitberries";
 const TRACKING_ANON = "anonymous";
 const TRACKING_LOGIN = "since_login";
 const TRACKING_RESET = "since_reset";
@@ -852,19 +851,16 @@ Bun.serve({
       return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PRIVATE);
     }
 
-    if (url.pathname === "/auth/twitch" || url.pathname === "/auth/fruitberries") {
-      if (url.pathname === "/auth/twitch") {
-        const savedTracker = await restoreSessionTracker(sessionId);
-        if (savedTracker?.persistent) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PRIVATE);
-      }
-      const authMode = url.pathname === "/auth/fruitberries" ? AUTH_MODE_FRUIT : AUTH_MODE_SELF;
+    if (url.pathname === "/auth/twitch") {
+      const savedTracker = await restoreSessionTracker(sessionId);
+      if (savedTracker?.persistent) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PRIVATE);
       const params = new URLSearchParams({
         client_id:     CLIENT_ID,
         redirect_uri:  REDIRECT_URI,
         response_type: "code",
         scope:         "channel:read:subscriptions",
         force_verify:  "true",
-        state:         encodeAuthState(authMode),
+        state:         encodeAuthState(AUTH_MODE_SELF),
       });
       return withSessionState(Response.redirect(`https://id.twitch.tv/oauth2/authorize?${params}`), req, sessionId);
     }
@@ -900,21 +896,10 @@ Bun.serve({
       if (!authedUser?.login) return new Response("Could not fetch user", { status: 500 });
       const authedLogin = authedUser.login.toLowerCase();
 
-      if (authMode === AUTH_MODE_FRUIT && authedLogin !== DEFAULT_CHANNEL) {
-        return new Response(
-          `<html><body style="font-family:monospace;background:#0a0a0f;color:#f8f8f2;padding:2rem">
-            <p style="color:#ffb86c;margin-bottom:1rem">Only fruitberries can see the real fruitberries content.</p>
-            <p style="color:#6272a4;margin-bottom:1rem">You logged in as <strong style="color:#f8f8f2">${authedLogin}</strong>.</p>
-            <p><a href="/" style="color:#bd93f9">← back</a></p>
-          </body></html>`,
-          { status: 403, headers: { "Content-Type": "text/html; charset=utf-8" } }
-        );
-      }
-
       await createSessionTracker(
         sessionId,
         {
-          login: authMode === AUTH_MODE_FRUIT ? DEFAULT_CHANNEL : authedLogin,
+          login: authedLogin,
           displayName: authedUser.display_name,
           avatarUrl: authedUser.profile_image_url,
         },

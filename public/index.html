@@ -424,7 +424,6 @@
       <footer>
         <span id="footer-tracking">tracking since server start</span>
         <div class="footer-actions">
-          <a href="/auth/fruitberries" class="btn easter" id="btn-auth-fruit" style="display:none">ARE YOU FRUITBERRIES?</a>
           <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">track my channel →</a>
           <button class="btn" id="btn-view-public" style="display:none">back to fruitberries</button>
           <button class="btn" id="btn-logout" style="display:none">log out</button>
@@ -575,7 +574,6 @@
       const privateTrackerPersistent = !!stats.privateTrackerPersistent;
       const temporaryMode = !!stats.temporaryMode;
       document.getElementById('broadcaster-badge').style.display = authed ? 'inline-block' : 'none';
-      document.getElementById('btn-auth-fruit').style.display = anonymousMode && !hasPrivateTracker ? 'inline-flex' : 'none';
       document.getElementById('btn-auth').style.display = authed ? 'none' : 'inline-flex';
       document.getElementById('btn-auth').textContent = hasPrivateTracker && privateTrackerPersistent && !viewingPrivateTracker ? 'my tracker →' : 'track my channel →';
       document.getElementById('btn-auth').dataset.mode = hasPrivateTracker && privateTrackerPersistent && !viewingPrivateTracker ? 'resume' : 'login';
