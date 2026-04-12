@@ -306,7 +306,6 @@
       <button class="search-close" id="search-close" style="display:none" title="close">✕</button>
       <div class="search-title">subathon tracker</div>
       <div class="setup-copy">Search any Twitch streamer to open a temporary tracker in this browser.</div>
-      <div class="setup-copy">Use Twitch login to keep your own channel persistent and private.</div>
       <div class="search-row top">
         <input class="search-input" id="search-input" type="text" placeholder="search twitch channel" autocomplete="off" spellcheck="false" />
         <button class="btn" id="search-btn">search</button>
@@ -325,11 +324,6 @@
         Temporary tracking does not persist for searched channels. Closing this tab will reset it unless you log in as that streamer.
       </div>
       <div class="search-error" id="search-error"></div>
-      <div class="search-row">
-        <a href="/" class="btn">track fruitberries</a>
-        <a href="/auth/fruitberries" class="btn easter">ARE YOU FRUITBERRIES?</a>
-        <a href="/auth/twitch" class="btn primary">track my channel →</a>
-      </div>
     </div>
   </div>
 
@@ -441,6 +435,7 @@
     /* Screens */
     let searchOpen = false;
     let searchPinnedOpen = false;
+    const initialUrl = new URL(window.location.href);
 
     function showSearch(canClose = false) {
       searchOpen = true;
@@ -469,6 +464,20 @@
       document.getElementById('footer-tracking').textContent =
         t ? `tracking since ${fmtDate(t)} · ${timeAgo(t)}` : 'tracking since server start';
       document.getElementById('lb-since').textContent = t ? `since ${fmtDate(t)}` : '';
+    }
+
+    function setViewUrl(stats) {
+      const url = new URL(window.location.href);
+      if (stats?.temporaryMode && stats?.channel) {
+        url.pathname = '/search';
+        url.searchParams.set('channel', stats.channel);
+      } else {
+        url.pathname = '/';
+        url.searchParams.delete('channel');
+      }
+      const next = `${url.pathname}${url.search}${url.hash}`;
+      const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      if (next !== current) history.replaceState(null, '', next);
     }
 
     /* Render */
@@ -516,6 +525,7 @@
       document.getElementById('mode-help').style.display = (!authed || temporaryMode) ? 'block' : 'none';
 
       renderTrackingTimes(stats);
+      setViewUrl(stats);
 
       const body = document.getElementById('lb-body');
       if (!stats.gifters?.length) {
@@ -637,6 +647,7 @@
         showSearchError(data.error || 'could not start tracking');
         return;
       }
+      showTracker();
       await refreshStats();
       reconnectSSE();
     });
@@ -681,6 +692,17 @@
     async function initApp() {
       try {
         await refreshStats();
+        const requestedChannel = initialUrl.searchParams.get('channel')?.trim().toLowerCase();
+        if (requestedChannel && (!latestStats?.channel || latestStats.channel !== requestedChannel || !latestStats.temporaryMode)) {
+          const res = await fetch('/api/channel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ login: requestedChannel }),
+          });
+          if (res.ok) {
+            await refreshStats();
+          }
+        }
       } catch {
         showSearch();
       }

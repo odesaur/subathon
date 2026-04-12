@@ -748,7 +748,7 @@ Bun.serve({
     const sessionId = ensureSessionId(req);
     const privateTracker = await sessionTrackerForRequest(req);
 
-    if (url.pathname === "/" || url.pathname === "/index.html") {
+    if (url.pathname === "/" || url.pathname === "/index.html" || url.pathname === "/search") {
       return withSessionState(new Response(
         Bun.file(new URL("../public/index.html", import.meta.url).pathname),
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
