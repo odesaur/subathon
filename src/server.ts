@@ -29,6 +29,7 @@ const VIEW_PUBLIC = "public";
 const SESSION_TTL = 48 * 60 * 60;
 const SESSION_COOKIE = "subathon_session";
 const VIEW_COOKIE = "subathon_view";
+const ANON_GIFTER_NAME = "AnAnonymousGifter";
 
 /* SSE */
 type SSECtrl = ReadableStreamDefaultController<Uint8Array>;
@@ -301,22 +302,23 @@ function applySessionSub(tracker: SessionTracker, event: {
   tier: string;
   isGift: boolean;
   kind?: "sub" | "resub" | "gift";
+  giftCount?: number;
   gifterId?: string | null;
   gifterName?: string | null;
 }) {
   if (tracker.seenSubIds.has(event.id)) return false;
   tracker.seenSubIds.add(event.id);
   tracker.recentSub = event.isGift
-    ? { text: `${event.gifterName ?? "Anonymous"} gifted ${event.userName}`, at: Math.floor(Date.now() / 1000) }
+    ? { text: `${event.gifterName ?? ANON_GIFTER_NAME} gifted ${event.giftCount ?? 1}`, at: Math.floor(Date.now() / 1000) }
     : {
         text: event.kind === "resub" ? `${event.userName} resubscribed` : `${event.userName} subscribed`,
         at: Math.floor(Date.now() / 1000),
       };
   if (event.isGift) {
     tracker.giftedSubs += 1;
-    const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? "Anonymous"}`;
+    const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? ANON_GIFTER_NAME}`;
     const current = tracker.gifters.get(key) ?? {
-      name: event.gifterName ?? "Anonymous",
+      name: event.gifterName ?? ANON_GIFTER_NAME,
       id: event.gifterId ?? null,
       gifts: 0,
     };
@@ -430,12 +432,13 @@ function connectSessionIRC(tracker: SessionTracker) {
               tier,
               isGift: true,
               kind: "gift",
+              giftCount: 1,
               gifterId: isAnon ? null : userId,
               gifterName: isAnon ? null : name,
             })) break;
             sessionBroadcast(tracker, {
               type: isBatch ? "stats_update" : "gift",
-              gifterName: isAnon ? "Anonymous" : name,
+              gifterName: isAnon ? ANON_GIFTER_NAME : name,
               total: 1,
               stats: sessionStats(tracker),
             });
@@ -443,9 +446,14 @@ function connectSessionIRC(tracker: SessionTracker) {
           }
           if (msgId === "submysterygift" || msgId === "anonsubmysterygift") {
             const count = parseInt(tags["msg-param-mass-gift-count"] || "1", 10);
+            tracker.recentSub = {
+              text: `${msgId === "anonsubmysterygift" ? ANON_GIFTER_NAME : name} gifted ${count}`,
+              at: Math.floor(Date.now() / 1000),
+            };
+            persistSessionTrackerState(tracker);
             sessionBroadcast(tracker, {
               type: "gift",
-              gifterName: msgId === "anonsubmysterygift" ? "Anonymous" : name,
+              gifterName: msgId === "anonsubmysterygift" ? ANON_GIFTER_NAME : name,
               total: count,
               stats: sessionStats(tracker),
             });

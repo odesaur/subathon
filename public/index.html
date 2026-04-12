@@ -287,6 +287,13 @@
       font-size: .9rem;
       line-height: 1;
     }
+    .goal-jump-btn {
+      padding: 0 .7rem;
+      height: 28px;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
     .goal-title {
       font-size: .72rem;
       text-transform: uppercase;
@@ -535,6 +542,7 @@
           <div class="goal-nav">
             <button class="btn goal-nav-btn" id="goal-prev" aria-label="previous goal">←</button>
             <div class="goal-title">subathon goal</div>
+            <button class="btn goal-jump-btn" id="goal-present">present</button>
             <button class="btn goal-nav-btn" id="goal-next-btn" aria-label="next goal">→</button>
           </div>
           <div class="goal-target"><strong id="goal-current">0</strong> / <span id="goal-next">50</span></div>
@@ -944,6 +952,10 @@
     document.getElementById('search-btn').addEventListener('click', searchChannel);
     document.getElementById('goal-prev').addEventListener('click', () => {
       selectedGoalIndex = Math.max(0, (selectedGoalIndex ?? autoGoalIndex((latestStats?.totalSubs || 0) + (latestStats?.giftedSubs || 0))) - 1);
+      renderGoal(latestStats || {});
+    });
+    document.getElementById('goal-present').addEventListener('click', () => {
+      selectedGoalIndex = autoGoalIndex((latestStats?.totalSubs || 0) + (latestStats?.giftedSubs || 0));
       renderGoal(latestStats || {});
     });
     document.getElementById('goal-next-btn').addEventListener('click', () => {

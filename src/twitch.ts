@@ -1,4 +1,4 @@
-import { addSubEvent, addBitEvent, getStats } from "./db.ts";
+import { addSubEvent, addBitEvent, getStats, recordRecentSub } from "./db.ts";
 
 const IRC_WS        = "wss://irc-ws.chat.twitch.tv:443";
 const CLIENT_ID     = process.env.TWITCH_CLIENT_ID!;
@@ -15,6 +15,7 @@ let socketVersion = 0;
 let appToken: string | null = null;
 let savedBroadcast: BroadcastFn | null = null;
 let statsProvider: ((connected: boolean) => unknown) | null = null;
+const ANON_GIFTER_NAME = "AnAnonymousGifter";
 
 function currentStatsSnapshot(isConnected: boolean) {
   return statsProvider ? statsProvider(isConnected) : getStats(isConnected);
@@ -156,7 +157,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
       addSubEvent({
         id: `gift_${tags["id"] || Date.now()}`,
         userId: recipientId, userName: recipient, tier, isGift: true,
-        kind: "gift",
+        kind: "gift", giftCount: 1,
         gifterId: userId, gifterName: name,
       });
 
@@ -170,6 +171,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
 
     case "submysterygift": {
       const count = parseInt(tags["msg-param-mass-gift-count"] || "1");
+      recordRecentSub(`${name} gifted ${count}`);
       broadcast({ type: "gift", gifterName: name, total: count, stats: currentStatsSnapshot(connected) });
       break;
     }
@@ -181,11 +183,11 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
       addSubEvent({
         id: `gift_anon_${tags["id"] || Date.now()}`,
         userId: recipientId, userName: recipient, tier, isGift: true,
-        kind: "gift",
+        kind: "gift", giftCount: 1,
         gifterId: null, gifterName: null,
       });
       if (!isBatch) {
-        broadcast({ type: "gift", gifterName: "Anonymous", total: 1, stats: currentStatsSnapshot(connected) });
+        broadcast({ type: "gift", gifterName: ANON_GIFTER_NAME, total: 1, stats: currentStatsSnapshot(connected) });
       } else {
         broadcast({ type: "stats_update", stats: currentStatsSnapshot(connected) });
       }
@@ -194,7 +196,8 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
 
     case "anonsubmysterygift": {
       const count = parseInt(tags["msg-param-mass-gift-count"] || "1");
-      broadcast({ type: "gift", gifterName: "Anonymous", total: count, stats: currentStatsSnapshot(connected) });
+      recordRecentSub(`${ANON_GIFTER_NAME} gifted ${count}`);
+      broadcast({ type: "gift", gifterName: ANON_GIFTER_NAME, total: count, stats: currentStatsSnapshot(connected) });
       break;
     }
   }

@@ -68,6 +68,7 @@ let trackedSubs = 0;
 let trackedBits = 0;
 let giftedSubs = 0;
 const gifterCounts = new Map<string, { name: string; id: string | null; gifts: number }>();
+const ANON_GIFTER_NAME = "AnAnonymousGifter";
 const FRUITBERRIES_GIFTER_SEED = [
   ["4x6xj", 50],
   ["chlorop1ast", 37],
@@ -81,7 +82,7 @@ const FRUITBERRIES_GIFTER_SEED = [
   ["chandylire", 5],
   ["maybekenzie", 2],
   ["naurtilus", 1],
-  ["Anonymous", 3],
+  [ANON_GIFTER_NAME, 3],
 ] as const;
 const FRUITBERRIES_BITS_SEED = [
   ["baseline", 1928],
@@ -141,7 +142,7 @@ function loadState() {
 }
 
 function seedFruitberriesGifters() {
-  if (config.get("fruitberries_gifter_seed_v4") === "1") return;
+  if (config.get("fruitberries_gifter_seed_v5") === "1") return;
   const seedTotal = FRUITBERRIES_GIFTER_SEED.reduce((sum, [, gifts]) => sum + gifts, 0);
   const nonGiftSeed = Math.max(0, FRUITBERRIES_TOTAL_SUBS_SEED - seedTotal);
   const tx = db.transaction(() => {
@@ -157,8 +158,8 @@ function seedFruitberriesGifters() {
     persistCounter("giftedSubs", giftedSubs);
     trackedSubs = nonGiftSeed;
     persistCounter("trackedSubs", trackedSubs);
-    upsertConfigStmt.run("fruitberries_gifter_seed_v4", "1");
-    config.set("fruitberries_gifter_seed_v4", "1");
+    upsertConfigStmt.run("fruitberries_gifter_seed_v5", "1");
+    config.set("fruitberries_gifter_seed_v5", "1");
   });
   tx();
 }
@@ -280,6 +281,10 @@ function setRecentSub(text: string, at = Math.floor(Date.now() / 1000)) {
   upsertConfigStmt.run("recent_sub", value);
 }
 
+export function recordRecentSub(text: string, at = Math.floor(Date.now() / 1000)) {
+  setRecentSub(text, at);
+}
+
 export function giftRankBase(gifts: number): string {
   if (gifts >= 100) return "oiler";
   if (gifts >= 75) return "netherite";
@@ -346,6 +351,7 @@ export function addSubEvent(event: {
   tier: string;
   isGift: boolean;
   kind?: "sub" | "resub" | "gift";
+  giftCount?: number;
   gifterId?: string | null;
   gifterName?: string | null;
 }) {
@@ -354,7 +360,7 @@ export function addSubEvent(event: {
 
   const tx = db.transaction(() => {
     const recentText = event.isGift
-      ? `${event.gifterName ?? "Anonymous"} gifted ${event.userName}`
+      ? `${event.gifterName ?? ANON_GIFTER_NAME} gifted ${event.giftCount ?? 1}`
       : event.kind === "resub"
         ? `${event.userName} resubscribed`
         : `${event.userName} subscribed`;
@@ -362,9 +368,9 @@ export function addSubEvent(event: {
     if (event.isGift) {
       giftedSubs += 1;
       persistCounter("giftedSubs", giftedSubs);
-      const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? "Anonymous"}`;
+      const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? ANON_GIFTER_NAME}`;
       const current = gifterCounts.get(key) ?? {
-        name: event.gifterName ?? "Anonymous",
+        name: event.gifterName ?? ANON_GIFTER_NAME,
         id: event.gifterId ?? null,
         gifts: 0,
       };
