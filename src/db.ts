@@ -26,7 +26,7 @@ let giftedSubs = 0;
 const gifterCounts = new Map<string, { name: string; id: string | null; gifts: number }>();
 
 function shouldPersistCheckpoint() {
-  return getConfig("channel_login") === CHECKPOINT_CHANNEL && !!getConfig("broadcaster_token");
+  return getConfig("channel_login") === CHECKPOINT_CHANNEL;
 }
 
 function loadCheckpoint() {

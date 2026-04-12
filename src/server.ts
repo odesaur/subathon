@@ -323,7 +323,7 @@ Bun.serve({
 console.log(`\n  subathon tracker  →  http://localhost:${PORT}\n`);
 
 const hasFruitberriesCheckpoint =
-  getConfig("channel_login") === DEFAULT_CHANNEL && !!getConfig("broadcaster_token");
+  getConfig("channel_login") === DEFAULT_CHANNEL && !!getConfig("subathon_start");
 
 if (!getConfig("channel_login")) {
   setConfig("channel_login", DEFAULT_CHANNEL);
