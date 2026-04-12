@@ -270,6 +270,19 @@
       gap: 1rem;
       margin-bottom: .65rem;
     }
+    .goal-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .goal-nav-btn {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      justify-content: center;
+      font-size: .9rem;
+      line-height: 1;
+    }
     .goal-title {
       font-size: .72rem;
       text-transform: uppercase;
@@ -283,6 +296,13 @@
     .goal-target strong {
       color: var(--green);
       font-weight: 700;
+    }
+    .goal-name {
+      color: var(--text);
+      font-size: .9rem;
+      font-weight: 600;
+      margin-bottom: .65rem;
+      line-height: 1.45;
     }
     .goal-bar {
       height: 10px;
@@ -472,9 +492,14 @@
 
       <div class="goal-panel">
         <div class="goal-head">
-          <div class="goal-title">subathon goal</div>
+          <div class="goal-nav">
+            <button class="btn goal-nav-btn" id="goal-prev" aria-label="previous goal">←</button>
+            <div class="goal-title">subathon goal</div>
+            <button class="btn goal-nav-btn" id="goal-next-btn" aria-label="next goal">→</button>
+          </div>
           <div class="goal-target"><strong id="goal-current">0</strong> / <span id="goal-next">50</span></div>
         </div>
+        <div class="goal-name" id="goal-name">—</div>
         <div class="goal-bar"><div class="goal-fill" id="goal-fill"></div></div>
         <div class="goal-copy">
           <span id="goal-status">50 more to next sub goal</span>
@@ -609,6 +634,7 @@
     let latestStats = null;
     let latestSearchResult = null;
     let confirmResolver = null;
+    let selectedGoalIndex = null;
 
     function renderEmptyLeaderboard() {
       document.getElementById('lb-body').innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
@@ -621,48 +647,59 @@
       document.getElementById('lb-since').textContent = t ? `since ${fmtDate(t)}` : '';
     }
 
-    function goalState(total) {
+    function autoGoalIndex(total) {
       const safeTotal = Math.max(0, total || 0);
-      const nextGoal = SUBATHON_GOALS.find((goal) => safeTotal < goal.subs) || null;
-      const previousGoals = SUBATHON_GOALS.filter((goal) => goal.subs <= safeTotal);
-      const prevGoal = previousGoals[previousGoals.length - 1] || { subs: 0, label: 'subathon start' };
-      if (!nextGoal) {
+      const nextIndex = SUBATHON_GOALS.findIndex((goal) => safeTotal < goal.subs);
+      return nextIndex === -1 ? SUBATHON_GOALS.length - 1 : nextIndex;
+    }
+
+    function goalState(total, index = null) {
+      const safeTotal = Math.max(0, total || 0);
+      const resolvedIndex = index == null ? autoGoalIndex(safeTotal) : Math.max(0, Math.min(index, SUBATHON_GOALS.length - 1));
+      const goal = SUBATHON_GOALS[resolvedIndex];
+      const prevGoal = resolvedIndex > 0 ? SUBATHON_GOALS[resolvedIndex - 1] : { subs: 0, label: 'subathon start' };
+      const complete = safeTotal >= goal.subs;
+      if (!goal) {
         return {
           total: safeTotal,
-          next: prevGoal.subs,
-          prev: prevGoal.subs,
+          next: 0,
+          prev: 0,
           progress: 1,
           remaining: 0,
-          nextLabel: prevGoal.label,
-          currentLabel: prevGoal.label,
+          nextLabel: '',
+          currentLabel: '',
+          index: 0,
           complete: true,
         };
       }
-      const span = Math.max(1, nextGoal.subs - prevGoal.subs);
-      const progress = Math.max(0, Math.min(1, (safeTotal - prevGoal.subs) / span));
+      const span = Math.max(1, goal.subs - prevGoal.subs);
+      const progress = complete ? 1 : Math.max(0, Math.min(1, (safeTotal - prevGoal.subs) / span));
       return {
         total: safeTotal,
-        next: nextGoal.subs,
+        next: goal.subs,
         prev: prevGoal.subs,
         progress,
-        remaining: Math.max(0, nextGoal.subs - safeTotal),
-        nextLabel: nextGoal.label,
+        remaining: Math.max(0, goal.subs - safeTotal),
+        nextLabel: goal.label,
         currentLabel: prevGoal.label,
-        complete: false,
+        index: resolvedIndex,
+        complete,
       };
     }
 
     function renderGoal(stats) {
-      const goal = goalState((stats?.totalSubs || 0) + (stats?.giftedSubs || 0));
+      const goal = goalState((stats?.totalSubs || 0) + (stats?.giftedSubs || 0), selectedGoalIndex);
+      selectedGoalIndex = goal.index;
       document.getElementById('goal-current').textContent = fmt(goal.total);
       document.getElementById('goal-next').textContent = fmt(goal.next);
+      document.getElementById('goal-name').textContent = goal.nextLabel || '—';
       document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
       document.getElementById('goal-status').innerHTML = goal.complete
-        ? `all listed goals cleared · <strong>${goal.currentLabel}</strong>`
-        : `<strong>${fmt(goal.remaining)}</strong> more to <strong>${goal.nextLabel}</strong>`;
-      document.getElementById('goal-range').textContent = goal.complete
-        ? `final goal · ${fmt(goal.next)}`
-        : `${fmt(goal.prev)}-${fmt(goal.next)}`;
+        ? `cleared${goal.index < SUBATHON_GOALS.length - 1 ? ' · keep going' : ' · all listed goals cleared'}`
+        : `<strong>${fmt(goal.remaining)}</strong> more to unlock`;
+      document.getElementById('goal-range').textContent = `${fmt(goal.prev)}-${fmt(goal.next)}`;
+      document.getElementById('goal-prev').disabled = goal.index <= 0;
+      document.getElementById('goal-next-btn').disabled = goal.index >= SUBATHON_GOALS.length - 1;
     }
 
     function askConfirm(title, copy, ok = 'continue') {
@@ -849,6 +886,14 @@
     });
 
     document.getElementById('search-btn').addEventListener('click', searchChannel);
+    document.getElementById('goal-prev').addEventListener('click', () => {
+      selectedGoalIndex = Math.max(0, (selectedGoalIndex ?? autoGoalIndex((latestStats?.totalSubs || 0) + (latestStats?.giftedSubs || 0))) - 1);
+      renderGoal(latestStats || {});
+    });
+    document.getElementById('goal-next-btn').addEventListener('click', () => {
+      selectedGoalIndex = Math.min(SUBATHON_GOALS.length - 1, (selectedGoalIndex ?? autoGoalIndex((latestStats?.totalSubs || 0) + (latestStats?.giftedSubs || 0))) + 1);
+      renderGoal(latestStats || {});
+    });
     document.getElementById('search-input').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') searchChannel();
     });
