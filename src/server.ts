@@ -54,6 +54,7 @@ type SessionTracker = {
   trackedBits: number;
   giftedSubs: number;
   gifters: Map<string, { name: string; id: string | null; gifts: number }>;
+  recentSub: { text: string; at: number } | null;
   seenSubIds: Set<string>;
   seenBitIds: Set<string>;
   clients: Set<SSECtrl>;
@@ -153,6 +154,7 @@ function sessionStats(tracker: SessionTracker) {
     totalBits: tracker.trackedBits,
     giftedSubs: tracker.giftedSubs,
     gifters,
+    recentSub: tracker.recentSub,
     subathonStart: tracker.subathonStart,
     baselineSubs: tracker.baselineSubs,
     connected: tracker.connected,
@@ -215,6 +217,7 @@ function serializeSessionTracker(tracker: SessionTracker): PersistedSessionTrack
     trackedBits: tracker.trackedBits,
     giftedSubs: tracker.giftedSubs,
     gifters: [...tracker.gifters.entries()].map(([key, value]) => ({ key, ...value })),
+    recentSub: tracker.recentSub,
     seenSubIds: [...tracker.seenSubIds],
     seenBitIds: [...tracker.seenBitIds],
     createdAt: tracker.createdAt,
@@ -252,6 +255,7 @@ function hydrateSessionTracker(state: PersistedSessionTracker): SessionTracker {
       id: gifter.id,
       gifts: gifter.gifts,
     }])),
+    recentSub: state.recentSub,
     seenSubIds: new Set(state.seenSubIds),
     seenBitIds: new Set(state.seenBitIds),
     clients: new Set(),
@@ -296,11 +300,18 @@ function applySessionSub(tracker: SessionTracker, event: {
   userName: string;
   tier: string;
   isGift: boolean;
+  kind?: "sub" | "resub" | "gift";
   gifterId?: string | null;
   gifterName?: string | null;
 }) {
   if (tracker.seenSubIds.has(event.id)) return false;
   tracker.seenSubIds.add(event.id);
+  tracker.recentSub = event.isGift
+    ? { text: `${event.gifterName ?? "Anonymous"} gifted ${event.userName}`, at: Math.floor(Date.now() / 1000) }
+    : {
+        text: event.kind === "resub" ? `${event.userName} resubscribed` : `${event.userName} subscribed`,
+        at: Math.floor(Date.now() / 1000),
+      };
   if (event.isGift) {
     tracker.giftedSubs += 1;
     const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? "Anonymous"}`;
@@ -402,7 +413,7 @@ function connectSessionIRC(tracker: SessionTracker) {
           if (msgId === "sub" || msgId === "resub") {
             if (!applySessionSub(tracker, {
               id: `${msgId}_${tags["id"] || Date.now()}`,
-              userId, userName: name, tier, isGift: false,
+              userId, userName: name, tier, isGift: false, kind: msgId === "resub" ? "resub" : "sub",
             })) break;
             sessionBroadcast(tracker, { type: msgId, userName: name, stats: sessionStats(tracker) });
             break;
@@ -418,6 +429,7 @@ function connectSessionIRC(tracker: SessionTracker) {
               userName: recipient,
               tier,
               isGift: true,
+              kind: "gift",
               gifterId: isAnon ? null : userId,
               gifterName: isAnon ? null : name,
             })) break;
@@ -503,6 +515,7 @@ async function createSessionTracker(
     trackedBits: 0,
     giftedSubs: 0,
     gifters: new Map(),
+    recentSub: null,
     seenSubIds: new Set(),
     seenBitIds: new Set(),
     clients: new Set(),
@@ -793,6 +806,7 @@ Bun.serve({
         privateTracker.trackedBits = 0;
         privateTracker.giftedSubs = 0;
         privateTracker.gifters.clear();
+        privateTracker.recentSub = null;
         privateTracker.seenSubIds.clear();
         privateTracker.seenBitIds.clear();
         privateTracker.subathonStart = Math.floor(Date.now() / 1000);

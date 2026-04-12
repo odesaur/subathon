@@ -133,7 +133,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
     case "sub": {
       addSubEvent({
         id: `sub_${tags["id"] || Date.now()}`,
-        userId, userName: name, tier, isGift: false,
+        userId, userName: name, tier, isGift: false, kind: "sub",
       });
       broadcast({ type: "sub", userName: name, stats: currentStatsSnapshot(connected) });
       break;
@@ -142,7 +142,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
     case "resub": {
       addSubEvent({
         id: `resub_${tags["id"] || Date.now()}`,
-        userId, userName: name, tier, isGift: false,
+        userId, userName: name, tier, isGift: false, kind: "resub",
       });
       broadcast({ type: "resub", userName: name, stats: currentStatsSnapshot(connected) });
       break;
@@ -156,6 +156,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
       addSubEvent({
         id: `gift_${tags["id"] || Date.now()}`,
         userId: recipientId, userName: recipient, tier, isGift: true,
+        kind: "gift",
         gifterId: userId, gifterName: name,
       });
 
@@ -180,6 +181,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
       addSubEvent({
         id: `gift_anon_${tags["id"] || Date.now()}`,
         userId: recipientId, userName: recipient, tier, isGift: true,
+        kind: "gift",
         gifterId: null, gifterName: null,
       });
       if (!isBatch) {

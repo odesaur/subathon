@@ -208,10 +208,12 @@ export function clearTrackedEvents(): void {
   trackedBits = 0;
   giftedSubs = 0;
   gifterCounts.clear();
+  config.delete("recent_sub");
   const tx = db.transaction(() => {
     clearSeenSubsStmt.run();
     clearSeenBitsStmt.run();
     clearGiftersStmt.run();
+    deleteConfigStmt.run("recent_sub");
     persistCounter("trackedSubs", 0);
     persistCounter("trackedBits", 0);
     persistCounter("giftedSubs", 0);
@@ -229,6 +231,7 @@ export interface Stats {
   totalBits: number;
   giftedSubs: number;
   gifters: { name: string; id: string | null; gifts: number; rank: string; rankBase: string }[];
+  recentSub: { text: string; at: number } | null;
   subathonStart: number;
   baselineSubs: number;
   connected: boolean;
@@ -252,10 +255,29 @@ export interface PersistedSessionTracker {
   trackedBits: number;
   giftedSubs: number;
   gifters: { key: string; name: string; id: string | null; gifts: number }[];
+  recentSub: { text: string; at: number } | null;
   seenSubIds: string[];
   seenBitIds: string[];
   createdAt: number;
   expiresAt: number;
+}
+
+function getRecentSub() {
+  const raw = config.get("recent_sub");
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as { text?: string; at?: number };
+    if (!parsed.text || !parsed.at) return null;
+    return { text: parsed.text, at: parsed.at };
+  } catch {
+    return null;
+  }
+}
+
+function setRecentSub(text: string, at = Math.floor(Date.now() / 1000)) {
+  const value = JSON.stringify({ text, at });
+  config.set("recent_sub", value);
+  upsertConfigStmt.run("recent_sub", value);
 }
 
 export function giftRankBase(gifts: number): string {
@@ -310,6 +332,7 @@ export function getStats(connected = false): Stats {
     totalBits: trackedBits,
     giftedSubs,
     gifters,
+    recentSub: getRecentSub(),
     subathonStart: getSubathonStart(),
     baselineSubs,
     connected,
@@ -322,6 +345,7 @@ export function addSubEvent(event: {
   userName: string;
   tier: string;
   isGift: boolean;
+  kind?: "sub" | "resub" | "gift";
   gifterId?: string | null;
   gifterName?: string | null;
 }) {
@@ -329,6 +353,12 @@ export function addSubEvent(event: {
   if (!inserted.changes) return;
 
   const tx = db.transaction(() => {
+    const recentText = event.isGift
+      ? `${event.gifterName ?? "Anonymous"} gifted ${event.userName}`
+      : event.kind === "resub"
+        ? `${event.userName} resubscribed`
+        : `${event.userName} subscribed`;
+    setRecentSub(recentText);
     if (event.isGift) {
       giftedSubs += 1;
       persistCounter("giftedSubs", giftedSubs);

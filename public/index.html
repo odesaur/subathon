@@ -336,6 +336,42 @@
       font-weight: 600;
     }
 
+    .recent-sub {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      padding: .8rem 1rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .recent-sub-label {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: .2rem;
+    }
+    .recent-sub-text {
+      color: var(--text);
+      font-size: .88rem;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+    .recent-sub-time {
+      color: var(--muted);
+      font-size: .76rem;
+      white-space: nowrap;
+    }
+    @media(max-width:600px){
+      .recent-sub {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
     /* Leaderboard */
     .leaderboard { border:1px solid var(--border); background:var(--surface); border-radius:6px; overflow:hidden; }
     .lb-header { display:flex; align-items:center; justify-content:space-between; padding:.75rem 1.25rem; border-bottom:1px solid var(--border); background:var(--surface2); }
@@ -508,6 +544,14 @@
         <div class="goal-copy">
           <span id="goal-status">50 more to next sub goal</span>
         </div>
+      </div>
+
+      <div class="recent-sub" id="recent-sub">
+        <div>
+          <div class="recent-sub-label">most recent sub</div>
+          <div class="recent-sub-text" id="recent-sub-text">no recent sub yet</div>
+        </div>
+        <div class="recent-sub-time" id="recent-sub-time"></div>
       </div>
 
       <div class="leaderboard">
@@ -707,6 +751,12 @@
       document.getElementById('goal-next-btn').disabled = goal.index >= SUBATHON_GOALS.length - 1;
     }
 
+    function renderRecentSub(stats) {
+      const recent = stats?.recentSub;
+      document.getElementById('recent-sub-text').textContent = recent?.text || 'no recent sub yet';
+      document.getElementById('recent-sub-time').textContent = recent?.at ? timeAgo(recent.at) : '';
+    }
+
     function askConfirm(title, copy, ok = 'continue') {
       document.getElementById('confirm-title').textContent = title;
       document.getElementById('confirm-copy').textContent = copy;
@@ -784,6 +834,7 @@
 
       renderTrackingTimes(stats);
       renderGoal(stats);
+      renderRecentSub(stats);
       setViewUrl(stats);
 
       const body = document.getElementById('lb-body');
