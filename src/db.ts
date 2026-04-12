@@ -260,11 +260,11 @@ export interface PersistedSessionTracker {
 }
 
 export function giftRankBase(gifts: number): string {
-  if (gifts >= 150) return "oiler";
-  if (gifts >= 100) return "netherite";
+  if (gifts >= 100) return "oiler";
+  if (gifts >= 75) return "netherite";
   if (gifts >= 50) return "diamond";
-  if (gifts >= 25) return "emerald";
-  if (gifts >= 20) return "gold";
+  if (gifts >= 30) return "emerald";
+  if (gifts >= 15) return "gold";
   if (gifts >= 5) return "iron";
   return "coal";
 }
@@ -278,12 +278,13 @@ function subdividedRank(base: string, gifts: number, min: number, max: number): 
 
 export function giftRankLabel(gifts: number): string {
   const base = giftRankBase(gifts);
-  if (base === "oiler" || base === "netherite") return base;
-  if (base === "diamond") return subdividedRank(base, gifts, 50, 99);
-  if (base === "emerald") return subdividedRank(base, gifts, 25, 49);
-  if (base === "gold") return subdividedRank(base, gifts, 20, 24);
-  if (base === "iron") return subdividedRank(base, gifts, 5, 19);
-  return subdividedRank(base, gifts, 0, 4);
+  if (base === "oiler") return base;
+  if (base === "netherite") return subdividedRank(base, gifts, 75, 99);
+  if (base === "diamond") return subdividedRank(base, gifts, 50, 74);
+  if (base === "emerald") return subdividedRank(base, gifts, 30, 49);
+  if (base === "gold") return subdividedRank(base, gifts, 15, 29);
+  if (base === "iron") return subdividedRank(base, gifts, 5, 14);
+  return subdividedRank(base, gifts, 1, 4);
 }
 
 export function getStats(connected = false): Stats {
