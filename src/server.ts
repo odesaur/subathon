@@ -257,7 +257,8 @@ Bun.serve({
     if (url.pathname === "/auth/callback") {
       const code = url.searchParams.get("code");
       const authMode = url.searchParams.get("state") || AUTH_MODE_SELF;
-      if (!code) return new Response("Missing code", { status: 400 });
+      const authError = url.searchParams.get("error");
+      if (authError || !code) return Response.redirect("/");
 
       const tokenRes = await fetch("https://id.twitch.tv/oauth2/token", {
         method: "POST",
