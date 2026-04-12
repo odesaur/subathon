@@ -274,12 +274,13 @@
     .rank-num.top3 { color:var(--text); font-weight:700; }
     .gifter-name { font-weight:500; }
     .rank-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.7rem; padding:2px 7px; border-radius:3px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; }
+    .rank-badge.oiler    { color:var(--yellow); background:color-mix(in srgb,var(--yellow) 14%,transparent); border:1px solid color-mix(in srgb,var(--yellow) 35%,transparent); }
+    .rank-badge.netherite{ color:var(--purple); background:color-mix(in srgb,var(--purple) 12%,transparent); border:1px solid color-mix(in srgb,var(--purple) 30%,transparent); }
     .rank-badge.diamond  { color:var(--cyan);   background:color-mix(in srgb,var(--cyan)   12%,transparent); border:1px solid color-mix(in srgb,var(--cyan)   30%,transparent); }
-    .rank-badge.platinum { color:var(--purple); background:color-mix(in srgb,var(--purple) 12%,transparent); border:1px solid color-mix(in srgb,var(--purple) 30%,transparent); }
     .rank-badge.gold     { color:var(--orange); background:color-mix(in srgb,var(--orange) 12%,transparent); border:1px solid color-mix(in srgb,var(--orange) 30%,transparent); }
-    .rank-badge.silver   { color:#aab4cc;       background:color-mix(in srgb,#aab4cc       12%,transparent); border:1px solid color-mix(in srgb,#aab4cc       30%,transparent); }
-    .rank-badge.bronze   { color:#c87941;       background:color-mix(in srgb,#c87941       12%,transparent); border:1px solid color-mix(in srgb,#c87941       30%,transparent); }
-    .rank-badge.member   { color:var(--green);  background:color-mix(in srgb,var(--green)  10%,transparent); border:1px solid color-mix(in srgb,var(--green)  25%,transparent); }
+    .rank-badge.emerald  { color:var(--green);  background:color-mix(in srgb,var(--green)  10%,transparent); border:1px solid color-mix(in srgb,var(--green)  25%,transparent); }
+    .rank-badge.iron     { color:#aab4cc;       background:color-mix(in srgb,#aab4cc       12%,transparent); border:1px solid color-mix(in srgb,#aab4cc       30%,transparent); }
+    .rank-badge.coal     { color:#8a8f9f;       background:color-mix(in srgb,#8a8f9f       12%,transparent); border:1px solid color-mix(in srgb,#8a8f9f       30%,transparent); }
     .gift-count { color:var(--pink); font-weight:700; }
 
     footer {
@@ -448,7 +449,7 @@
   </div>
 
   <script>
-    const RANK_ICON = { diamond:'◆', platinum:'●', gold:'★', silver:'○', bronze:'▲', member:'·' };
+    const RANK_ICON = { oiler:'✹', netherite:'⬢', diamond:'◆', gold:'★', emerald:'✦', iron:'○', coal:'·' };
 
     function fmt(n) { return (n ?? 0).toLocaleString(); }
     function timeAgo(u) {

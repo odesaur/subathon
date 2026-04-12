@@ -145,38 +145,33 @@ function loadState() {
 }
 
 function seedFruitberriesGifters() {
-  if (config.get("fruitberries_gifter_seed_v1") === "1") return;
+  if (config.get("fruitberries_gifter_seed_v2") === "1") return;
   const seedTotal = FRUITBERRIES_GIFTER_SEED.reduce((sum, [, gifts]) => sum + gifts, 0);
   const tx = db.transaction(() => {
+    clearGiftersStmt.run();
+    gifterCounts.clear();
     for (const [name, gifts] of FRUITBERRIES_GIFTER_SEED) {
       const key = `manual:${name.toLowerCase()}`;
-      const current = gifterCounts.get(key) ?? { name, id: null, gifts: 0 };
-      if (current.gifts >= gifts) continue;
-      current.name = name;
-      current.gifts = gifts;
+      const current = { name, id: null, gifts };
       gifterCounts.set(key, current);
       upsertGifterStmt.run(key, current.name, current.id, current.gifts);
     }
-    if (giftedSubs < seedTotal) {
-      giftedSubs = seedTotal;
-      persistCounter("giftedSubs", giftedSubs);
-    }
-    upsertConfigStmt.run("fruitberries_gifter_seed_v1", "1");
-    config.set("fruitberries_gifter_seed_v1", "1");
+    giftedSubs = seedTotal;
+    persistCounter("giftedSubs", giftedSubs);
+    upsertConfigStmt.run("fruitberries_gifter_seed_v2", "1");
+    config.set("fruitberries_gifter_seed_v2", "1");
   });
   tx();
 }
 
 function seedFruitberriesBits() {
-  if (config.get("fruitberries_bits_seed_v1") === "1") return;
+  if (config.get("fruitberries_bits_seed_v2") === "1") return;
   const seedTotal = FRUITBERRIES_BITS_SEED.reduce((sum, [, bits]) => sum + bits, 0);
   const tx = db.transaction(() => {
-    if (trackedBits < seedTotal) {
-      trackedBits = seedTotal;
-      persistCounter("trackedBits", trackedBits);
-    }
-    upsertConfigStmt.run("fruitberries_bits_seed_v1", "1");
-    config.set("fruitberries_bits_seed_v1", "1");
+    trackedBits = seedTotal;
+    persistCounter("trackedBits", trackedBits);
+    upsertConfigStmt.run("fruitberries_bits_seed_v2", "1");
+    config.set("fruitberries_bits_seed_v2", "1");
   });
   tx();
 }
@@ -265,12 +260,13 @@ export interface PersistedSessionTracker {
 }
 
 function giftRank(gifts: number): string {
-  if (gifts >= 100) return "diamond";
-  if (gifts >= 50) return "platinum";
+  if (gifts >= 150) return "oiler";
+  if (gifts >= 100) return "netherite";
+  if (gifts >= 50) return "diamond";
   if (gifts >= 25) return "gold";
-  if (gifts >= 10) return "silver";
-  if (gifts >= 5) return "bronze";
-  return "member";
+  if (gifts >= 10) return "emerald";
+  if (gifts >= 5) return "iron";
+  return "coal";
 }
 
 export function getStats(connected = false): Stats {
