@@ -8,22 +8,18 @@ import {
   initTwitch, switchChannel, lookupChannel,
   connected, currentChannel,
   fetchStreamStatus, fetchStreamStatusForChannel, fetchChannelSubCount,
-  getBroadcasterIdByToken, refreshUserAccessToken,
+  getBroadcasterIdByToken,
   setStatsProvider,
-  startPublicModFeed, stopPublicModFeed,
 } from "./twitch.ts";
 
 const PORT          = parseInt(process.env.PORT || "3000");
 const CLIENT_ID     = process.env.TWITCH_CLIENT_ID!;
 const CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET!;
 const REDIRECT_URI  = process.env.REDIRECT_URI || `http://localhost:${PORT}/auth/callback`;
-const FRUIT_MOD_KEY = process.env.FRUIT_MOD_KEY || "";
 const DEFAULT_CHANNEL = "fruitberries";
 const AUTH_KEYS = ["broadcaster_token", "broadcaster_id", "broadcaster_refresh", "baseline_subs"];
-const FRUIT_MOD_KEYS = ["fruit_mod_token", "fruit_mod_refresh", "fruit_mod_user_id", "fruit_mod_user_login"];
 const AUTH_MODE_SELF = "self";
 const AUTH_MODE_FRUIT = "fruitberries";
-const AUTH_MODE_FRUIT_MOD = "fruitberries_mod";
 const TRACKING_ANON = "anonymous";
 const TRACKING_LOGIN = "since_login";
 const TRACKING_RESET = "since_reset";
@@ -121,17 +117,17 @@ function withSessionState(res: Response, req: Request, sessionId: string, viewMo
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
-function encodeAuthState(mode: string, key = "") {
-  return btoa(JSON.stringify({ mode, key }));
+function encodeAuthState(mode: string) {
+  return btoa(JSON.stringify({ mode }));
 }
 
 function decodeAuthState(raw: string | null) {
-  if (!raw) return { mode: AUTH_MODE_SELF, key: "" };
+  if (!raw) return { mode: AUTH_MODE_SELF };
   try {
-    const decoded = JSON.parse(atob(raw)) as { mode?: string; key?: string };
-    return { mode: decoded.mode || AUTH_MODE_SELF, key: decoded.key || "" };
+    const decoded = JSON.parse(atob(raw)) as { mode?: string };
+    return { mode: decoded.mode || AUTH_MODE_SELF };
   } catch {
-    return { mode: raw, key: "" };
+    return { mode: raw };
   }
 }
 
@@ -742,55 +738,6 @@ async function activateDefaultChannel() {
   await activateChannel(info);
 }
 
-async function enableFruitberriesModFeed(auth: {
-  token: string;
-  refreshToken?: string;
-  userId: string;
-  userLogin: string;
-}) {
-  const channel = await lookupChannel(DEFAULT_CHANNEL);
-  if (!channel?.id) throw new Error("Could not resolve fruitberries channel");
-  setConfig("fruit_mod_token", auth.token);
-  setConfig("fruit_mod_user_id", auth.userId);
-  setConfig("fruit_mod_user_login", auth.userLogin);
-  if (auth.refreshToken) setConfig("fruit_mod_refresh", auth.refreshToken);
-  await startPublicModFeed({
-    token: auth.token,
-    userId: auth.userId,
-    broadcasterId: channel.id,
-  }, broadcast);
-}
-
-async function resumeFruitberriesModFeed() {
-  const savedUserId = getConfig("fruit_mod_user_id");
-  const savedUserLogin = getConfig("fruit_mod_user_login");
-  let token = getConfig("fruit_mod_token");
-  let refresh = getConfig("fruit_mod_refresh");
-  if (!savedUserId || !savedUserLogin || !token) return;
-
-  if (refresh) {
-    const refreshed = await refreshUserAccessToken(refresh);
-    if (refreshed) {
-      token = refreshed.accessToken;
-      refresh = refreshed.refreshToken;
-      setConfig("fruit_mod_token", token);
-      setConfig("fruit_mod_refresh", refresh);
-    }
-  }
-
-  try {
-    await enableFruitberriesModFeed({
-      token,
-      refreshToken: refresh || undefined,
-      userId: savedUserId,
-      userLogin: savedUserLogin,
-    });
-    console.log(`[eventsub] public fruitberries mod feed ready via ${savedUserLogin}`);
-  } catch (err) {
-    console.error("[eventsub] public fruitberries mod feed failed:", (err as Error).message);
-  }
-}
-
 /* Server */
 Bun.serve({
   port: PORT,
@@ -905,28 +852,18 @@ Bun.serve({
       return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PRIVATE);
     }
 
-    if (url.pathname === "/auth/twitch" || url.pathname === "/auth/fruitberries" || url.pathname === "/auth/fruitberries-mod") {
+    if (url.pathname === "/auth/twitch" || url.pathname === "/auth/fruitberries") {
       if (url.pathname === "/auth/twitch") {
         const savedTracker = await restoreSessionTracker(sessionId);
         if (savedTracker?.persistent) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PRIVATE);
       }
-      if (url.pathname === "/auth/fruitberries-mod") {
-        if (!FRUIT_MOD_KEY || url.searchParams.get("key") !== FRUIT_MOD_KEY) {
-          return new Response("Not Found", { status: 404 });
-        }
-      }
-      const authMode = url.pathname === "/auth/fruitberries"
-        ? AUTH_MODE_FRUIT
-        : url.pathname === "/auth/fruitberries-mod"
-          ? AUTH_MODE_FRUIT_MOD
-          : AUTH_MODE_SELF;
-      const scope = authMode === AUTH_MODE_FRUIT_MOD ? "user:read:chat" : "channel:read:subscriptions";
+      const authMode = url.pathname === "/auth/fruitberries" ? AUTH_MODE_FRUIT : AUTH_MODE_SELF;
       const params = new URLSearchParams({
         client_id:     CLIENT_ID,
         redirect_uri:  REDIRECT_URI,
         response_type: "code",
-        scope,
-        state:         encodeAuthState(authMode, authMode === AUTH_MODE_FRUIT_MOD ? FRUIT_MOD_KEY : ""),
+        scope:         "channel:read:subscriptions",
+        state:         encodeAuthState(authMode),
       });
       return withSessionState(Response.redirect(`https://id.twitch.tv/oauth2/authorize?${params}`), req, sessionId);
     }
@@ -962,33 +899,6 @@ Bun.serve({
       if (!authedUser?.login) return new Response("Could not fetch user", { status: 500 });
       const authedLogin = authedUser.login.toLowerCase();
 
-      if (authMode === AUTH_MODE_FRUIT_MOD) {
-        if (!FRUIT_MOD_KEY || state.key !== FRUIT_MOD_KEY) {
-          return new Response("Not Found", { status: 404 });
-        }
-        try {
-          await enableFruitberriesModFeed({
-            token: td.access_token,
-            refreshToken: td.refresh_token,
-            userId: bid,
-            userLogin: authedLogin,
-          });
-          console.log(`[eventsub] public fruitberries mod feed authenticated as ${authedLogin}`);
-          return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PUBLIC);
-        } catch (err) {
-          stopPublicModFeed();
-          deleteConfigKeys(FRUIT_MOD_KEYS);
-          return new Response(
-            `<html><body style="font-family:monospace;background:#0a0a0f;color:#f8f8f2;padding:2rem">
-              <p style="color:#ff5555;margin-bottom:1rem">Fruitberries mod feed setup failed.</p>
-              <p style="color:#6272a4;margin-bottom:1rem">${String((err as Error).message || err)}</p>
-              <p><a href="/" style="color:#bd93f9">← back</a></p>
-            </body></html>`,
-            { status: 403, headers: { "Content-Type": "text/html; charset=utf-8" } }
-          );
-        }
-      }
-
       if (authMode === AUTH_MODE_FRUIT && authedLogin !== DEFAULT_CHANNEL) {
         return new Response(
           `<html><body style="font-family:monospace;background:#0a0a0f;color:#f8f8f2;padding:2rem">
@@ -1020,7 +930,7 @@ Bun.serve({
 
     if (url.pathname === "/auth/logout") {
       destroySessionTracker(sessionId, true);
-      return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PUBLIC);
+      return withSessionState(Response.redirect("/"), req, crypto.randomUUID(), VIEW_PUBLIC);
     }
 
     return new Response("Not Found", { status: 404 });
@@ -1056,7 +966,6 @@ initTwitch(broadcast)
   .then(async () => {
     if (hasFruitberriesCheckpoint) await resumeSavedFruitberriesSession();
     else await activateDefaultChannel();
-    await resumeFruitberriesModFeed();
     await restoreSavedSessionTrackers();
   })
   .catch((err) => console.error("[twitch] init failed:", (err as Error).message));

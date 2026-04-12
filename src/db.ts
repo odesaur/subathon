@@ -272,33 +272,6 @@ export function addBitEvent(event: {
   persistCounter("trackedBits", trackedBits);
 }
 
-export function addGiftBatchEvent(event: {
-  id: string;
-  total: number;
-  gifterId?: string | null;
-  gifterName?: string | null;
-}) {
-  const inserted = insertSeenSubStmt.run(event.id);
-  if (!inserted.changes) return;
-  const total = Math.max(1, Math.floor(event.total || 1));
-  trackedSubs += total;
-  giftedSubs += total;
-  const tx = db.transaction(() => {
-    persistCounter("trackedSubs", trackedSubs);
-    persistCounter("giftedSubs", giftedSubs);
-    const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? "Anonymous"}`;
-    const current = gifterCounts.get(key) ?? {
-      name: event.gifterName ?? "Anonymous",
-      id: event.gifterId ?? null,
-      gifts: 0,
-    };
-    current.gifts += total;
-    gifterCounts.set(key, current);
-    upsertGifterStmt.run(key, current.name, current.id, current.gifts);
-  });
-  tx();
-}
-
 export function saveSessionTracker(state: PersistedSessionTracker): void {
   upsertSessionTrackerStmt.run(state.sessionId, state.expiresAt, JSON.stringify(state));
 }
