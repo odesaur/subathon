@@ -256,6 +256,62 @@
     @keyframes flash { 0%{opacity:.3} 100%{opacity:1} }
     .flash { animation: flash .4s ease-out; }
 
+    .goal-panel {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      padding: .9rem 1.1rem 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .goal-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: .65rem;
+    }
+    .goal-title {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+    }
+    .goal-target {
+      font-size: .8rem;
+      color: var(--text);
+    }
+    .goal-target strong {
+      color: var(--green);
+      font-weight: 700;
+    }
+    .goal-bar {
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      overflow: hidden;
+      margin-bottom: .65rem;
+    }
+    .goal-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--green) 78%, #ffffff 22%), var(--green));
+      transition: width .2s ease-out;
+      box-shadow: 0 0 14px color-mix(in srgb, var(--green) 24%, transparent);
+    }
+    .goal-copy {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    .goal-copy strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
     /* Leaderboard */
     .leaderboard { border:1px solid var(--border); background:var(--surface); border-radius:6px; overflow:hidden; }
     .lb-header { display:flex; align-items:center; justify-content:space-between; padding:.75rem 1.25rem; border-bottom:1px solid var(--border); background:var(--surface2); }
@@ -414,6 +470,18 @@
         </div>
       </div>
 
+      <div class="goal-panel">
+        <div class="goal-head">
+          <div class="goal-title">subathon goal</div>
+          <div class="goal-target"><strong id="goal-current">0</strong> / <span id="goal-next">50</span></div>
+        </div>
+        <div class="goal-bar"><div class="goal-fill" id="goal-fill"></div></div>
+        <div class="goal-copy">
+          <span id="goal-status">50 more to next sub goal</span>
+          <span id="goal-range">0-50</span>
+        </div>
+      </div>
+
       <div class="leaderboard">
         <div class="lb-header">
           <span class="lb-title"><strong>gifter</strong> leaderboard</span>
@@ -450,6 +518,42 @@
 
   <script>
     const RANK_ICON = { oiler:'✹', netherite:'⬢', diamond:'◆', emerald:'✦', gold:'★', iron:'○', coal:'·' };
+    const SUBATHON_GOALS = [
+      { subs: 1, label: 'Game night with HBG' },
+      { subs: 25, label: 'Chat picks pizza toppings' },
+      { subs: 50, label: 'Fruitberries Q&A with Chat' },
+      { subs: 75, label: 'MC Event game tierlist' },
+      { subs: 100, label: 'Mine a chunk with Chat' },
+      { subs: 125, label: 'Play a Stray UHC' },
+      { subs: 150, label: 'Minecraft Lockout 1v1 vs Feinberg' },
+      { subs: 175, label: 'Attempt 5 SkyBattle wins in a row' },
+      { subs: 200, label: 'Geoguessr Ranked' },
+      { subs: 225, label: 'One mouse one keyboard MC with girlfriend' },
+      { subs: 250, label: 'Chat picks 2 Amazon items' },
+      { subs: 275, label: 'Parkour Civilization homework' },
+      { subs: 300, label: 'League with Yupplez' },
+      { subs: 325, label: 'Party games with Chat' },
+      { subs: 350, label: 'FNAF in the dark' },
+      { subs: 375, label: '1 Master Mode Hardcore Terraria attempt' },
+      { subs: 400, label: 'Win a Hypixel UHC' },
+      { subs: 425, label: 'Make a Hollowcube map' },
+      { subs: 450, label: 'Hoplite with hackingnoises' },
+      { subs: 475, label: 'Minecraft Bedrock speedrun no reset' },
+      { subs: 500, label: 'Win Bedwars solos, duos, trios, quads' },
+      { subs: 600, label: 'Chunklock Mod speedrun 1v1 w/ Boosfer' },
+      { subs: 700, label: 'Cooking stream' },
+      { subs: 800, label: 'Play 10 Hypixel UHCs' },
+      { subs: 900, label: 'Geoguessr moving 25k attempts' },
+      { subs: 1000, label: 'Go bald' },
+      { subs: 1250, label: '10 half-heart hardcore speedruns in a row' },
+      { subs: 1500, label: 'All Advancements no reset stream' },
+      { subs: 1750, label: '25 no reset speedruns' },
+      { subs: 2000, label: 'Pure Pain Marathon w/ Kaelan moral support' },
+      { subs: 2250, label: 'Wear a maid outfit for next event' },
+      { subs: 2500, label: 'Walk across my city IRL stream' },
+      { subs: 2750, label: 'Dye hair green' },
+      { subs: 3000, label: 'Solo BlazeAndCaves mod completion' },
+    ];
 
     function fmt(n) { return (n ?? 0).toLocaleString(); }
     function timeAgo(u) {
@@ -515,6 +619,50 @@
       document.getElementById('footer-tracking').textContent =
         t ? timeAgo(t) : '0s ago';
       document.getElementById('lb-since').textContent = t ? `since ${fmtDate(t)}` : '';
+    }
+
+    function goalState(total) {
+      const safeTotal = Math.max(0, total || 0);
+      const nextGoal = SUBATHON_GOALS.find((goal) => safeTotal < goal.subs) || null;
+      const previousGoals = SUBATHON_GOALS.filter((goal) => goal.subs <= safeTotal);
+      const prevGoal = previousGoals[previousGoals.length - 1] || { subs: 0, label: 'subathon start' };
+      if (!nextGoal) {
+        return {
+          total: safeTotal,
+          next: prevGoal.subs,
+          prev: prevGoal.subs,
+          progress: 1,
+          remaining: 0,
+          nextLabel: prevGoal.label,
+          currentLabel: prevGoal.label,
+          complete: true,
+        };
+      }
+      const span = Math.max(1, nextGoal.subs - prevGoal.subs);
+      const progress = Math.max(0, Math.min(1, (safeTotal - prevGoal.subs) / span));
+      return {
+        total: safeTotal,
+        next: nextGoal.subs,
+        prev: prevGoal.subs,
+        progress,
+        remaining: Math.max(0, nextGoal.subs - safeTotal),
+        nextLabel: nextGoal.label,
+        currentLabel: prevGoal.label,
+        complete: false,
+      };
+    }
+
+    function renderGoal(stats) {
+      const goal = goalState((stats?.totalSubs || 0) + (stats?.giftedSubs || 0));
+      document.getElementById('goal-current').textContent = fmt(goal.total);
+      document.getElementById('goal-next').textContent = fmt(goal.next);
+      document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
+      document.getElementById('goal-status').innerHTML = goal.complete
+        ? `all listed goals cleared · <strong>${goal.currentLabel}</strong>`
+        : `<strong>${fmt(goal.remaining)}</strong> more to <strong>${goal.nextLabel}</strong>`;
+      document.getElementById('goal-range').textContent = goal.complete
+        ? `final goal · ${fmt(goal.next)}`
+        : `${fmt(goal.prev)}-${fmt(goal.next)}`;
     }
 
     function askConfirm(title, copy, ok = 'continue') {
@@ -593,6 +741,7 @@
       document.getElementById('mode-help').style.display = (!authed || temporaryMode) ? 'block' : 'none';
 
       renderTrackingTimes(stats);
+      renderGoal(stats);
       setViewUrl(stats);
 
       const body = document.getElementById('lb-body');
