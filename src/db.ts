@@ -79,18 +79,14 @@ const FRUITBERRIES_GIFTER_SEED = [
   ["kqmad0", 5],
   ["JohnDubuc", 5],
   ["chandylire", 5],
+  ["maybekenzie", 2],
+  ["naurtilus", 1],
+  ["Anonymous", 3],
 ] as const;
 const FRUITBERRIES_BITS_SEED = [
-  ["CommanderXander_", 1000],
-  ["valentrines", 245],
-  ["RedVaporeonYt", 195],
-  ["chlorop1ast", 100],
-  ["mdad1427", 100],
-  ["1cubealot_", 100],
-  ["Eken321", 100],
-  ["minhduc12b", 93],
-  ["naurtilus", 30],
+  ["baseline", 1928],
 ] as const;
+const FRUITBERRIES_TOTAL_SUBS_SEED = 291;
 
 function initCounters() {
   initCounterStmt.run("trackedSubs");
@@ -145,8 +141,9 @@ function loadState() {
 }
 
 function seedFruitberriesGifters() {
-  if (config.get("fruitberries_gifter_seed_v2") === "1") return;
+  if (config.get("fruitberries_gifter_seed_v4") === "1") return;
   const seedTotal = FRUITBERRIES_GIFTER_SEED.reduce((sum, [, gifts]) => sum + gifts, 0);
+  const nonGiftSeed = Math.max(0, FRUITBERRIES_TOTAL_SUBS_SEED - seedTotal);
   const tx = db.transaction(() => {
     clearGiftersStmt.run();
     gifterCounts.clear();
@@ -158,20 +155,22 @@ function seedFruitberriesGifters() {
     }
     giftedSubs = seedTotal;
     persistCounter("giftedSubs", giftedSubs);
-    upsertConfigStmt.run("fruitberries_gifter_seed_v2", "1");
-    config.set("fruitberries_gifter_seed_v2", "1");
+    trackedSubs = nonGiftSeed;
+    persistCounter("trackedSubs", trackedSubs);
+    upsertConfigStmt.run("fruitberries_gifter_seed_v4", "1");
+    config.set("fruitberries_gifter_seed_v4", "1");
   });
   tx();
 }
 
 function seedFruitberriesBits() {
-  if (config.get("fruitberries_bits_seed_v2") === "1") return;
+  if (config.get("fruitberries_bits_seed_v4") === "1") return;
   const seedTotal = FRUITBERRIES_BITS_SEED.reduce((sum, [, bits]) => sum + bits, 0);
   const tx = db.transaction(() => {
     trackedBits = seedTotal;
     persistCounter("trackedBits", trackedBits);
-    upsertConfigStmt.run("fruitberries_bits_seed_v2", "1");
-    config.set("fruitberries_bits_seed_v2", "1");
+    upsertConfigStmt.run("fruitberries_bits_seed_v4", "1");
+    config.set("fruitberries_bits_seed_v4", "1");
   });
   tx();
 }
@@ -329,21 +328,23 @@ export function addSubEvent(event: {
   const inserted = insertSeenSubStmt.run(event.id);
   if (!inserted.changes) return;
 
-  trackedSubs += 1;
   const tx = db.transaction(() => {
+    if (event.isGift) {
+      giftedSubs += 1;
+      persistCounter("giftedSubs", giftedSubs);
+      const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? "Anonymous"}`;
+      const current = gifterCounts.get(key) ?? {
+        name: event.gifterName ?? "Anonymous",
+        id: event.gifterId ?? null,
+        gifts: 0,
+      };
+      current.gifts += 1;
+      gifterCounts.set(key, current);
+      upsertGifterStmt.run(key, current.name, current.id, current.gifts);
+      return;
+    }
+    trackedSubs += 1;
     persistCounter("trackedSubs", trackedSubs);
-    if (!event.isGift) return;
-    giftedSubs += 1;
-    persistCounter("giftedSubs", giftedSubs);
-    const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? "Anonymous"}`;
-    const current = gifterCounts.get(key) ?? {
-      name: event.gifterName ?? "Anonymous",
-      id: event.gifterId ?? null,
-      gifts: 0,
-    };
-    current.gifts += 1;
-    gifterCounts.set(key, current);
-    upsertGifterStmt.run(key, current.name, current.id, current.gifts);
   });
   tx();
 }

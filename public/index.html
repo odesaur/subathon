@@ -382,7 +382,7 @@
             <div class="stream-dot" id="stream-dot"></div>
             <span class="stream-label" id="stream-label">offline</span>
           </div>
-          <button class="btn" id="btn-change" style="display:none">change</button>
+          <button class="btn" id="btn-change" style="display:none">Search</button>
         </div>
       </header>
 
@@ -425,7 +425,7 @@
       <footer>
         <span id="footer-tracking">tracking since server start</span>
         <div class="footer-actions">
-          <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">track my channel →</a>
+          <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
           <button class="btn" id="btn-view-public" style="display:none">back to fruitberries</button>
           <button class="btn" id="btn-logout" style="display:none">log out</button>
           <button class="btn" id="btn-reset" style="display:none">reset timer</button>
@@ -513,7 +513,7 @@
     function renderTrackingTimes(stats) {
       const t = stats?.subathonStart;
       document.getElementById('footer-tracking').textContent =
-        t ? `tracking since ${fmtDate(t)} · ${timeAgo(t)}` : 'tracking since server start';
+        t ? timeAgo(t) : '0s ago';
       document.getElementById('lb-since').textContent = t ? `since ${fmtDate(t)}` : '';
     }
 
@@ -576,7 +576,7 @@
       const temporaryMode = !!stats.temporaryMode;
       document.getElementById('broadcaster-badge').style.display = authed ? 'inline-block' : 'none';
       document.getElementById('btn-auth').style.display = authed ? 'none' : 'inline-flex';
-      document.getElementById('btn-auth').textContent = hasPrivateTracker && privateTrackerPersistent && !viewingPrivateTracker ? 'my tracker →' : 'track my channel →';
+      document.getElementById('btn-auth').textContent = hasPrivateTracker && privateTrackerPersistent && !viewingPrivateTracker ? 'My Tracker' : 'Track My Channel';
       document.getElementById('btn-auth').dataset.mode = hasPrivateTracker && privateTrackerPersistent && !viewingPrivateTracker ? 'resume' : 'login';
       document.getElementById('btn-view-public').style.display = viewingPrivateTracker ? 'inline-flex' : 'none';
       document.getElementById('btn-logout').style.display = privateTrackerPersistent ? 'inline-flex' : 'none';

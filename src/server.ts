@@ -301,7 +301,6 @@ function applySessionSub(tracker: SessionTracker, event: {
 }) {
   if (tracker.seenSubIds.has(event.id)) return false;
   tracker.seenSubIds.add(event.id);
-  tracker.trackedSubs += 1;
   if (event.isGift) {
     tracker.giftedSubs += 1;
     const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? "Anonymous"}`;
@@ -312,6 +311,8 @@ function applySessionSub(tracker: SessionTracker, event: {
     };
     current.gifts += 1;
     tracker.gifters.set(key, current);
+  } else {
+    tracker.trackedSubs += 1;
   }
   persistSessionTrackerState(tracker);
   return true;
