@@ -17,6 +17,12 @@ db.exec(`
     value TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS session_trackers (
+    session_id TEXT PRIMARY KEY,
+    expires_at INTEGER NOT NULL,
+    data TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS seen_sub_ids (
     id TEXT PRIMARY KEY
   );
@@ -41,6 +47,11 @@ db.exec(`
 const upsertConfigStmt = db.query("INSERT INTO config (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
 const getConfigStmt = db.query("SELECT value FROM config WHERE key = ?");
 const deleteConfigStmt = db.query("DELETE FROM config WHERE key = ?");
+const upsertSessionTrackerStmt = db.query("INSERT INTO session_trackers (session_id, expires_at, data) VALUES (?, ?, ?) ON CONFLICT(session_id) DO UPDATE SET expires_at = excluded.expires_at, data = excluded.data");
+const getSessionTrackerStmt = db.query("SELECT expires_at, data FROM session_trackers WHERE session_id = ?");
+const getAllSessionTrackersStmt = db.query("SELECT session_id, expires_at, data FROM session_trackers");
+const deleteSessionTrackerStmt = db.query("DELETE FROM session_trackers WHERE session_id = ?");
+const deleteExpiredSessionTrackersStmt = db.query("DELETE FROM session_trackers WHERE expires_at > 0 AND expires_at <= ?");
 const insertSeenSubStmt = db.query("INSERT OR IGNORE INTO seen_sub_ids (id) VALUES (?)");
 const insertSeenBitStmt = db.query("INSERT OR IGNORE INTO seen_bit_ids (id) VALUES (?)");
 const clearSeenSubsStmt = db.query("DELETE FROM seen_sub_ids");
@@ -167,6 +178,30 @@ export interface Stats {
   connected: boolean;
 }
 
+export interface PersistedSessionTracker {
+  sessionId: string;
+  channel: string;
+  channelDisplay: string;
+  channelAvatar: string;
+  authToken: string;
+  refreshToken: string | null;
+  broadcasterId: string;
+  streamStatus: { live: boolean; title: string; viewers: number; startedAt: number };
+  wasLive: boolean;
+  sawOfflineSinceActivation: boolean;
+  subathonStart: number;
+  trackingMode: string;
+  baselineSubs: number;
+  trackedSubs: number;
+  trackedBits: number;
+  giftedSubs: number;
+  gifters: { key: string; name: string; id: string | null; gifts: number }[];
+  seenSubIds: string[];
+  seenBitIds: string[];
+  createdAt: number;
+  expiresAt: number;
+}
+
 function giftRank(gifts: number): string {
   if (gifts >= 100) return "diamond";
   if (gifts >= 50) return "platinum";
@@ -235,4 +270,39 @@ export function addBitEvent(event: {
   if (!inserted.changes) return;
   trackedBits += event.bits;
   persistCounter("trackedBits", trackedBits);
+}
+
+export function saveSessionTracker(state: PersistedSessionTracker): void {
+  upsertSessionTrackerStmt.run(state.sessionId, state.expiresAt, JSON.stringify(state));
+}
+
+export function loadSessionTracker(sessionId: string): PersistedSessionTracker | null {
+  const row = getSessionTrackerStmt.get(sessionId) as { expires_at: number; data: string } | null;
+  if (!row) return null;
+  try {
+    return JSON.parse(row.data) as PersistedSessionTracker;
+  } catch {
+    deleteSessionTrackerStmt.run(sessionId);
+    return null;
+  }
+}
+
+export function listSessionTrackers(): PersistedSessionTracker[] {
+  const states: PersistedSessionTracker[] = [];
+  for (const row of getAllSessionTrackersStmt.all() as { session_id: string; expires_at: number; data: string }[]) {
+    try {
+      states.push(JSON.parse(row.data) as PersistedSessionTracker);
+    } catch {
+      deleteSessionTrackerStmt.run(row.session_id);
+    }
+  }
+  return states;
+}
+
+export function deleteSessionTracker(sessionId: string): void {
+  deleteSessionTrackerStmt.run(sessionId);
+}
+
+export function deleteExpiredSessionTrackers(now: number): void {
+  deleteExpiredSessionTrackersStmt.run(now);
 }

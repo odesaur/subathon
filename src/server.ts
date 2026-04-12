@@ -1,5 +1,8 @@
 import {
   getStats, getConfig, setConfig, deleteConfigKeys, clearTrackedEvents, syncFruitberriesCheckpoint,
+  saveSessionTracker, loadSessionTracker, listSessionTrackers,
+  deleteSessionTracker as deleteSavedSessionTracker, deleteExpiredSessionTrackers,
+  type PersistedSessionTracker,
 } from "./db.ts";
 import {
   initTwitch, switchChannel, lookupChannel,
@@ -21,11 +24,15 @@ const TRACKING_ANON = "anonymous";
 const TRACKING_LOGIN = "since_login";
 const TRACKING_RESET = "since_reset";
 const TRACKING_STREAM = "this_stream";
+const VIEW_PRIVATE = "private";
+const VIEW_PUBLIC = "public";
+const SESSION_TTL = 48 * 60 * 60;
+const SESSION_COOKIE = "subathon_session";
+const VIEW_COOKIE = "subathon_view";
 
 /* SSE */
 type SSECtrl = ReadableStreamDefaultController<Uint8Array>;
 const sseClients = new Set<SSECtrl>();
-const SESSION_COOKIE = "subathon_session";
 
 type SessionTracker = {
   sessionId: string;
@@ -53,6 +60,8 @@ type SessionTracker = {
   reconnectTimer: ReturnType<typeof setTimeout> | null;
   pollTimer: ReturnType<typeof setInterval> | null;
   socketVersion: number;
+  createdAt: number;
+  expiresAt: number;
 };
 
 const sessionTrackers = new Map<string, SessionTracker>();
@@ -80,6 +89,10 @@ function sessionIdFromReq(req: Request) {
   return parseCookies(req).get(SESSION_COOKIE) || null;
 }
 
+function viewModeFromReq(req: Request) {
+  return parseCookies(req).get(VIEW_COOKIE) === VIEW_PUBLIC ? VIEW_PUBLIC : VIEW_PRIVATE;
+}
+
 function ensureSessionId(req: Request) {
   return sessionIdFromReq(req) || crypto.randomUUID();
 }
@@ -88,10 +101,17 @@ function sessionCookie(sessionId: string) {
   return `${SESSION_COOKIE}=${encodeURIComponent(sessionId)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000`;
 }
 
-function withSessionCookie(res: Response, sessionId: string, req: Request) {
-  if (sessionIdFromReq(req) === sessionId) return res;
+function viewCookie(mode: string) {
+  return `${VIEW_COOKIE}=${encodeURIComponent(mode)}; Path=/; SameSite=Lax; Max-Age=31536000`;
+}
+
+function withSessionState(res: Response, req: Request, sessionId: string, viewMode?: string) {
+  const cookies: string[] = [];
+  if (sessionIdFromReq(req) !== sessionId) cookies.push(sessionCookie(sessionId));
+  if (viewMode && viewModeFromReq(req) !== viewMode) cookies.push(viewCookie(viewMode));
+  if (!cookies.length) return res;
   const headers = new Headers(res.headers);
-  headers.append("Set-Cookie", sessionCookie(sessionId));
+  for (const cookie of cookies) headers.append("Set-Cookie", cookie);
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
@@ -150,6 +170,80 @@ function sessionBroadcast(tracker: SessionTracker, data: unknown) {
   }
 }
 
+function uncappedSession(login: string) {
+  return login.toLowerCase() === DEFAULT_CHANNEL;
+}
+
+function sessionExpired(tracker: SessionTracker) {
+  return !!tracker.expiresAt && tracker.expiresAt <= Math.floor(Date.now() / 1000);
+}
+
+function serializeSessionTracker(tracker: SessionTracker): PersistedSessionTracker {
+  return {
+    sessionId: tracker.sessionId,
+    channel: tracker.channel,
+    channelDisplay: tracker.channelDisplay,
+    channelAvatar: tracker.channelAvatar,
+    authToken: tracker.authToken,
+    refreshToken: tracker.refreshToken,
+    broadcasterId: tracker.broadcasterId,
+    streamStatus: tracker.streamStatus,
+    wasLive: tracker.wasLive,
+    sawOfflineSinceActivation: tracker.sawOfflineSinceActivation,
+    subathonStart: tracker.subathonStart,
+    trackingMode: tracker.trackingMode,
+    baselineSubs: tracker.baselineSubs,
+    trackedSubs: tracker.trackedSubs,
+    trackedBits: tracker.trackedBits,
+    giftedSubs: tracker.giftedSubs,
+    gifters: [...tracker.gifters.entries()].map(([key, value]) => ({ key, ...value })),
+    seenSubIds: [...tracker.seenSubIds],
+    seenBitIds: [...tracker.seenBitIds],
+    createdAt: tracker.createdAt,
+    expiresAt: tracker.expiresAt,
+  };
+}
+
+function persistSessionTrackerState(tracker: SessionTracker) {
+  saveSessionTracker(serializeSessionTracker(tracker));
+}
+
+function hydrateSessionTracker(state: PersistedSessionTracker): SessionTracker {
+  return {
+    sessionId: state.sessionId,
+    channel: state.channel,
+    channelDisplay: state.channelDisplay,
+    channelAvatar: state.channelAvatar,
+    authToken: state.authToken,
+    refreshToken: state.refreshToken,
+    broadcasterId: state.broadcasterId,
+    connected: false,
+    streamStatus: state.streamStatus,
+    wasLive: state.wasLive,
+    sawOfflineSinceActivation: state.sawOfflineSinceActivation,
+    subathonStart: state.subathonStart,
+    trackingMode: state.trackingMode,
+    baselineSubs: state.baselineSubs,
+    trackedSubs: state.trackedSubs,
+    trackedBits: state.trackedBits,
+    giftedSubs: state.giftedSubs,
+    gifters: new Map(state.gifters.map((gifter) => [gifter.key, {
+      name: gifter.name,
+      id: gifter.id,
+      gifts: gifter.gifts,
+    }])),
+    seenSubIds: new Set(state.seenSubIds),
+    seenBitIds: new Set(state.seenBitIds),
+    clients: new Set(),
+    ws: null,
+    reconnectTimer: null,
+    pollTimer: null,
+    socketVersion: 0,
+    createdAt: state.createdAt,
+    expiresAt: state.expiresAt,
+  };
+}
+
 function parseTags(raw: string) {
   const out: Record<string, string> = {};
   for (const pair of raw.split(";")) {
@@ -198,6 +292,7 @@ function applySessionSub(tracker: SessionTracker, event: {
     current.gifts += 1;
     tracker.gifters.set(key, current);
   }
+  persistSessionTrackerState(tracker);
   return true;
 }
 
@@ -205,6 +300,7 @@ function applySessionBits(tracker: SessionTracker, id: string, bits: number) {
   if (tracker.seenBitIds.has(id)) return false;
   tracker.seenBitIds.add(id);
   tracker.trackedBits += bits;
+  persistSessionTrackerState(tracker);
   return true;
 }
 
@@ -212,6 +308,7 @@ async function seedSessionBaseline(tracker: SessionTracker) {
   const count = await fetchChannelSubCount(tracker.authToken, tracker.broadcasterId);
   if (count == null) return;
   tracker.baselineSubs = count;
+  persistSessionTrackerState(tracker);
 }
 
 async function pollSessionStream(tracker: SessionTracker) {
@@ -230,6 +327,7 @@ async function pollSessionStream(tracker: SessionTracker) {
     sessionBroadcast(tracker, { type: "stream_update", stream: status });
   }
   tracker.wasLive = status.live;
+  persistSessionTrackerState(tracker);
 }
 
 async function startSessionPoll(tracker: SessionTracker) {
@@ -345,7 +443,8 @@ async function createSessionTracker(
   info: { login: string; displayName: string; avatarUrl: string },
   auth: { token: string; refreshToken?: string; broadcasterId: string }
 ) {
-  destroySessionTracker(sessionId);
+  destroySessionTracker(sessionId, true);
+  const now = Math.floor(Date.now() / 1000);
   const tracker: SessionTracker = {
     sessionId,
     channel: info.login,
@@ -372,22 +471,71 @@ async function createSessionTracker(
     reconnectTimer: null,
     pollTimer: null,
     socketVersion: 0,
+    createdAt: now,
+    expiresAt: uncappedSession(info.login) ? 0 : now + SESSION_TTL,
   };
   sessionTrackers.set(sessionId, tracker);
+  persistSessionTrackerState(tracker);
   connectSessionIRC(tracker);
   await startSessionPoll(tracker);
+  persistSessionTrackerState(tracker);
   sessionBroadcast(tracker, { type: "channel_set", stats: sessionStats(tracker) });
   return tracker;
 }
 
-function destroySessionTracker(sessionId: string) {
+function destroySessionTracker(sessionId: string, removeSaved = true) {
   const tracker = sessionTrackers.get(sessionId);
-  if (!tracker) return;
-  if (tracker.reconnectTimer) clearTimeout(tracker.reconnectTimer);
-  if (tracker.pollTimer) clearInterval(tracker.pollTimer);
-  tracker.ws?.close();
-  tracker.ws = null;
-  sessionTrackers.delete(sessionId);
+  if (tracker) {
+    if (tracker.reconnectTimer) clearTimeout(tracker.reconnectTimer);
+    if (tracker.pollTimer) clearInterval(tracker.pollTimer);
+    tracker.ws?.close();
+    tracker.ws = null;
+    sessionTrackers.delete(sessionId);
+  }
+  if (removeSaved) deleteSavedSessionTracker(sessionId);
+}
+
+async function restoreSessionTracker(sessionId: string) {
+  const existing = sessionTrackers.get(sessionId);
+  if (existing) {
+    if (!sessionExpired(existing)) return existing;
+    destroySessionTracker(sessionId, true);
+    return null;
+  }
+  const saved = loadSessionTracker(sessionId);
+  if (!saved) return null;
+  if (saved.expiresAt && saved.expiresAt <= Math.floor(Date.now() / 1000)) {
+    deleteSavedSessionTracker(sessionId);
+    return null;
+  }
+  const tracker = hydrateSessionTracker(saved);
+  sessionTrackers.set(sessionId, tracker);
+  connectSessionIRC(tracker);
+  await startSessionPoll(tracker);
+  persistSessionTrackerState(tracker);
+  return tracker;
+}
+
+async function restoreSavedSessionTrackers() {
+  const now = Math.floor(Date.now() / 1000);
+  deleteExpiredSessionTrackers(now);
+  for (const saved of listSessionTrackers()) {
+    if (saved.expiresAt && saved.expiresAt <= now) continue;
+    const tracker = hydrateSessionTracker(saved);
+    sessionTrackers.set(tracker.sessionId, tracker);
+    connectSessionIRC(tracker);
+    await startSessionPoll(tracker);
+    persistSessionTrackerState(tracker);
+  }
+}
+
+function pruneExpiredSessionTrackers() {
+  const now = Math.floor(Date.now() / 1000);
+  for (const [sessionId, tracker] of sessionTrackers) {
+    if (!tracker.expiresAt || tracker.expiresAt > now) continue;
+    destroySessionTracker(sessionId, true);
+  }
+  deleteExpiredSessionTrackers(now);
 }
 
 async function seedSubBaseline() {
@@ -434,9 +582,37 @@ function fullStats() {
   return buildStats(connected);
 }
 
-function trackerForSession(req: Request) {
+async function sessionTrackerForRequest(req: Request) {
   const sessionId = sessionIdFromReq(req);
-  return sessionId ? sessionTrackers.get(sessionId) || null : null;
+  if (!sessionId) return null;
+  if (viewModeFromReq(req) !== VIEW_PRIVATE) return null;
+  return restoreSessionTracker(sessionId);
+}
+
+async function savedTrackerForRequest(req: Request) {
+  const sessionId = sessionIdFromReq(req);
+  if (!sessionId) return null;
+  return restoreSessionTracker(sessionId);
+}
+
+async function statsForRequest(req: Request) {
+  const viewMode = viewModeFromReq(req);
+  const tracker = await sessionTrackerForRequest(req);
+  const savedTracker = tracker ?? (viewMode === VIEW_PRIVATE ? null : await savedTrackerForRequest(req));
+  const hasPrivateTracker = !!savedTracker;
+  const viewingPrivateTracker = !!tracker;
+  if (tracker) {
+    return {
+      ...sessionStats(tracker),
+      hasPrivateTracker,
+      viewingPrivateTracker,
+    };
+  }
+  return {
+    ...fullStats(),
+    hasPrivateTracker,
+    viewingPrivateTracker,
+  };
 }
 
 function buildStats(connectedState: boolean) {
@@ -522,13 +698,13 @@ Bun.serve({
   async fetch(req) {
     const url = new URL(req.url);
     const sessionId = ensureSessionId(req);
-    const privateTracker = trackerForSession(req);
+    const privateTracker = await sessionTrackerForRequest(req);
 
     if (url.pathname === "/" || url.pathname === "/index.html") {
-      return withSessionCookie(new Response(
+      return withSessionState(new Response(
         Bun.file(new URL("../public/index.html", import.meta.url).pathname),
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
-      ), sessionId, req);
+      ), req, sessionId);
     }
 
     if (url.pathname === "/favicon.ico") {
@@ -539,7 +715,7 @@ Bun.serve({
     }
 
     if (url.pathname === "/api/stats") {
-      return withSessionCookie(Response.json(privateTracker ? sessionStats(privateTracker) : fullStats()), sessionId, req);
+      return withSessionState(Response.json(await statsForRequest(req)), req, sessionId);
     }
 
     if (url.pathname === "/api/channel") {
@@ -580,8 +756,9 @@ Bun.serve({
         privateTracker.subathonStart = Math.floor(Date.now() / 1000);
         privateTracker.baselineSubs = 0;
         privateTracker.trackingMode = TRACKING_RESET;
+        persistSessionTrackerState(privateTracker);
         sessionBroadcast(privateTracker, { type: "reset", stats: sessionStats(privateTracker) });
-        return withSessionCookie(Response.json({ ok: true }), sessionId, req);
+        return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PRIVATE);
       }
       if (!getConfig("broadcaster_token")) {
         return Response.json({ error: "broadcaster auth required" }, { status: 403 });
@@ -592,7 +769,7 @@ Bun.serve({
       setConfig("tracking_mode", TRACKING_RESET);
       syncFruitberriesCheckpoint();
       broadcast({ type: "reset", stats: fullStats() });
-      return withSessionCookie(Response.json({ ok: true }), sessionId, req);
+      return withSessionState(Response.json({ ok: true }), req, sessionId);
     }
 
     if (url.pathname === "/api/events") {
@@ -611,12 +788,26 @@ Bun.serve({
           else sseClients.delete(ctrl);
         },
       });
-      return withSessionCookie(new Response(stream, {
+      return withSessionState(new Response(stream, {
         headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
-      }), sessionId, req);
+      }), req, sessionId);
+    }
+
+    if (url.pathname === "/api/view/public" && req.method === "POST") {
+      return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PUBLIC);
+    }
+
+    if (url.pathname === "/api/view/private" && req.method === "POST") {
+      const tracker = await restoreSessionTracker(sessionId);
+      if (!tracker) return withSessionState(Response.json({ error: "no private tracker" }, { status: 404 }), req, sessionId, VIEW_PUBLIC);
+      return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PRIVATE);
     }
 
     if (url.pathname === "/auth/twitch" || url.pathname === "/auth/fruitberries") {
+      if (url.pathname === "/auth/twitch") {
+        const savedTracker = await restoreSessionTracker(sessionId);
+        if (savedTracker) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PRIVATE);
+      }
       const authMode = url.pathname === "/auth/fruitberries" ? AUTH_MODE_FRUIT : AUTH_MODE_SELF;
       const params = new URLSearchParams({
         client_id:     CLIENT_ID,
@@ -625,14 +816,14 @@ Bun.serve({
         scope:         "channel:read:subscriptions",
         state:         authMode,
       });
-      return withSessionCookie(Response.redirect(`https://id.twitch.tv/oauth2/authorize?${params}`), sessionId, req);
+      return withSessionState(Response.redirect(`https://id.twitch.tv/oauth2/authorize?${params}`), req, sessionId);
     }
 
     if (url.pathname === "/auth/callback") {
       const code = url.searchParams.get("code");
       const authMode = url.searchParams.get("state") || AUTH_MODE_SELF;
       const authError = url.searchParams.get("error");
-      if (authError || !code) return withSessionCookie(Response.redirect("/"), sessionId, req);
+      if (authError || !code) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PUBLIC);
 
       const tokenRes = await fetch("https://id.twitch.tv/oauth2/token", {
         method: "POST",
@@ -684,12 +875,12 @@ Bun.serve({
       );
 
       console.log(`[broadcaster] authenticated as ${authedLogin}`);
-      return withSessionCookie(Response.redirect("/"), sessionId, req);
+      return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PRIVATE);
     }
 
     if (url.pathname === "/auth/logout") {
-      destroySessionTracker(sessionId);
-      return withSessionCookie(Response.redirect("/"), sessionId, req);
+      destroySessionTracker(sessionId, true);
+      return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PUBLIC);
     }
 
     return new Response("Not Found", { status: 404 });
@@ -719,6 +910,12 @@ async function resumeSavedFruitberriesSession() {
   broadcast({ type: "channel_set", stats: fullStats() });
 }
 
+setInterval(pruneExpiredSessionTrackers, 5 * 60_000);
+
 initTwitch(broadcast)
-  .then(() => hasFruitberriesCheckpoint ? resumeSavedFruitberriesSession() : activateDefaultChannel())
+  .then(async () => {
+    if (hasFruitberriesCheckpoint) await resumeSavedFruitberriesSession();
+    else await activateDefaultChannel();
+    await restoreSavedSessionTrackers();
+  })
   .catch((err) => console.error("[twitch] init failed:", (err as Error).message));

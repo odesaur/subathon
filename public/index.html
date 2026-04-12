@@ -328,7 +328,7 @@
         <details class="mode-help" id="mode-help">
           <summary>why?</summary>
           <div class="mode-popover">
-            Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster's own authorized channel token. Use "track my channel" to switch this tracker to yours.
+            Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster's own authorized channel token. Use "track my channel" to open your own private tracker.
           </div>
         </details>
       </div>
@@ -364,7 +364,8 @@
         <div class="footer-actions">
           <a href="/auth/fruitberries" class="btn easter" id="btn-auth-fruit" style="display:none">ARE YOU FRUITBERRIES?</a>
           <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">track my channel →</a>
-          <a href="/auth/logout" class="btn" id="btn-logout" style="display:none">back to fruitberries</a>
+          <button class="btn" id="btn-view-public" style="display:none">back to fruitberries</button>
+          <a href="/auth/logout" class="btn" id="btn-logout" style="display:none">log out</a>
           <button class="btn" id="btn-reset" style="display:none">reset timer</button>
         </div>
       </footer>
@@ -427,12 +428,22 @@
       document.getElementById('tracker-screen').style.display = 'block';
     }
 
+    let latestStats = null;
+
     function renderEmptyLeaderboard() {
       document.getElementById('lb-body').innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
     }
 
+    function renderTrackingTimes(stats) {
+      const t = stats?.subathonStart;
+      document.getElementById('footer-tracking').textContent =
+        t ? `tracking since ${fmtDate(t)} · ${timeAgo(t)}` : 'tracking since server start';
+      document.getElementById('lb-since').textContent = t ? `since ${fmtDate(t)}` : '';
+    }
+
     /* Render */
     function renderStats(stats) {
+      latestStats = stats;
       if (!stats.channel) {
         if (!searchOpen) showSearch();
         return;
@@ -451,20 +462,22 @@
 
       const authed = stats.hasBroadcasterAuth;
       const anonymousMode = !!stats.anonymousMode;
+      const hasPrivateTracker = !!stats.hasPrivateTracker;
+      const viewingPrivateTracker = !!stats.viewingPrivateTracker;
       document.getElementById('broadcaster-badge').style.display = authed ? 'inline-block' : 'none';
-      document.getElementById('btn-auth-fruit').style.display = anonymousMode ? 'inline-flex' : 'none';
-      document.getElementById('btn-auth').style.display   = authed ? 'none' : 'inline-flex';
-      document.getElementById('btn-logout').style.display = authed ? 'inline-flex' : 'none';
+      document.getElementById('btn-auth-fruit').style.display = anonymousMode && !hasPrivateTracker ? 'inline-flex' : 'none';
+      document.getElementById('btn-auth').style.display = authed ? 'none' : 'inline-flex';
+      document.getElementById('btn-auth').textContent = hasPrivateTracker ? 'my tracker →' : 'track my channel →';
+      document.getElementById('btn-auth').dataset.mode = hasPrivateTracker ? 'resume' : 'login';
+      document.getElementById('btn-view-public').style.display = viewingPrivateTracker ? 'inline-flex' : 'none';
+      document.getElementById('btn-logout').style.display = hasPrivateTracker ? 'inline-flex' : 'none';
       document.getElementById('btn-reset').style.display  = authed ? 'inline-flex' : 'none';
       document.getElementById('mode-label').innerHTML = anonymousMode
         ? `anonymous mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`
         : `broadcaster mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`;
       document.getElementById('mode-help').style.display = anonymousMode ? 'block' : 'none';
 
-      const t = stats.subathonStart;
-      document.getElementById('footer-tracking').textContent =
-        t ? `tracking since ${fmtDate(t)} · ${timeAgo(t)}` : 'tracking since server start';
-      document.getElementById('lb-since').textContent = t ? `since ${fmtDate(t)}` : '';
+      renderTrackingTimes(stats);
 
       const body = document.getElementById('lb-body');
       if (!stats.gifters?.length) {
@@ -508,6 +521,34 @@
       showSearch(true);
     });
 
+    async function refreshStats() {
+      const stats = await fetch('/api/stats').then(r => r.json());
+      renderStats(stats);
+      if (stats.channel) {
+        renderStream({ live: !!stats.streamLive, viewers: stats.streamViewers || 0 });
+      }
+    }
+
+    function reconnectSSE() {
+      if (sse) sse.close();
+      reconnectDelay = 1000;
+      connect();
+    }
+
+    document.getElementById('btn-auth').addEventListener('click', async (e) => {
+      if (e.currentTarget.dataset.mode !== 'resume') return;
+      e.preventDefault();
+      await fetch('/api/view/private', { method: 'POST' });
+      await refreshStats();
+      reconnectSSE();
+    });
+
+    document.getElementById('btn-view-public').addEventListener('click', async () => {
+      await fetch('/api/view/public', { method: 'POST' });
+      await refreshStats();
+      reconnectSSE();
+    });
+
     /* Reset */
     document.getElementById('btn-reset').addEventListener('click', async () => {
       if (!confirm('Reset the tracking timer to now?')) return;
@@ -537,17 +578,17 @@
     }
 
     /* Refresh */
+    setInterval(() => {
+      if (latestStats) renderTrackingTimes(latestStats);
+    }, 1000);
+
     setInterval(async () => {
-      try { renderStats(await fetch('/api/stats').then(r=>r.json())); } catch {}
+      try { await refreshStats(); } catch {}
     }, 30_000);
 
     async function initApp() {
       try {
-        const stats = await fetch('/api/stats').then(r => r.json());
-        renderStats(stats);
-        if (stats.channel) {
-          renderStream({ live: !!stats.streamLive, viewers: stats.streamViewers || 0 });
-        }
+        await refreshStats();
       } catch {
         showSearch();
       }
