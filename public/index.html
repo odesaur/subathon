@@ -288,6 +288,45 @@
     }
     .footer-actions { display:flex; gap:.5rem; align-items:center; }
 
+    .modal-shell {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(10,10,15,.78);
+      z-index: 120;
+    }
+    .modal-shell.open { display: flex; }
+    .modal-card {
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 1rem 1rem .9rem;
+      box-shadow: 0 18px 48px rgba(0,0,0,.42);
+    }
+    .modal-title {
+      font-size: .76rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: .7rem;
+    }
+    .modal-copy {
+      color: var(--text);
+      font-size: .85rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: .5rem;
+    }
+
     /* Toasts */
     #toast-container { position:fixed; bottom:1.5rem; right:1.5rem; display:flex; flex-direction:column; gap:.5rem; z-index:100; pointer-events:none; }
     .toast { background:var(--surface2); border:1px solid var(--border); border-left:3px solid var(--green); padding:.6rem 1rem; border-radius:4px; font-size:.78rem; color:var(--text); max-width:300px; animation:slide-in .25s ease-out, fade-out .3s ease-in 3.7s forwards; }
@@ -388,7 +427,7 @@
           <a href="/auth/fruitberries" class="btn easter" id="btn-auth-fruit" style="display:none">ARE YOU FRUITBERRIES?</a>
           <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">track my channel →</a>
           <button class="btn" id="btn-view-public" style="display:none">back to fruitberries</button>
-          <a href="/auth/logout" class="btn" id="btn-logout" style="display:none">log out</a>
+          <button class="btn" id="btn-logout" style="display:none">log out</button>
           <button class="btn" id="btn-reset" style="display:none">reset timer</button>
         </div>
       </footer>
@@ -397,6 +436,17 @@
   </div>
 
   <div id="toast-container"></div>
+
+  <div class="modal-shell" id="confirm-modal">
+    <div class="modal-card">
+      <div class="modal-title" id="confirm-title">confirm action</div>
+      <div class="modal-copy" id="confirm-copy"></div>
+      <div class="modal-actions">
+        <button class="btn" id="confirm-cancel">cancel</button>
+        <button class="btn primary" id="confirm-ok">continue</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const RANK_ICON = { diamond:'◆', platinum:'●', gold:'★', silver:'○', bronze:'▲', member:'·' };
@@ -454,6 +504,7 @@
 
     let latestStats = null;
     let latestSearchResult = null;
+    let confirmResolver = null;
 
     function renderEmptyLeaderboard() {
       document.getElementById('lb-body').innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
@@ -464,6 +515,24 @@
       document.getElementById('footer-tracking').textContent =
         t ? `tracking since ${fmtDate(t)} · ${timeAgo(t)}` : 'tracking since server start';
       document.getElementById('lb-since').textContent = t ? `since ${fmtDate(t)}` : '';
+    }
+
+    function askConfirm(title, copy, ok = 'continue') {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-copy').textContent = copy;
+      document.getElementById('confirm-ok').textContent = ok;
+      document.getElementById('confirm-modal').classList.add('open');
+      return new Promise((resolve) => {
+        confirmResolver = resolve;
+      });
+    }
+
+    function closeConfirm(result) {
+      document.getElementById('confirm-modal').classList.remove('open');
+      if (!confirmResolver) return;
+      const resolve = confirmResolver;
+      confirmResolver = null;
+      resolve(result);
     }
 
     function setViewUrl(stats) {
@@ -654,8 +723,29 @@
 
     /* Reset */
     document.getElementById('btn-reset').addEventListener('click', async () => {
-      if (!confirm('Reset the tracking timer to now?')) return;
+      const ok = await askConfirm(
+        'reset timer',
+        'Resetting will clear the current tracked subs, bits, gifts, and restart the timer from now.',
+        'reset'
+      );
+      if (!ok) return;
       await fetch('/api/start', { method: 'POST' });
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      const ok = await askConfirm(
+        'log out',
+        'Logging out will delete this saved private tracker and its tracked data for this browser session.',
+        'log out'
+      );
+      if (!ok) return;
+      window.location.href = '/auth/logout';
+    });
+
+    document.getElementById('confirm-cancel').addEventListener('click', () => closeConfirm(false));
+    document.getElementById('confirm-ok').addEventListener('click', () => closeConfirm(true));
+    document.getElementById('confirm-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'confirm-modal') closeConfirm(false);
     });
 
     /* SSE */
