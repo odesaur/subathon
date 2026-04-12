@@ -863,6 +863,7 @@ Bun.serve({
         redirect_uri:  REDIRECT_URI,
         response_type: "code",
         scope:         "channel:read:subscriptions",
+        force_verify:  "true",
         state:         encodeAuthState(authMode),
       });
       return withSessionState(Response.redirect(`https://id.twitch.tv/oauth2/authorize?${params}`), req, sessionId);
