@@ -303,17 +303,20 @@ function applySessionSub(tracker: SessionTracker, event: {
   isGift: boolean;
   kind?: "sub" | "resub" | "gift";
   giftCount?: number;
+  skipRecent?: boolean;
   gifterId?: string | null;
   gifterName?: string | null;
 }) {
   if (tracker.seenSubIds.has(event.id)) return false;
   tracker.seenSubIds.add(event.id);
-  tracker.recentSub = event.isGift
-    ? { text: `${event.gifterName ?? ANON_GIFTER_NAME} gifted ${event.giftCount ?? 1}`, at: Math.floor(Date.now() / 1000) }
-    : {
-        text: event.kind === "resub" ? `${event.userName} resubscribed` : `${event.userName} subscribed`,
-        at: Math.floor(Date.now() / 1000),
-      };
+  if (!event.skipRecent) {
+    tracker.recentSub = event.isGift
+      ? { text: `${event.gifterName ?? ANON_GIFTER_NAME} gifted ${event.giftCount ?? 1}`, at: Math.floor(Date.now() / 1000) }
+      : {
+          text: event.kind === "resub" ? `${event.userName} resubscribed` : `${event.userName} subscribed`,
+          at: Math.floor(Date.now() / 1000),
+        };
+  }
   if (event.isGift) {
     tracker.giftedSubs += 1;
     const key = `${event.gifterId ?? "anon"}:${event.gifterName ?? ANON_GIFTER_NAME}`;
@@ -433,6 +436,7 @@ function connectSessionIRC(tracker: SessionTracker) {
               isGift: true,
               kind: "gift",
               giftCount: 1,
+              skipRecent: isBatch,
               gifterId: isAnon ? null : userId,
               gifterName: isAnon ? null : name,
             })) break;

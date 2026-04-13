@@ -157,7 +157,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
       addSubEvent({
         id: `gift_${tags["id"] || Date.now()}`,
         userId: recipientId, userName: recipient, tier, isGift: true,
-        kind: "gift", giftCount: 1,
+        kind: "gift", giftCount: 1, skipRecent: isBatch,
         gifterId: userId, gifterName: name,
       });
 
@@ -183,7 +183,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
       addSubEvent({
         id: `gift_anon_${tags["id"] || Date.now()}`,
         userId: recipientId, userName: recipient, tier, isGift: true,
-        kind: "gift", giftCount: 1,
+        kind: "gift", giftCount: 1, skipRecent: isBatch,
         gifterId: null, gifterName: null,
       });
       if (!isBatch) {

@@ -358,6 +358,7 @@ export function addSubEvent(event: {
   isGift: boolean;
   kind?: "sub" | "resub" | "gift";
   giftCount?: number;
+  skipRecent?: boolean;
   gifterId?: string | null;
   gifterName?: string | null;
 }) {
@@ -365,12 +366,14 @@ export function addSubEvent(event: {
   if (!inserted.changes) return;
 
   const tx = db.transaction(() => {
-    const recentText = event.isGift
-      ? `${normalizeGifterName(event.gifterName ?? ANON_GIFTER_NAME)} gifted ${event.giftCount ?? 1}`
-      : event.kind === "resub"
-        ? `${event.userName} resubscribed`
-        : `${event.userName} subscribed`;
-    setRecentSub(recentText);
+    if (!event.skipRecent) {
+      const recentText = event.isGift
+        ? `${normalizeGifterName(event.gifterName ?? ANON_GIFTER_NAME)} gifted ${event.giftCount ?? 1}`
+        : event.kind === "resub"
+          ? `${event.userName} resubscribed`
+          : `${event.userName} subscribed`;
+      setRecentSub(recentText);
+    }
     if (event.isGift) {
       giftedSubs += 1;
       persistCounter("giftedSubs", giftedSubs);
