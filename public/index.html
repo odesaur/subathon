@@ -401,6 +401,14 @@
       margin-top:1.25rem; display:flex; align-items:center; justify-content:space-between;
       font-size:.7rem; color:var(--dim); padding:0 .25rem;
     }
+    .footer-meta {
+      display: flex;
+      flex-direction: column;
+      gap: .15rem;
+    }
+    .footer-meta-line {
+      color: var(--dim);
+    }
     .footer-actions { display:flex; gap:.5rem; align-items:center; }
 
     .modal-shell {
@@ -558,7 +566,10 @@
       </div>
 
       <footer>
-        <span id="footer-tracking">tracking since server start</span>
+        <div class="footer-meta">
+          <span class="footer-meta-line" id="footer-tracking-since">tracking since server start</span>
+          <span class="footer-meta-line" id="footer-tracking">0s ago</span>
+        </div>
         <div class="footer-actions">
           <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
           <button class="btn" id="btn-view-public" style="display:none">back to fruitberries</button>
@@ -630,6 +641,15 @@
       const h = Math.floor(d/3600), m = Math.floor((d%3600)/60);
       return m ? `${h}h ${m}m ago` : `${h}h ago`;
     }
+    function fmtDate(u) {
+      if (!u) return '';
+      return new Date(u * 1000).toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    }
     function escHtml(s) {
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
@@ -675,6 +695,8 @@
 
     function renderTrackingTimes(stats) {
       const t = stats?.subathonStart;
+      document.getElementById('footer-tracking-since').textContent =
+        t ? `tracking since ${fmtDate(t)}` : 'tracking since server start';
       document.getElementById('footer-tracking').textContent =
         t ? timeAgo(t) : '0s ago';
     }
