@@ -173,6 +173,12 @@
       display: flex; align-items: center; gap: .75rem;
       min-width: 0;
     }
+    .channel-meta {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      min-width: 0;
+    }
     .channel-avatar {
       width: 32px; height: 32px;
       border-radius: 50%;
@@ -184,6 +190,15 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .channel-name span { color: var(--muted); font-weight: 400; }
+    .channel-uptime {
+      display: none;
+      align-items: center;
+      gap: .35rem;
+      color: var(--rp-iris);
+      font-size: .9rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
     .header-right {
       display: flex; align-items: center; gap: .75rem; flex-shrink: 0;
     }
@@ -196,6 +211,18 @@
       font-size: .72rem;
       letter-spacing: .04em;
       text-transform: uppercase;
+    }
+    .mode-main {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      min-width: 0;
+    }
+    .mode-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
     }
     .mode-label strong { color: var(--text); font-weight: 500; }
     .mode-help {
@@ -398,7 +425,7 @@
     .gift-count { color:var(--pink); font-weight:700; }
 
     footer {
-      margin-top:1.25rem; display:flex; align-items:center; justify-content:space-between;
+      margin-top:1.25rem; display:flex; align-items:center; justify-content:flex-end;
       font-size:.7rem; color:var(--dim); padding:0 .25rem;
     }
     .footer-actions { display:flex; gap:.5rem; align-items:center; }
@@ -488,7 +515,10 @@
       <header>
         <div class="header-left">
           <img class="channel-avatar" id="channel-avatar" src="" alt="" />
-          <div class="channel-name" id="channel-name">—</div>
+          <div class="channel-meta">
+            <div class="channel-name" id="channel-name">—</div>
+            <div class="channel-uptime" id="channel-uptime">◷ 0:00:00</div>
+          </div>
         </div>
         <div class="header-right">
           <span class="broadcaster-badge" id="broadcaster-badge">broadcaster ✓</span>
@@ -501,13 +531,18 @@
       </header>
 
       <div class="mode-strip" id="mode-strip">
-        <span class="mode-label" id="mode-label"></span>
-        <details class="mode-help" id="mode-help">
-          <summary>why?</summary>
-          <div class="mode-popover">
-            Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster's own authorized channel token. Use "track my channel" to open your own private tracker.
-          </div>
-        </details>
+        <div class="mode-main">
+          <span class="mode-label" id="mode-label"></span>
+          <details class="mode-help" id="mode-help">
+            <summary>why?</summary>
+            <div class="mode-popover">
+              Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster's own authorized channel token. Use "track my channel" to open your own private tracker.
+            </div>
+          </details>
+        </div>
+        <div class="mode-actions">
+          <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
+        </div>
       </div>
 
       <div class="cards">
@@ -559,9 +594,7 @@
       </div>
 
       <footer>
-        <span id="footer-tracking">0s ago</span>
         <div class="footer-actions">
-          <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
           <button class="btn" id="btn-view-public" style="display:none">back to fruitberries</button>
           <button class="btn" id="btn-logout" style="display:none">log out</button>
           <button class="btn" id="btn-reset" style="display:none">reset timer</button>
@@ -631,6 +664,14 @@
       const h = Math.floor(d/3600), m = Math.floor((d%3600)/60);
       return m ? `${h}h ${m}m ago` : `${h}h ago`;
     }
+    function streamUptime(u) {
+      if (!u) return '';
+      const d = Math.max(0, Math.floor(Date.now()/1000) - u);
+      const h = Math.floor(d/3600);
+      const m = Math.floor((d%3600)/60);
+      const s = d % 60;
+      return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
     function fmtDate(u) {
       if (!u) return '';
       return new Date(u * 1000).toLocaleString(undefined, {
@@ -687,8 +728,13 @@
       const t = stats?.subathonStart;
       document.getElementById('lb-since').textContent =
         t ? `tracking since ${fmtDate(t)}` : '';
-      document.getElementById('footer-tracking').textContent =
-        t ? timeAgo(t) : '0s ago';
+    }
+
+    function renderStreamUptime(stats) {
+      const el = document.getElementById('channel-uptime');
+      const live = !!stats?.streamLive && !!stats?.streamStart;
+      el.style.display = live ? 'inline-flex' : 'none';
+      if (live) el.textContent = `◷ ${streamUptime(stats.streamStart)}`;
     }
 
     function autoGoalIndex(total) {
@@ -829,6 +875,7 @@
       document.getElementById('mode-help').style.display = (!authed || temporaryMode) ? 'block' : 'none';
 
       renderTrackingTimes(stats);
+      renderStreamUptime(stats);
       renderGoal(stats);
       renderRecentSub(stats);
       setViewUrl(stats);
@@ -1020,7 +1067,7 @@
 
     /* Refresh */
     setInterval(() => {
-      if (latestStats) renderTrackingTimes(latestStats);
+      if (latestStats) renderStreamUptime(latestStats);
     }, 1000);
 
     setInterval(async () => {
