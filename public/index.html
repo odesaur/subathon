@@ -561,13 +561,13 @@
       <div class="leaderboard">
         <div class="lb-header">
           <span class="lb-title"><strong>gifter</strong> leaderboard</span>
+          <span class="lb-title" id="lb-since"></span>
         </div>
         <div id="lb-body"><div class="lb-empty">no gifters yet this subathon</div></div>
       </div>
 
       <footer>
         <div class="footer-meta">
-          <span class="footer-meta-line" id="footer-tracking-since">tracking since server start</span>
           <span class="footer-meta-line" id="footer-tracking">0s ago</span>
         </div>
         <div class="footer-actions">
@@ -695,8 +695,8 @@
 
     function renderTrackingTimes(stats) {
       const t = stats?.subathonStart;
-      document.getElementById('footer-tracking-since').textContent =
-        t ? `tracking since ${fmtDate(t)}` : 'tracking since server start';
+      document.getElementById('lb-since').textContent =
+        t ? `tracking since ${fmtDate(t)}` : '';
       document.getElementById('footer-tracking').textContent =
         t ? timeAgo(t) : '0s ago';
     }
