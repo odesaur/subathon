@@ -1,14 +1,13 @@
 import {
-  getStats, getConfig, setConfig, deleteConfigKeys, clearTrackedEvents, syncFruitberriesCheckpoint,
+  getStats, getConfig, setConfig, deleteConfigKeys, clearTrackedEvents,
   saveSessionTracker, loadSessionTracker, listSessionTrackers,
   deleteSessionTracker as deleteSavedSessionTracker, deleteExpiredSessionTrackers,
-  giftRankBase, giftRankLabel,
   type PersistedSessionTracker,
 } from "./db.ts";
 import {
   initTwitch, switchChannel, lookupChannel,
-  connected, currentChannel,
-  fetchStreamStatus, fetchStreamStatusForChannel, fetchChannelSubCount,
+  currentChannel,
+  fetchStreamStatus, fetchStreamStatusForChannel,
   getBroadcasterIdByToken,
   setStatsProvider,
 } from "./twitch.ts";
@@ -18,12 +17,7 @@ const CLIENT_ID     = process.env.TWITCH_CLIENT_ID!;
 const CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET!;
 const REDIRECT_URI  = process.env.REDIRECT_URI || `http://localhost:${PORT}/auth/callback`;
 const DEFAULT_CHANNEL = "fruitberries";
-const AUTH_KEYS = ["broadcaster_token", "broadcaster_id", "broadcaster_refresh", "baseline_subs"];
-const AUTH_MODE_SELF = "self";
-const TRACKING_ANON = "anonymous";
-const TRACKING_LOGIN = "since_login";
-const TRACKING_RESET = "since_reset";
-const TRACKING_STREAM = "this_stream";
+const AUTH_KEYS = ["broadcaster_token", "broadcaster_id", "broadcaster_refresh"];
 const VIEW_PRIVATE = "private";
 const VIEW_PUBLIC = "public";
 const SESSION_TTL = 48 * 60 * 60;
@@ -44,13 +38,10 @@ type SessionTracker = {
   refreshToken: string | null;
   broadcasterId: string | null;
   persistent: boolean;
-  connected: boolean;
   streamStatus: { live: boolean; title: string; viewers: number; startedAt: number };
   wasLive: boolean;
   sawOfflineSinceActivation: boolean;
   subathonStart: number;
-  trackingMode: string;
-  baselineSubs: number;
   trackedSubs: number;
   trackedBits: number;
   giftedSubs: number;
@@ -119,15 +110,15 @@ function withSessionState(res: Response, req: Request, sessionId: string, viewMo
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
-function encodeAuthState(mode: string) {
-  return btoa(JSON.stringify({ mode }));
+function encodeAuthState() {
+  return btoa(JSON.stringify({ mode: "self" }));
 }
 
 function decodeAuthState(raw: string | null) {
-  if (!raw) return { mode: AUTH_MODE_SELF };
+  if (!raw) return { mode: "self" };
   try {
     const decoded = JSON.parse(atob(raw)) as { mode?: string };
-    return { mode: decoded.mode || AUTH_MODE_SELF };
+    return { mode: decoded.mode || "self" };
   } catch {
     return { mode: raw };
   }
@@ -143,12 +134,7 @@ const IRC_WS = "wss://irc-ws.chat.twitch.tv:443";
 function sessionStats(tracker: SessionTracker) {
   const gifters = [...tracker.gifters.values()]
     .sort((a, b) => b.gifts - a.gifts || a.name.localeCompare(b.name))
-    .slice(0, 50)
-    .map((gifter) => ({
-      ...gifter,
-      rankBase: giftRankBase(gifter.gifts),
-      rank: giftRankLabel(gifter.gifts),
-    }));
+    .slice(0, 50);
 
   return {
     totalSubs: tracker.trackedSubs,
@@ -157,8 +143,6 @@ function sessionStats(tracker: SessionTracker) {
     gifters,
     recentSub: tracker.recentSub,
     subathonStart: tracker.subathonStart,
-    baselineSubs: tracker.baselineSubs,
-    connected: tracker.connected,
     streamStart: tracker.streamStatus.startedAt,
     streamLive: tracker.streamStatus.live,
     streamViewers: tracker.streamStatus.viewers,
@@ -171,13 +155,6 @@ function sessionStats(tracker: SessionTracker) {
     temporaryMode: !tracker.persistent,
     privateTrackerPersistent: tracker.persistent,
     subsCardLabel: "subs gained",
-    subsCardSub: tracker.trackingMode === TRACKING_STREAM
-      ? "this stream"
-      : tracker.trackingMode === TRACKING_RESET
-        ? "tracked since reset"
-        : !!tracker.authToken
-          ? "tracked since login"
-          : "tracked since search",
     hasPrivateTracker: true,
     viewingPrivateTracker: true,
   };
@@ -212,8 +189,6 @@ function serializeSessionTracker(tracker: SessionTracker): PersistedSessionTrack
     wasLive: tracker.wasLive,
     sawOfflineSinceActivation: tracker.sawOfflineSinceActivation,
     subathonStart: tracker.subathonStart,
-    trackingMode: tracker.trackingMode,
-    baselineSubs: tracker.baselineSubs,
     trackedSubs: tracker.trackedSubs,
     trackedBits: tracker.trackedBits,
     giftedSubs: tracker.giftedSubs,
@@ -241,13 +216,10 @@ function hydrateSessionTracker(state: PersistedSessionTracker): SessionTracker {
     refreshToken: state.refreshToken,
     broadcasterId: state.broadcasterId,
     persistent: true,
-    connected: false,
     streamStatus: state.streamStatus,
     wasLive: state.wasLive,
     sawOfflineSinceActivation: state.sawOfflineSinceActivation,
     subathonStart: state.subathonStart,
-    trackingMode: state.trackingMode,
-    baselineSubs: state.baselineSubs,
     trackedSubs: state.trackedSubs,
     trackedBits: state.trackedBits,
     giftedSubs: state.giftedSubs,
@@ -342,14 +314,6 @@ function applySessionBits(tracker: SessionTracker, id: string, bits: number) {
   return true;
 }
 
-async function seedSessionBaseline(tracker: SessionTracker) {
-  if (!tracker.authToken || !tracker.broadcasterId) return;
-  const count = await fetchChannelSubCount(tracker.authToken, tracker.broadcasterId);
-  if (count == null) return;
-  tracker.baselineSubs = count;
-  persistSessionTrackerState(tracker);
-}
-
 async function pollSessionStream(tracker: SessionTracker) {
   const status = await fetchStreamStatusForChannel(tracker.channel);
   if (!status || sessionTrackers.get(tracker.sessionId) !== tracker) return;
@@ -358,9 +322,7 @@ async function pollSessionStream(tracker: SessionTracker) {
   if (status.live && !tracker.wasLive) {
     if (tracker.sawOfflineSinceActivation) {
       tracker.subathonStart = status.startedAt || Math.floor(Date.now() / 1000);
-      tracker.trackingMode = TRACKING_STREAM;
     }
-    await seedSessionBaseline(tracker);
     sessionBroadcast(tracker, { type: "stream_live", stream: status, stats: sessionStats(tracker) });
   } else {
     sessionBroadcast(tracker, { type: "stream_update", stream: status });
@@ -406,7 +368,6 @@ function connectSessionIRC(tracker: SessionTracker) {
           }
           break;
         case "001":
-          tracker.connected = true;
           sessionBroadcast(tracker, { type: "connected", stats: sessionStats(tracker) });
           break;
         case "USERNOTICE": {
@@ -477,7 +438,6 @@ function connectSessionIRC(tracker: SessionTracker) {
 
   socket.onclose = () => {
     if (tracker.ws !== socket || tracker.socketVersion !== version) return;
-    tracker.connected = false;
     tracker.ws = null;
     sessionBroadcast(tracker, { type: "disconnected", stats: sessionStats(tracker) });
     if (sessionTrackers.get(tracker.sessionId) !== tracker) return;
@@ -516,13 +476,10 @@ async function createSessionTracker(
     refreshToken: auth?.refreshToken || null,
     broadcasterId: auth?.broadcasterId || null,
     persistent,
-    connected: false,
     streamStatus: { live: false, title: "", viewers: 0, startedAt: 0 },
     wasLive: false,
     sawOfflineSinceActivation: false,
     subathonStart: Math.floor(Date.now() / 1000),
-    trackingMode: TRACKING_LOGIN,
-    baselineSubs: 0,
     trackedSubs: 0,
     trackedBits: 0,
     giftedSubs: 0,
@@ -604,16 +561,6 @@ function pruneExpiredSessionTrackers() {
   deleteExpiredSessionTrackers(now);
 }
 
-async function seedSubBaseline() {
-  const token = getConfig("broadcaster_token");
-  const bid   = getConfig("broadcaster_id");
-  if (!token || !bid) return;
-  const count = await fetchChannelSubCount(token, bid);
-  if (count == null) { console.log("[broadcaster] token expired"); return; }
-  setConfig("baseline_subs", String(count));
-  console.log(`[broadcaster] seeded baseline: ${count} subs`);
-}
-
 async function pollStream() {
   const trackedChannel = getConfig("channel_login");
   const polledChannel = currentChannel;
@@ -626,10 +573,7 @@ async function pollStream() {
   if (status.live && !wasLive) {
     if (getConfig("broadcaster_token") && sawOfflineSinceActivation) {
       setConfig("subathon_start", String(status.startedAt || Math.floor(Date.now() / 1000)));
-      setConfig("tracking_mode", TRACKING_STREAM);
-      syncFruitberriesCheckpoint();
     }
-    await seedSubBaseline();
     broadcast({ type: "stream_live", stream: status, stats: fullStats() });
   } else {
     broadcast({ type: "stream_update", stream: status });
@@ -645,7 +589,7 @@ async function startStreamPoll() {
 
 /* Stats */
 function fullStats() {
-  return buildStats(connected);
+  return buildStats();
 }
 
 async function sessionTrackerForRequest(req: Request) {
@@ -684,18 +628,10 @@ async function statsForRequest(req: Request) {
   };
 }
 
-function buildStats(connectedState: boolean) {
-  const baseStats = getStats(connectedState);
+function buildStats() {
+  const baseStats = getStats();
   const channel = getConfig("channel_login");
   const hasBroadcasterAuth = !!getConfig("broadcaster_token");
-  const trackingMode = getConfig("tracking_mode") || TRACKING_ANON;
-  const subsCardSub = trackingMode === TRACKING_STREAM
-    ? "this stream"
-    : trackingMode === TRACKING_RESET
-      ? "tracked since reset"
-      : trackingMode === TRACKING_LOGIN
-        ? "tracked since login"
-        : "tracked since startup";
   return {
     ...baseStats,
     streamStart:    streamStatus.startedAt,
@@ -709,21 +645,18 @@ function buildStats(connectedState: boolean) {
     anonymousMode: !hasBroadcasterAuth && channel === DEFAULT_CHANNEL,
     temporaryMode: false,
     subsCardLabel: "subs gained",
-    subsCardSub,
   };
 }
 
-setStatsProvider((connectedState) => buildStats(connectedState));
+setStatsProvider(() => buildStats());
 
 function resetTrackerState(clearAuth = true) {
   clearTrackedEvents();
   if (clearAuth) deleteConfigKeys(AUTH_KEYS);
-  setConfig("baseline_subs", "0");
   setConfig("subathon_start", String(Math.floor(Date.now() / 1000)));
   streamStatus = { live: false, title: "", viewers: 0, startedAt: 0 };
   wasLive = false;
   sawOfflineSinceActivation = false;
-  syncFruitberriesCheckpoint();
 }
 
 function setTrackedChannel(info: { login: string; displayName: string; avatarUrl: string }) {
@@ -738,7 +671,6 @@ async function activateChannel(
 ) {
   resetTrackerState(!auth);
   setTrackedChannel(info);
-  setConfig("tracking_mode", auth ? TRACKING_LOGIN : TRACKING_ANON);
   if (auth) {
     setConfig("broadcaster_token", auth.token);
     setConfig("broadcaster_id", auth.broadcasterId);
@@ -746,7 +678,6 @@ async function activateChannel(
   }
   await switchChannel(info.login, broadcast);
   await startStreamPoll();
-  syncFruitberriesCheckpoint();
   broadcast({ type: "channel_set", stats: fullStats() });
 }
 
@@ -822,8 +753,6 @@ Bun.serve({
         privateTracker.seenSubIds.clear();
         privateTracker.seenBitIds.clear();
         privateTracker.subathonStart = Math.floor(Date.now() / 1000);
-        privateTracker.baselineSubs = 0;
-        privateTracker.trackingMode = TRACKING_RESET;
         persistSessionTrackerState(privateTracker);
         sessionBroadcast(privateTracker, { type: "reset", stats: sessionStats(privateTracker) });
         return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PRIVATE);
@@ -833,9 +762,6 @@ Bun.serve({
       }
       clearTrackedEvents();
       setConfig("subathon_start", String(Math.floor(Date.now() / 1000)));
-      setConfig("baseline_subs", "0");
-      setConfig("tracking_mode", TRACKING_RESET);
-      syncFruitberriesCheckpoint();
       broadcast({ type: "reset", stats: fullStats() });
       return withSessionState(Response.json({ ok: true }), req, sessionId);
     }
@@ -884,7 +810,7 @@ Bun.serve({
         response_type: "code",
         scope:         "channel:read:subscriptions",
         force_verify:  "true",
-        state:         encodeAuthState(AUTH_MODE_SELF),
+        state:         encodeAuthState(),
       });
       return withSessionState(Response.redirect(`https://id.twitch.tv/oauth2/authorize?${params}`), req, sessionId);
     }
@@ -892,7 +818,6 @@ Bun.serve({
     if (url.pathname === "/auth/callback") {
       const code = url.searchParams.get("code");
       const state = decodeAuthState(url.searchParams.get("state"));
-      const authMode = state.mode;
       const authError = url.searchParams.get("error");
       if (authError || !code) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PUBLIC);
 
@@ -956,9 +881,7 @@ if (!getConfig("channel_login")) {
   setConfig("channel_login", DEFAULT_CHANNEL);
   setConfig("channel_display_name", DEFAULT_CHANNEL);
   setConfig("channel_avatar", "");
-  setConfig("baseline_subs", "0");
   setConfig("subathon_start", String(Math.floor(Date.now() / 1000)));
-  setConfig("tracking_mode", TRACKING_ANON);
 }
 
 async function resumeSavedFruitberriesSession() {
@@ -966,7 +889,6 @@ async function resumeSavedFruitberriesSession() {
   if (!login) return activateDefaultChannel();
   await switchChannel(login, broadcast);
   await startStreamPoll();
-  syncFruitberriesCheckpoint();
   broadcast({ type: "channel_set", stats: fullStats() });
 }
 

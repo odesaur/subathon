@@ -13,12 +13,11 @@ export let currentChannel = "";
 let socketVersion = 0;
 
 let appToken: string | null = null;
-let savedBroadcast: BroadcastFn | null = null;
-let statsProvider: ((connected: boolean) => unknown) | null = null;
+let statsProvider: (() => unknown) | null = null;
 const ANON_GIFTER_NAME = "AnAnonymousGifter";
 
-function currentStatsSnapshot(isConnected: boolean) {
-  return statsProvider ? statsProvider(isConnected) : getStats(isConnected);
+function currentStatsSnapshot() {
+  return statsProvider ? statsProvider() : getStats();
 }
 
 /* Tokens */
@@ -57,21 +56,6 @@ export async function fetchStreamStatusForChannel(login: string): Promise<{ live
 export async function fetchStreamStatus(): Promise<{ live: boolean; title: string; viewers: number; startedAt: number } | null> {
   if (!currentChannel) return null;
   return fetchStreamStatusForChannel(currentChannel);
-}
-
-export async function fetchChannelSubCount(broadcasterToken: string, broadcasterId: string): Promise<number | null> {
-  try {
-    const res = await fetch(
-      `https://api.twitch.tv/helix/subscriptions?broadcaster_id=${broadcasterId}&first=1`,
-      { headers: { "Client-ID": CLIENT_ID, Authorization: `Bearer ${broadcasterToken}` } }
-    );
-    if (res.status === 401) return null;
-    if (!res.ok) return null;
-    const data = (await res.json()) as { total?: number };
-    return data.total ?? null;
-  } catch {
-    return null;
-  }
 }
 
 export async function getBroadcasterIdByToken(token: string): Promise<string | null> {
@@ -136,7 +120,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
         id: `sub_${tags["id"] || Date.now()}`,
         userId, userName: name, tier, isGift: false, kind: "sub",
       });
-      broadcast({ type: "sub", userName: name, stats: currentStatsSnapshot(connected) });
+      broadcast({ type: "sub", userName: name, stats: currentStatsSnapshot() });
       break;
     }
 
@@ -145,7 +129,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
         id: `resub_${tags["id"] || Date.now()}`,
         userId, userName: name, tier, isGift: false, kind: "resub",
       });
-      broadcast({ type: "resub", userName: name, stats: currentStatsSnapshot(connected) });
+      broadcast({ type: "resub", userName: name, stats: currentStatsSnapshot() });
       break;
     }
 
@@ -162,9 +146,9 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
       });
 
       if (!isBatch) {
-        broadcast({ type: "gift", gifterName: name, total: 1, stats: currentStatsSnapshot(connected) });
+        broadcast({ type: "gift", gifterName: name, total: 1, stats: currentStatsSnapshot() });
       } else {
-        broadcast({ type: "stats_update", stats: currentStatsSnapshot(connected) });
+        broadcast({ type: "stats_update", stats: currentStatsSnapshot() });
       }
       break;
     }
@@ -172,7 +156,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
     case "submysterygift": {
       const count = parseInt(tags["msg-param-mass-gift-count"] || "1");
       recordRecentSub(`${name} gifted ${count}`);
-      broadcast({ type: "gift", gifterName: name, total: count, stats: currentStatsSnapshot(connected) });
+      broadcast({ type: "gift", gifterName: name, total: count, stats: currentStatsSnapshot() });
       break;
     }
 
@@ -187,9 +171,9 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
         gifterId: null, gifterName: null,
       });
       if (!isBatch) {
-        broadcast({ type: "gift", gifterName: ANON_GIFTER_NAME, total: 1, stats: currentStatsSnapshot(connected) });
+        broadcast({ type: "gift", gifterName: ANON_GIFTER_NAME, total: 1, stats: currentStatsSnapshot() });
       } else {
-        broadcast({ type: "stats_update", stats: currentStatsSnapshot(connected) });
+        broadcast({ type: "stats_update", stats: currentStatsSnapshot() });
       }
       break;
     }
@@ -197,7 +181,7 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
     case "anonsubmysterygift": {
       const count = parseInt(tags["msg-param-mass-gift-count"] || "1");
       recordRecentSub(`${ANON_GIFTER_NAME} gifted ${count}`);
-      broadcast({ type: "gift", gifterName: ANON_GIFTER_NAME, total: count, stats: currentStatsSnapshot(connected) });
+      broadcast({ type: "gift", gifterName: ANON_GIFTER_NAME, total: count, stats: currentStatsSnapshot() });
       break;
     }
   }
@@ -205,7 +189,6 @@ function onUserNotice(tags: Record<string, string>, broadcast: BroadcastFn) {
 
 export function connectIRC(broadcast: BroadcastFn) {
   if (!currentChannel) return;
-  savedBroadcast = broadcast;
   const nick = `justinfan${Math.floor(Math.random() * 80000) + 10000}`;
   const socket = new WebSocket(IRC_WS);
   ws = socket;
@@ -241,7 +224,7 @@ export function connectIRC(broadcast: BroadcastFn) {
         case "001":
           connected = true;
           console.log(`[irc] ready on #${currentChannel}`);
-          broadcast({ type: "connected", stats: currentStatsSnapshot(true) });
+          broadcast({ type: "connected", stats: currentStatsSnapshot() });
           break;
 
         case "USERNOTICE":
@@ -258,7 +241,7 @@ export function connectIRC(broadcast: BroadcastFn) {
               userName: isAnon ? null : (msg.tags["display-name"] || null),
               bits,
             });
-            broadcast({ type: "bits", bits, stats: currentStatsSnapshot(connected) });
+            broadcast({ type: "bits", bits, stats: currentStatsSnapshot() });
           }
           break;
         }
@@ -275,7 +258,7 @@ export function connectIRC(broadcast: BroadcastFn) {
   socket.onclose = (ev) => {
     if (ws !== socket || version !== socketVersion) return;
     connected = false;
-    broadcast({ type: "disconnected", stats: currentStatsSnapshot(false) });
+    broadcast({ type: "disconnected", stats: currentStatsSnapshot() });
     ws = null;
     if (currentChannel) {
       console.log(`[irc] closed (${ev.code}), retrying in 5s…`);
@@ -315,7 +298,7 @@ export async function switchChannel(channel: string, broadcast: BroadcastFn) {
   connectIRC(broadcast);
 }
 
-export function setStatsProvider(provider: (connected: boolean) => unknown) {
+export function setStatsProvider(provider: () => unknown) {
   statsProvider = provider;
 }
 

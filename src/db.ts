@@ -191,8 +191,6 @@ function persistCounter(key: string, value: number) {
   setCounterStmt.run(key, value);
 }
 
-export function syncFruitberriesCheckpoint(): void {}
-
 export function getConfig(key: string): string | null {
   return config.get(key) ?? null;
 }
@@ -236,11 +234,9 @@ export interface Stats {
   totalSubs: number;
   totalBits: number;
   giftedSubs: number;
-  gifters: { name: string; id: string | null; gifts: number; rank: string; rankBase: string }[];
+  gifters: { name: string; id: string | null; gifts: number }[];
   recentSub: { text: string; at: number } | null;
   subathonStart: number;
-  baselineSubs: number;
-  connected: boolean;
 }
 
 export interface PersistedSessionTracker {
@@ -255,8 +251,6 @@ export interface PersistedSessionTracker {
   wasLive: boolean;
   sawOfflineSinceActivation: boolean;
   subathonStart: number;
-  trackingMode: string;
-  baselineSubs: number;
   trackedSubs: number;
   trackedBits: number;
   giftedSubs: number;
@@ -290,36 +284,7 @@ export function recordRecentSub(text: string, at = Math.floor(Date.now() / 1000)
   setRecentSub(text, at);
 }
 
-export function giftRankBase(gifts: number): string {
-  if (gifts >= 100) return "oiler";
-  if (gifts >= 75) return "netherite";
-  if (gifts >= 50) return "diamond";
-  if (gifts >= 30) return "emerald";
-  if (gifts >= 15) return "gold";
-  if (gifts >= 5) return "iron";
-  return "coal";
-}
-
-function subdividedRank(base: string, gifts: number, min: number, max: number): string {
-  const step = Math.ceil((max - min + 1) / 3);
-  const idx = Math.min(2, Math.floor((gifts - min) / step));
-  const suffix = ["i", "ii", "iii"][idx];
-  return `${base} ${suffix}`;
-}
-
-export function giftRankLabel(gifts: number): string {
-  const base = giftRankBase(gifts);
-  if (base === "oiler") return base;
-  if (base === "netherite") return subdividedRank(base, gifts, 75, 99);
-  if (base === "diamond") return subdividedRank(base, gifts, 50, 74);
-  if (base === "emerald") return subdividedRank(base, gifts, 30, 49);
-  if (base === "gold") return subdividedRank(base, gifts, 15, 29);
-  if (base === "iron") return subdividedRank(base, gifts, 5, 14);
-  return subdividedRank(base, gifts, 1, 4);
-}
-
-export function getStats(connected = false): Stats {
-  const baselineSubs = parseInt(getConfig("baseline_subs") ?? "0", 10);
+export function getStats(): Stats {
   const mergedGifters = new Map<string, { name: string; id: string | null; gifts: number }>();
   for (const gifter of gifterCounts.values()) {
     const normalizedName = normalizeGifterName(gifter.name);
@@ -331,12 +296,7 @@ export function getStats(connected = false): Stats {
   }
   const gifters = [...mergedGifters.values()]
     .sort((a, b) => b.gifts - a.gifts || a.name.localeCompare(b.name))
-    .slice(0, 50)
-    .map((gifter) => ({
-      ...gifter,
-      rankBase: giftRankBase(gifter.gifts),
-      rank: giftRankLabel(gifter.gifts),
-    }));
+    .slice(0, 50);
 
   return {
     totalSubs: trackedSubs,
@@ -345,8 +305,6 @@ export function getStats(connected = false): Stats {
     gifters,
     recentSub: getRecentSub(),
     subathonStart: getSubathonStart(),
-    baselineSubs,
-    connected,
   };
 }
 
