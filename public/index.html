@@ -401,14 +401,6 @@
       margin-top:1.25rem; display:flex; align-items:center; justify-content:space-between;
       font-size:.7rem; color:var(--dim); padding:0 .25rem;
     }
-    .footer-meta {
-      display: flex;
-      flex-direction: column;
-      gap: .15rem;
-    }
-    .footer-meta-line {
-      color: var(--dim);
-    }
     .footer-actions { display:flex; gap:.5rem; align-items:center; }
 
     .modal-shell {
@@ -567,9 +559,7 @@
       </div>
 
       <footer>
-        <div class="footer-meta">
-          <span class="footer-meta-line" id="footer-tracking">0s ago</span>
-        </div>
+        <span id="footer-tracking">0s ago</span>
         <div class="footer-actions">
           <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
           <button class="btn" id="btn-view-public" style="display:none">back to fruitberries</button>
