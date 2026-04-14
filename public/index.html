@@ -117,6 +117,16 @@
     .btn:hover { border-color: var(--muted); color: var(--text); }
     .btn.primary { border-color: var(--purple); color: var(--purple); }
     .btn.primary:hover { background: color-mix(in srgb,var(--purple) 15%,transparent); color: var(--text); }
+    #btn-bingo {
+      border-color: #f6c177;
+      color: #f6c177;
+      background: color-mix(in srgb, #f6c177 10%, transparent);
+    }
+    #btn-bingo:hover {
+      border-color: #f6c177;
+      color: var(--text);
+      background: color-mix(in srgb, #f6c177 18%, transparent);
+    }
     .btn.easter { border-color: var(--orange); color: var(--orange); }
     .btn.easter:hover { background: color-mix(in srgb,var(--orange) 12%,transparent); color: var(--text); }
 
@@ -541,6 +551,7 @@
           </details>
         </div>
         <div class="mode-actions">
+          <a href="/bingo" class="btn primary" id="btn-bingo">Bingo Wiki</a>
           <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
         </div>
       </div>

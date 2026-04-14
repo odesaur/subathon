@@ -17,6 +17,7 @@ const CLIENT_ID     = process.env.TWITCH_CLIENT_ID!;
 const CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET!;
 const REDIRECT_URI  = process.env.REDIRECT_URI || `http://localhost:${PORT}/auth/callback`;
 const DEFAULT_CHANNEL = "fruitberries";
+const PUBLIC_DIR = new URL("../public", import.meta.url).pathname;
 const AUTH_KEYS = ["broadcaster_token", "broadcaster_id", "broadcaster_refresh"];
 const VIEW_PRIVATE = "private";
 const VIEW_PUBLIC = "public";
@@ -707,12 +708,27 @@ Bun.serve({
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
       ), req, sessionId);
     }
+    if (url.pathname === "/bingo") {
+      return new Response(
+        Bun.file(new URL("../public/bingo.html", import.meta.url).pathname),
+        { headers: { "Content-Type": "text/html; charset=utf-8" } }
+      );
+    }
 
     if (url.pathname === "/favicon.ico") {
       return new Response(
         Bun.file(new URL("../favicon.ico", import.meta.url).pathname),
         { headers: { "Content-Type": "image/x-icon" } }
       );
+    }
+    if (url.pathname === "/lockout-goals.json") {
+      return new Response(
+        Bun.file(`${PUBLIC_DIR}/lockout-goals.json`),
+        { headers: { "Content-Type": "application/json; charset=utf-8" } }
+      );
+    }
+    if (url.pathname.startsWith("/lockout-textures/")) {
+      return new Response(Bun.file(`${PUBLIC_DIR}${url.pathname}`));
     }
 
     if (url.pathname === "/api/stats") {

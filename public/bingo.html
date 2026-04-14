@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bingo wiki</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #1a1a24;
+      --border: #2a2a38;
+      --text: #f8f8f2;
+      --muted: #6272a4;
+      --dim: #44475a;
+      --accent: #f6c177;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 2rem;
+    }
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .title {
+      display: flex;
+      flex-direction: column;
+      gap: .15rem;
+      min-width: 0;
+    }
+    .title-top {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+    }
+    .title-main {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .title-sub {
+      font-size: .8rem;
+      color: var(--muted);
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      flex-shrink: 0;
+    }
+    .btn, .search-input {
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-family: inherit;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: .5rem .95rem;
+      font-size: .8rem;
+      white-space: nowrap;
+    }
+    .btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .search-wrap {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .search-input {
+      width: 100%;
+      padding: .65rem .8rem;
+      outline: none;
+      font-size: .92rem;
+    }
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+    .meta {
+      margin-top: .55rem;
+      font-size: .76rem;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .75rem;
+    }
+    .goal {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: .72rem .82rem;
+      min-width: 0;
+    }
+    .goal-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      image-rendering: pixelated;
+      object-fit: contain;
+      display: block;
+    }
+    .goal-label {
+      min-width: 0;
+      color: var(--text);
+      font-size: .84rem;
+      font-weight: 500;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    .empty {
+      border: 1px dashed color-mix(in srgb, var(--border) 75%, transparent);
+      border-radius: 8px;
+      padding: 1rem;
+      color: var(--muted);
+      text-align: center;
+      grid-column: 1 / -1;
+    }
+    @media (max-width: 760px) {
+      body { padding: 1rem; }
+      .head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .actions {
+        width: 100%;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="head">
+      <div class="title">
+        <div class="title-top">lockout fabric</div>
+        <div class="title-main">bingo wiki</div>
+        <div class="title-sub">goal library extracted from the mod source</div>
+      </div>
+      <div class="actions">
+        <a class="btn" href="/">back to tracker</a>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <input class="search-input" id="search" type="text" placeholder="search goals like bookshelf, armor, geode, end crystal..." autocomplete="off" spellcheck="false" />
+      <div class="meta" id="meta">loading goals…</div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <script>
+    const state = { goals: [] };
+
+    function render() {
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const goals = !q
+        ? state.goals
+        : state.goals.filter((goal) => goal.label.toLowerCase().includes(q) || goal.id.toLowerCase().includes(q));
+      document.getElementById('meta').textContent = `${state.goals.length.toLocaleString()} goals`;
+
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      if (!goals.length) {
+        grid.innerHTML = '<div class="empty">no goals match that search</div>';
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      for (const goal of goals) {
+        const row = document.createElement('div');
+        row.className = 'goal';
+
+        const img = document.createElement('img');
+        img.className = 'goal-icon';
+        img.alt = goal.label;
+        img.src = goal.iconPath || '/lockout-textures/fallback.png';
+        img.onerror = () => { img.src = '/lockout-textures/fallback.png'; };
+
+        const label = document.createElement('div');
+        label.className = 'goal-label';
+        label.textContent = goal.description || goal.label;
+        label.title = goal.label;
+
+        row.append(img, label);
+        frag.appendChild(row);
+      }
+      grid.appendChild(frag);
+    }
+
+    async function init() {
+      const res = await fetch('/lockout-goals.json');
+      const data = await res.json();
+      state.goals = data.goals || [];
+      render();
+    }
+
+    document.getElementById('search').addEventListener('input', render);
+    init().catch(() => {
+      document.getElementById('meta').textContent = 'failed to load goals';
+      document.getElementById('grid').innerHTML = '<div class="empty">could not load the bingo wiki</div>';
+    });
+  </script>
+</body>
+</html>

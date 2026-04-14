@@ -1,0 +1,2417 @@
+{
+  "count": 268,
+  "goals": [
+    {
+      "id": "OPPONENT_CATCHES_ON_FIRE",
+      "label": "All other opponents catch on Fire",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/no_fire.png",
+      "description": "All other opponents catch on Fire",
+      "iconPath": "/lockout-textures/custom/opponent/no_fire.png"
+    },
+    {
+      "id": "OPPONENT_DIES",
+      "label": "All other opponents die",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/no_death.png",
+      "description": "All other opponents die",
+      "iconPath": "/lockout-textures/custom/opponent/no_death.png"
+    },
+    {
+      "id": "OPPONENT_DIES_3_TIMES",
+      "label": "All other opponents die 3 times",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/no_death.png",
+      "description": "All other opponents die 3 times",
+      "iconPath": "/lockout-textures/custom/opponent/no_death.png"
+    },
+    {
+      "id": "OPPONENT_EATS_FOOD",
+      "label": "All other opponents eat food",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/no_food.png",
+      "description": "All other opponents eat food",
+      "iconPath": "/lockout-textures/custom/opponent/no_food.png"
+    },
+    {
+      "id": "OPPONENT_HIT_BY_ARROW",
+      "label": "All other opponents hit by Arrow",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "arrow.png",
+      "description": "All other opponents hit by Arrow",
+      "iconPath": "/lockout-textures/custom/arrow.png"
+    },
+    {
+      "id": "OPPONENT_HIT_BY_EGG",
+      "label": "All other opponents hit by Egg",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/no_overlay.png",
+      "description": "All other opponents hit by Egg",
+      "iconPath": "/lockout-textures/custom/overlay/no_overlay.png"
+    },
+    {
+      "id": "OPPONENT_HIT_BY_SNOWBALL",
+      "label": "All other opponents hit by Snowball",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/no_overlay.png",
+      "description": "All other opponents hit by Snowball",
+      "iconPath": "/lockout-textures/custom/overlay/no_overlay.png"
+    },
+    {
+      "id": "OPPONENT_OBTAINS_CRAFTING_TABLE",
+      "label": "All other opponents obtain Crafting Table",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/no_crafting_table.png",
+      "description": "All other opponents obtain Crafting Table",
+      "iconPath": "/lockout-textures/custom/opponent/no_crafting_table.png"
+    },
+    {
+      "id": "OPPONENT_OBTAINS_OBSIDIAN",
+      "label": "All other opponents obtain Obsidian",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/no_obsidian.png",
+      "description": "All other opponents obtain Obsidian",
+      "iconPath": "/lockout-textures/custom/opponent/no_obsidian.png"
+    },
+    {
+      "id": "OPPONENT_OBTAINS_SEEDS",
+      "label": "All other opponents obtain Wheat Seeds",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/no_seeds.png",
+      "description": "All other opponents obtain Wheat Seeds",
+      "iconPath": "/lockout-textures/custom/opponent/no_seeds.png"
+    },
+    {
+      "id": "OPPONENT_TAKES_100_DAMAGE",
+      "label": "All other opponents take 100 Damage",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/opponent_takes_100_damage.png",
+      "description": "All other opponents take 100 Damage",
+      "iconPath": "/lockout-textures/custom/opponent/opponent_takes_100_damage.png"
+    },
+    {
+      "id": "OPPONENT_TAKES_FALL_DAMAGE",
+      "label": "All other opponents take fall damage",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/no_fall_damage.png",
+      "description": "All other opponents take fall damage",
+      "iconPath": "/lockout-textures/custom/opponent/no_fall_damage.png"
+    },
+    {
+      "id": "OPPONENT_TOUCHES_WATER",
+      "label": "All other opponents touch water",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "opponent/no_water.png",
+      "description": "All other opponents touch water",
+      "iconPath": "/lockout-textures/custom/opponent/no_water.png"
+    },
+    {
+      "id": "BOAT_2_KM",
+      "label": "Boat 2km",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "oak_boat",
+      "description": "Boat 2km",
+      "iconPath": "/lockout-textures/vanilla/oak_boat.png"
+    },
+    {
+      "id": "BREAK_TOOL",
+      "label": "Break a Tool",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "break_tool.png",
+      "description": "Break a Tool",
+      "iconPath": "/lockout-textures/custom/break_tool.png"
+    },
+    {
+      "id": "BREED_4_UNIQUE_ANIMALS",
+      "label": "Breed 4 Unique Animals",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_x.png",
+      "description": "Breed 4 Unique Animals",
+      "iconPath": "/lockout-textures/custom/breed/breed_x.png"
+    },
+    {
+      "id": "BREED_6_UNIQUE_ANIMALS",
+      "label": "Breed 6 Unique Animals",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_x.png",
+      "description": "Breed 6 Unique Animals",
+      "iconPath": "/lockout-textures/custom/breed/breed_x.png"
+    },
+    {
+      "id": "BREED_8_UNIQUE_ANIMALS",
+      "label": "Breed 8 Unique Animals",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_x.png",
+      "description": "Breed 8 Unique Animals",
+      "iconPath": "/lockout-textures/custom/breed/breed_x.png"
+    },
+    {
+      "id": "BREED_CHICKEN",
+      "label": "Breed Chickens",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_chicken.png",
+      "description": "Breed Chickens",
+      "iconPath": "/lockout-textures/custom/breed/breed_chicken.png"
+    },
+    {
+      "id": "BREED_COW",
+      "label": "Breed Cows",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_cow.png",
+      "description": "Breed Cows",
+      "iconPath": "/lockout-textures/custom/breed/breed_cow.png"
+    },
+    {
+      "id": "BREED_FOX",
+      "label": "Breed Foxes",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_fox.png",
+      "description": "Breed Foxes",
+      "iconPath": "/lockout-textures/custom/breed/breed_fox.png"
+    },
+    {
+      "id": "BREED_FROGS",
+      "label": "Breed Frogs",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_frogs.png",
+      "description": "Breed Frogs",
+      "iconPath": "/lockout-textures/custom/breed/breed_frogs.png"
+    },
+    {
+      "id": "BREED_GOAT",
+      "label": "Breed Goats",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_goat.png",
+      "description": "Breed Goats",
+      "iconPath": "/lockout-textures/custom/breed/breed_goat.png"
+    },
+    {
+      "id": "BREED_HOGLIN",
+      "label": "Breed Hoglins",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_hoglin.png",
+      "description": "Breed Hoglins",
+      "iconPath": "/lockout-textures/custom/breed/breed_hoglin.png"
+    },
+    {
+      "id": "BREED_PIG",
+      "label": "Breed Pigs",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_pig.png",
+      "description": "Breed Pigs",
+      "iconPath": "/lockout-textures/custom/breed/breed_pig.png"
+    },
+    {
+      "id": "BREED_RABBIT",
+      "label": "Breed Rabbits",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_rabbit.png",
+      "description": "Breed Rabbits",
+      "iconPath": "/lockout-textures/custom/breed/breed_rabbit.png"
+    },
+    {
+      "id": "BREED_SHEEP",
+      "label": "Breed Sheep",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_sheep.png",
+      "description": "Breed Sheep",
+      "iconPath": "/lockout-textures/custom/breed/breed_sheep.png"
+    },
+    {
+      "id": "BREED_STRIDER",
+      "label": "Breed Striders",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "breed/breed_strider.png",
+      "description": "Breed Striders",
+      "iconPath": "/lockout-textures/custom/breed/breed_strider.png"
+    },
+    {
+      "id": "BREW_LINGERING_POTION",
+      "label": "Brew a Lingering Potion",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "lingering_potion",
+      "description": "Brew a Lingering Potion",
+      "iconPath": "/lockout-textures/vanilla/lingering_potion.png"
+    },
+    {
+      "id": "BREW_HEALING_POTION",
+      "label": "Brew a Potion of Healing",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "potion",
+      "description": "Brew a Potion of Healing",
+      "iconPath": "/lockout-textures/vanilla/potion.png"
+    },
+    {
+      "id": "BREW_INVISIBILITY_POTION",
+      "label": "Brew a Potion of Invisibility",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "potion",
+      "description": "Brew a Potion of Invisibility",
+      "iconPath": "/lockout-textures/vanilla/potion.png"
+    },
+    {
+      "id": "BREW_POISON_POTION",
+      "label": "Brew a Potion of Poison",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "potion",
+      "description": "Brew a Potion of Poison",
+      "iconPath": "/lockout-textures/vanilla/potion.png"
+    },
+    {
+      "id": "BREW_SWIFTNESS_POTION",
+      "label": "Brew a Potion of Swiftness",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "potion",
+      "description": "Brew a Potion of Swiftness",
+      "iconPath": "/lockout-textures/vanilla/potion.png"
+    },
+    {
+      "id": "BREW_WATER_BREATHING_POTION",
+      "label": "Brew a Potion of Water Breathing",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "potion",
+      "description": "Brew a Potion of Water Breathing",
+      "iconPath": "/lockout-textures/vanilla/potion.png"
+    },
+    {
+      "id": "BREW_WEAKNESS_POTION",
+      "label": "Brew a Potion of Weakness",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "potion",
+      "description": "Brew a Potion of Weakness",
+      "iconPath": "/lockout-textures/vanilla/potion.png"
+    },
+    {
+      "id": "GET_NOT_QUITE_NINE_LIVES_ADVANCEMENT",
+      "label": "Charge a Respawn Anchor",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "respawn_anchor",
+      "description": "Charge a Respawn Anchor",
+      "iconPath": "/lockout-textures/custom/death/die_to_anchor.png"
+    },
+    {
+      "id": "CONSTRUCT_COPPER_GOLEM",
+      "label": "Construct a Copper Golem",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "copper_chest",
+      "description": "Construct a Copper Golem",
+      "iconPath": "/lockout-textures/vanilla/raw_copper_block.png"
+    },
+    {
+      "id": "GET_HIRED_HELP_ADVANCEMENT",
+      "label": "Construct an Iron Golem",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "carved_pumpkin",
+      "description": "Construct an Iron Golem",
+      "iconPath": "/lockout-textures/vanilla/carved_pumpkin.png"
+    },
+    {
+      "id": "HAVE_MORE_UNIQUE_CRAFTS",
+      "label": "Craft the most unique Items",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/up_overlay.png",
+      "description": "Craft the most unique Items",
+      "iconPath": "/lockout-textures/custom/overlay/up_overlay.png"
+    },
+    {
+      "id": "DEAL_400_DAMAGE",
+      "label": "Deal 400 damage",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "deal_400_damage.png",
+      "description": "Deal 400 damage",
+      "iconPath": "/lockout-textures/custom/deal_400_damage.png"
+    },
+    {
+      "id": "PUT_BANNER_ON_SHIELD",
+      "label": "Decorate Shield with Banner",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "apply_banner_shield.png",
+      "description": "Decorate Shield with Banner",
+      "iconPath": "/lockout-textures/custom/apply_banner_shield.png"
+    },
+    {
+      "id": "DIE_BY_DROWNING",
+      "label": "Die by drowning",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/die_to_overlay.png",
+      "description": "Die by drowning",
+      "iconPath": "/lockout-textures/custom/overlay/die_to_overlay.png"
+    },
+    {
+      "id": "DIE_BY_FALLING_OFF_VINE",
+      "label": "Die by falling off Vines",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_vines.png",
+      "description": "Die by falling off Vines",
+      "iconPath": "/lockout-textures/custom/death/die_to_vines.png"
+    },
+    {
+      "id": "FREEZE_TO_DEATH",
+      "label": "Die by Freezing",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_freezing.png",
+      "description": "Die by Freezing",
+      "iconPath": "/lockout-textures/custom/death/die_to_freezing.png"
+    },
+    {
+      "id": "DIE_BY_MAGIC",
+      "label": "Die by Magic",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_magic.png",
+      "description": "Die by Magic",
+      "iconPath": "/lockout-textures/custom/death/die_to_magic.png"
+    },
+    {
+      "id": "DIE_BY_INTENTIONAL_GAME_DESIGN",
+      "label": "Die to [Intentional Game Design]",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_anchor.png",
+      "description": "Die to [Intentional Game Design]",
+      "iconPath": "/lockout-textures/custom/death/die_to_anchor.png"
+    },
+    {
+      "id": "DIE_BY_BEE_STING",
+      "label": "Die to Bee Sting",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_bee.png",
+      "description": "Die to Bee Sting",
+      "iconPath": "/lockout-textures/custom/death/die_to_bee.png"
+    },
+    {
+      "id": "DIE_BY_BERRY_BUSH",
+      "label": "Die to Berry Bush",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_sweet_berries.png",
+      "description": "Die to Berry Bush",
+      "iconPath": "/lockout-textures/custom/death/die_to_sweet_berries.png"
+    },
+    {
+      "id": "DIE_BY_CACTUS",
+      "label": "Die to Cactus",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_cactus.png",
+      "description": "Die to Cactus",
+      "iconPath": "/lockout-textures/custom/death/die_to_cactus.png"
+    },
+    {
+      "id": "DIE_BY_ANVIL",
+      "label": "Die to falling Anvil",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_anvil.png",
+      "description": "Die to falling Anvil",
+      "iconPath": "/lockout-textures/custom/death/die_to_anvil.png"
+    },
+    {
+      "id": "DIE_BY_FALLING_STALACTITE",
+      "label": "Die to Falling Stalactite",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_falling_stalactite.png",
+      "description": "Die to Falling Stalactite",
+      "iconPath": "/lockout-textures/custom/death/die_to_falling_stalactite.png"
+    },
+    {
+      "id": "DIE_BY_FIREWORK",
+      "label": "Die to Firework Rocket",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_firework.png",
+      "description": "Die to Firework Rocket",
+      "iconPath": "/lockout-textures/custom/death/die_to_firework.png"
+    },
+    {
+      "id": "DIE_BY_IRON_GOLEM",
+      "label": "Die to Iron Golem",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_golem.png",
+      "description": "Die to Iron Golem",
+      "iconPath": "/lockout-textures/custom/death/die_to_golem.png"
+    },
+    {
+      "id": "DIE_TO_POLAR_BEAR",
+      "label": "Die to Polar Bear",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_polar_bear.png",
+      "description": "Die to Polar Bear",
+      "iconPath": "/lockout-textures/custom/death/die_to_polar_bear.png"
+    },
+    {
+      "id": "DIE_BY_TNT_MINECART",
+      "label": "Die to TNT Minecart",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "death/die_to_tnt_minecart.png",
+      "description": "Die to TNT Minecart",
+      "iconPath": "/lockout-textures/custom/death/die_to_tnt_minecart.png"
+    },
+    {
+      "id": "GET_OH_SHINY_ADVANCEMENT",
+      "label": "Distract a Piglin with Gold",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "gold_ingot",
+      "description": "Distract a Piglin with Gold",
+      "iconPath": "/lockout-textures/vanilla/gold_ingot.png"
+    },
+    {
+      "id": "DRINK_HONEY_BOTTLE",
+      "label": "Drink Honey Bottle",
+      "variable": false,
+      "iconType": "none",
+      "iconRef": null,
+      "description": "Drink Honey Bottle",
+      "iconPath": "/lockout-textures/vanilla/honey_bottle.png"
+    },
+    {
+      "id": "DRINK_WATER_BOTTLE",
+      "label": "Drink Water Bottle",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "potion",
+      "description": "Drink Water Bottle",
+      "iconPath": "/lockout-textures/vanilla/potion.png"
+    },
+    {
+      "id": "EAT_10_UNIQUE_FOOD",
+      "label": "Eat 10 Unique Food",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "eat_unique.png",
+      "description": "Eat 10 Unique Food",
+      "iconPath": "/lockout-textures/custom/eat_unique.png"
+    },
+    {
+      "id": "EAT_15_UNIQUE_FOOD",
+      "label": "Eat 15 Unique Food",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "eat_unique.png",
+      "description": "Eat 15 Unique Food",
+      "iconPath": "/lockout-textures/custom/eat_unique.png"
+    },
+    {
+      "id": "EAT_20_UNIQUE_FOOD",
+      "label": "Eat 20 Unique Food",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "eat_unique.png",
+      "description": "Eat 20 Unique Food",
+      "iconPath": "/lockout-textures/custom/eat_unique.png"
+    },
+    {
+      "id": "EAT_25_UNIQUE_FOOD",
+      "label": "Eat 25 Unique Food",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "eat_unique.png",
+      "description": "Eat 25 Unique Food",
+      "iconPath": "/lockout-textures/custom/eat_unique.png"
+    },
+    {
+      "id": "EAT_5_UNIQUE_FOOD",
+      "label": "Eat 5 Unique Food",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "eat_unique.png",
+      "description": "Eat 5 Unique Food",
+      "iconPath": "/lockout-textures/custom/eat_unique.png"
+    },
+    {
+      "id": "EAT_GLOW_BERRY",
+      "label": "Eat a Glow Berry",
+      "variable": false,
+      "iconType": "none",
+      "iconRef": null,
+      "description": "Eat a Glow Berry",
+      "iconPath": "/lockout-textures/vanilla/glow_berries.png"
+    },
+    {
+      "id": "EAT_POISONOUS_POTATO",
+      "label": "Eat a Poisonous Potato",
+      "variable": false,
+      "iconType": "none",
+      "iconRef": null,
+      "description": "Eat a Poisonous Potato",
+      "iconPath": "/lockout-textures/vanilla/poisonous_potato.png"
+    },
+    {
+      "id": "EAT_CAKE",
+      "label": "Eat a slice of Cake",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "eat_cake.png",
+      "description": "Eat a slice of Cake",
+      "iconPath": "/lockout-textures/custom/eat_cake.png"
+    },
+    {
+      "id": "EAT_BEETROOT_SOUP",
+      "label": "Eat Beetroot Soup",
+      "variable": false,
+      "iconType": "none",
+      "iconRef": null,
+      "description": "Eat Beetroot Soup",
+      "iconPath": "/lockout-textures/vanilla/beetroot_soup.png"
+    },
+    {
+      "id": "EAT_CHORUS_FRUIT",
+      "label": "Eat Chorus Fruit",
+      "variable": false,
+      "iconType": "none",
+      "iconRef": null,
+      "description": "Eat Chorus Fruit",
+      "iconPath": "/lockout-textures/vanilla/chorus_fruit.png"
+    },
+    {
+      "id": "EAT_COOKIE",
+      "label": "Eat Cookie",
+      "variable": false,
+      "iconType": "none",
+      "iconRef": null,
+      "description": "Eat Cookie",
+      "iconPath": "/lockout-textures/vanilla/cookie.png"
+    },
+    {
+      "id": "EAT_PUMPKIN_PIE",
+      "label": "Eat Pumpkin Pie",
+      "variable": false,
+      "iconType": "none",
+      "iconRef": null,
+      "description": "Eat Pumpkin Pie",
+      "iconPath": "/lockout-textures/vanilla/pumpkin_pie.png"
+    },
+    {
+      "id": "EAT_RABBIT_STEW",
+      "label": "Eat Rabbit Stew",
+      "variable": false,
+      "iconType": "none",
+      "iconRef": null,
+      "description": "Eat Rabbit Stew",
+      "iconPath": "/lockout-textures/vanilla/rabbit_stew.png"
+    },
+    {
+      "id": "EAT_SUSPICIOUS_STEW",
+      "label": "Eat Suspicious Stew",
+      "variable": false,
+      "iconType": "none",
+      "iconRef": null,
+      "description": "Eat Suspicious Stew",
+      "iconPath": "/lockout-textures/vanilla/suspicious_stew.png"
+    },
+    {
+      "id": "EMPTY_HUNGER_BAR",
+      "label": "Empty Hunger Bar",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "starve.png",
+      "description": "Empty Hunger Bar",
+      "iconPath": "/lockout-textures/custom/starve.png"
+    },
+    {
+      "id": "ENRAGE_ZOMBIFIED_PIGLIN",
+      "label": "Enrage Zombified Piglin",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "enrage_zombie_piglin.png",
+      "description": "Enrage Zombified Piglin",
+      "iconPath": "/lockout-textures/custom/enrage_zombie_piglin.png"
+    },
+    {
+      "id": "ENTER_A_TRIAL_CHAMBER",
+      "label": "Enter a Trial Chamber",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "trial_key",
+      "description": "Enter a Trial Chamber",
+      "iconPath": "/lockout-textures/vanilla/trial_key.png"
+    },
+    {
+      "id": "ENTER_NETHER",
+      "label": "Enter Nether",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "nether_portal.png",
+      "description": "Enter Nether",
+      "iconPath": "/lockout-textures/custom/nether_portal.png"
+    },
+    {
+      "id": "ENTER_END",
+      "label": "Enter The End",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "end_portal_frame",
+      "description": "Enter The End",
+      "iconPath": "/lockout-textures/vanilla/ender_eye.png"
+    },
+    {
+      "id": "FILL_SHELF",
+      "label": "Fill a Shelf",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "oak_shelf",
+      "description": "Fill a Shelf",
+      "iconPath": "/lockout-textures/vanilla/oak_shelf.png"
+    },
+    {
+      "id": "FILL_ARMOR_STAND",
+      "label": "Fill an Armor Stand",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "armor_stand",
+      "description": "Fill an Armor Stand",
+      "iconPath": "/lockout-textures/vanilla/armor_stand.png"
+    },
+    {
+      "id": "FILL_BUNDLE",
+      "label": "Fill Bundle",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "bundle",
+      "description": "Fill Bundle",
+      "iconPath": "/lockout-textures/vanilla/bundle.png"
+    },
+    {
+      "id": "FILL_CAMPFIRE",
+      "label": "Fill Campfire with 4 Food Items",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "campfire.png",
+      "description": "Fill Campfire with 4 Food Items",
+      "iconPath": "/lockout-textures/custom/campfire.png"
+    },
+    {
+      "id": "FILL_CHISELED_BOOKSHELF",
+      "label": "Fill Chiseled Bookshelf",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "fill_chiseled_bookshelf.png",
+      "description": "Fill Chiseled Bookshelf",
+      "iconPath": "/lockout-textures/custom/fill_chiseled_bookshelf.png"
+    },
+    {
+      "id": "USE_COMPOSTER",
+      "label": "Fill Composter and get Bone Meal",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "filled_composter.png",
+      "description": "Fill Composter and get Bone Meal",
+      "iconPath": "/lockout-textures/custom/filled_composter.png"
+    },
+    {
+      "id": "FILL_INVENTORY_UNIQUE_ITEMS",
+      "label": "Fill Inventory with unique items",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "chest",
+      "description": "Fill Inventory with unique items",
+      "iconPath": "/lockout-textures/vanilla/filled_map.png"
+    },
+    {
+      "id": "GET_THOSE_WERE_THE_DAYS_ADVANCEMENT",
+      "label": "Find a Bastion",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "polished_blackstone_bricks",
+      "description": "Find a Bastion",
+      "iconPath": "/lockout-textures/vanilla/polished_blackstone_bricks.png"
+    },
+    {
+      "id": "GET_A_TERRIBLE_FORTRESS_ADVANCEMENT",
+      "label": "Find a Fortress",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "nether_bricks",
+      "description": "Find a Fortress",
+      "iconPath": "/lockout-textures/vanilla/nether_bricks.png"
+    },
+    {
+      "id": "GET_EYE_SPY_ADVANCEMENT",
+      "label": "Find a Stronghold",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "ender_eye",
+      "description": "Find a Stronghold",
+      "iconPath": "/lockout-textures/vanilla/ender_eye.png"
+    },
+    {
+      "id": "GET_THE_CITY_AT_THE_END_OF_THE_GAME_ADVANCEMENT",
+      "label": "Find an End City",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "end_stone_bricks",
+      "description": "Find an End City",
+      "iconPath": "/lockout-textures/vanilla/end_stone_bricks.png"
+    },
+    {
+      "id": "VISIT_BADLANDS_BIOME",
+      "label": "Find Badlands Biome",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "terracotta",
+      "description": "Find Badlands Biome",
+      "iconPath": "/lockout-textures/vanilla/terracotta.png"
+    },
+    {
+      "id": "VISIT_ICE_SPIKES_BIOME",
+      "label": "Find Ice Spikes Biome",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "packed_ice",
+      "description": "Find Ice Spikes Biome",
+      "iconPath": "/lockout-textures/vanilla/packed_ice.png"
+    },
+    {
+      "id": "VISIT_MUSHROOM_BIOME",
+      "label": "Find Mushroom Biome",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "mycelium",
+      "description": "Find Mushroom Biome",
+      "iconPath": "/lockout-textures/vanilla/red_mushroom.png"
+    },
+    {
+      "id": "GET_10_ADVANCEMENTS",
+      "label": "Get 10 Advancements",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "advancements/10_advancements.png",
+      "description": "Get 10 Advancements",
+      "iconPath": "/lockout-textures/custom/advancements/10_advancements.png"
+    },
+    {
+      "id": "GET_20_ADVANCEMENTS",
+      "label": "Get 20 Advancements",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "advancements/20_advancements.png",
+      "description": "Get 20 Advancements",
+      "iconPath": "/lockout-textures/custom/advancements/20_advancements.png"
+    },
+    {
+      "id": "GET_3_STATUS_EFFECTS_AT_ONCE",
+      "label": "Get 3 Status Effects at once",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/3_status_effects.png",
+      "description": "Get 3 Status Effects at once",
+      "iconPath": "/lockout-textures/custom/status_effect/3_status_effects.png"
+    },
+    {
+      "id": "GET_30_ADVANCEMENTS",
+      "label": "Get 30 Advancements",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "advancements/30_advancements.png",
+      "description": "Get 30 Advancements",
+      "iconPath": "/lockout-textures/custom/advancements/30_advancements.png"
+    },
+    {
+      "id": "GET_4_STATUS_EFFECTS_AT_ONCE",
+      "label": "Get 4 Status Effects at once",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/4_status_effects.png",
+      "description": "Get 4 Status Effects at once",
+      "iconPath": "/lockout-textures/custom/status_effect/4_status_effects.png"
+    },
+    {
+      "id": "GET_6_STATUS_EFFECTS_AT_ONCE",
+      "label": "Get 6 Status Effects at once",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/6_status_effects.png",
+      "description": "Get 6 Status Effects at once",
+      "iconPath": "/lockout-textures/custom/status_effect/6_status_effects.png"
+    },
+    {
+      "id": "GET_ABSORPTION_STATUS_EFFECT",
+      "label": "Get Absorption",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/absorption.png",
+      "description": "Get Absorption",
+      "iconPath": "/lockout-textures/custom/status_effect/absorption.png"
+    },
+    {
+      "id": "GET_ANY_SPYGLASS_ADVANCEMENT",
+      "label": "Get any Spyglass Advancement",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "spyglass",
+      "description": "Get any Spyglass Advancement",
+      "iconPath": "/lockout-textures/vanilla/spyglass.png"
+    },
+    {
+      "id": "GET_BAD_OMEN_STATUS_EFFECT",
+      "label": "Get Bad Omen",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/bad_omen.png",
+      "description": "Get Bad Omen",
+      "iconPath": "/lockout-textures/custom/status_effect/bad_omen.png"
+    },
+    {
+      "id": "GET_BULLSEYE_ADVANCEMENT",
+      "label": "Get Bullseye Advancement",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "target",
+      "description": "Get Bullseye Advancement",
+      "iconPath": "/lockout-textures/vanilla/bow.png"
+    },
+    {
+      "id": "GET_GLOWING_STATUS_EFFECT",
+      "label": "Get Glowing",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/glowing.png",
+      "description": "Get Glowing",
+      "iconPath": "/lockout-textures/custom/status_effect/glowing.png"
+    },
+    {
+      "id": "GET_HEART_TRANSPLANTER_ADVANCEMENT",
+      "label": "Get Heart Transplanter Advancement",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "heart_of_the_sea",
+      "description": "Get Heart Transplanter Advancement",
+      "iconPath": "/lockout-textures/vanilla/heart_of_the_sea.png"
+    },
+    {
+      "id": "GET_JUMP_BOOST_STATUS_EFFECT",
+      "label": "Get Jump Boost",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/jump_boost.png",
+      "description": "Get Jump Boost",
+      "iconPath": "/lockout-textures/custom/status_effect/jump_boost.png"
+    },
+    {
+      "id": "GET_LEVITATION_STATUS_EFFECT",
+      "label": "Get Levitation",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/levitation.png",
+      "description": "Get Levitation",
+      "iconPath": "/lockout-textures/custom/status_effect/levitation.png"
+    },
+    {
+      "id": "GET_MINING_FATIGUE_STATUS_EFFECT",
+      "label": "Get Mining Fatigue",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/mining_fatigue.png",
+      "description": "Get Mining Fatigue",
+      "iconPath": "/lockout-textures/custom/status_effect/mining_fatigue.png"
+    },
+    {
+      "id": "GET_NAUSEA_STATUS_EFFECT",
+      "label": "Get Nausea",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/nausea.png",
+      "description": "Get Nausea",
+      "iconPath": "/lockout-textures/custom/status_effect/nausea.png"
+    },
+    {
+      "id": "REACH_NETHER_ROOF",
+      "label": "Get on Nether Roof",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/up_overlay.png",
+      "description": "Get on Nether Roof",
+      "iconPath": "/lockout-textures/custom/overlay/up_overlay.png"
+    },
+    {
+      "id": "GET_POISON_STATUS_EFFECT",
+      "label": "Get Poison",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/poison.png",
+      "description": "Get Poison",
+      "iconPath": "/lockout-textures/custom/status_effect/poison.png"
+    },
+    {
+      "id": "GET_SNIPER_DUEL_ADVANCEMENT",
+      "label": "Get Sniper Duel Advancement",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "bow",
+      "description": "Get Sniper Duel Advancement",
+      "iconPath": "/lockout-textures/vanilla/bow.png"
+    },
+    {
+      "id": "GET_THIS_BOAT_HAS_LEGS_ADVANCEMENT",
+      "label": "Get This Boat Has Legs Advancement",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "warped_fungus_on_a_stick",
+      "description": "Get This Boat Has Legs Advancement",
+      "iconPath": "/lockout-textures/vanilla/warped_fungus_on_a_stick.png"
+    },
+    {
+      "id": "GET_WEAKNESS_STATUS_EFFECT",
+      "label": "Get Weakness",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/weakness.png",
+      "description": "Get Weakness",
+      "iconPath": "/lockout-textures/custom/status_effect/weakness.png"
+    },
+    {
+      "id": "HAVE_MOST_ADVANCEMENTS",
+      "label": "Have the most Advancements",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "more_advancements.png",
+      "description": "Have the most Advancements",
+      "iconPath": "/lockout-textures/custom/more_advancements.png"
+    },
+    {
+      "id": "HAVE_MOST_DIAMOND_BLOCKS",
+      "label": "Have the most Diamond Blocks",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/up_overlay.png",
+      "description": "Have the most Diamond Blocks",
+      "iconPath": "/lockout-textures/custom/overlay/up_overlay.png"
+    },
+    {
+      "id": "HAVE_MOST_HOPPERS",
+      "label": "Have the most Hoppers",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/up_overlay.png",
+      "description": "Have the most Hoppers",
+      "iconPath": "/lockout-textures/custom/overlay/up_overlay.png"
+    },
+    {
+      "id": "HAVE_MOST_LEAFLITTER",
+      "label": "Have the most Leaflitter",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/up_overlay.png",
+      "description": "Have the most Leaflitter",
+      "iconPath": "/lockout-textures/custom/overlay/up_overlay.png"
+    },
+    {
+      "id": "HAVE_MOST_PLAYER_KILLS",
+      "label": "Have the most Player Kills",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "more_player_kills.png",
+      "description": "Have the most Player Kills",
+      "iconPath": "/lockout-textures/custom/more_player_kills.png"
+    },
+    {
+      "id": "HAVE_MORE_XP_LEVELS",
+      "label": "Have the most XP Levels",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "more_level.png",
+      "description": "Have the most XP Levels",
+      "iconPath": "/lockout-textures/custom/more_level.png"
+    },
+    {
+      "id": "HAVE_YOUR_SHIELD_DISABLED",
+      "label": "Have your Shield disabled",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "disable_shield.png",
+      "description": "Have your Shield disabled",
+      "iconPath": "/lockout-textures/custom/disable_shield.png"
+    },
+    {
+      "id": "GET_STAY_HYDRATED_ADVANCEMENT",
+      "label": "Hydrate a dried ghast",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "dried_ghast",
+      "description": "Hydrate a dried ghast",
+      "iconPath": "/lockout-textures/vanilla/milk_bucket.png"
+    },
+    {
+      "id": "KILL_10_UNIQUE_HOSTILE_MOBS",
+      "label": "Kill 10 Unique Hostile Mobs",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "iron_sword",
+      "description": "Kill 10 Unique Hostile Mobs",
+      "iconPath": "/lockout-textures/vanilla/iron_sword.png"
+    },
+    {
+      "id": "KILL_100_MOBS",
+      "label": "Kill 100 Mobs",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_100_mobs.png",
+      "description": "Kill 100 Mobs",
+      "iconPath": "/lockout-textures/custom/kill/kill_100_mobs.png"
+    },
+    {
+      "id": "KILL_13_UNIQUE_HOSTILE_MOBS",
+      "label": "Kill 13 Unique Hostile Mobs",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "iron_sword",
+      "description": "Kill 13 Unique Hostile Mobs",
+      "iconPath": "/lockout-textures/vanilla/iron_sword.png"
+    },
+    {
+      "id": "KILL_15_UNIQUE_HOSTILE_MOBS",
+      "label": "Kill 15 Unique Hostile Mobs",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "iron_sword",
+      "description": "Kill 15 Unique Hostile Mobs",
+      "iconPath": "/lockout-textures/vanilla/iron_sword.png"
+    },
+    {
+      "id": "KILL_20_ARTHROPOD_MOBS",
+      "label": "Kill 20 Arthropods",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "arthropod/kill_spider.png",
+      "description": "Kill 20 Arthropods",
+      "iconPath": "/lockout-textures/custom/arthropod/kill_spider.png"
+    },
+    {
+      "id": "KILL_30_UNDEAD_MOBS",
+      "label": "Kill 30 Undead Mobs",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "undead/kill_zombie.png",
+      "description": "Kill 30 Undead Mobs",
+      "iconPath": "/lockout-textures/custom/undead/kill_zombie.png"
+    },
+    {
+      "id": "KILL_7_UNIQUE_HOSTILE_MOBS",
+      "label": "Kill 7 Unique Hostile Mobs",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "iron_sword",
+      "description": "Kill 7 Unique Hostile Mobs",
+      "iconPath": "/lockout-textures/vanilla/iron_sword.png"
+    },
+    {
+      "id": "KILL_ALL_RAID_MOBS",
+      "label": "Kill all Raid Mobs",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "status_effect/bad_omen.png",
+      "description": "Kill all Raid Mobs",
+      "iconPath": "/lockout-textures/custom/status_effect/bad_omen.png"
+    },
+    {
+      "id": "KILL_OTHER_PLAYER",
+      "label": "Kill another team's player",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill_player.png",
+      "description": "Kill another team's player",
+      "iconPath": "/lockout-textures/custom/kill_player.png"
+    },
+    {
+      "id": "KILL_BAT",
+      "label": "Kill Bat",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_bat.png",
+      "description": "Kill Bat",
+      "iconPath": "/lockout-textures/custom/kill/kill_bat.png"
+    },
+    {
+      "id": "KILL_BLAZE_WITH_SNOWBALL",
+      "label": "Kill Blaze using Snowball",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_blaze_snowball.png",
+      "description": "Kill Blaze using Snowball",
+      "iconPath": "/lockout-textures/custom/kill/kill_blaze_snowball.png"
+    },
+    {
+      "id": "KILL_BREEZE_USING_WIND_CHARGE",
+      "label": "Kill Breeze using Wind Charge",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/breeze_wind_charge.png",
+      "description": "Kill Breeze using Wind Charge",
+      "iconPath": "/lockout-textures/custom/kill/breeze_wind_charge.png"
+    },
+    {
+      "id": "KILL_COLORED_SHEEP",
+      "label": "Kill Colored Sheep",
+      "variable": true,
+      "iconType": "custom",
+      "iconRef": "sheep/kill_white_sheep.png",
+      "description": "Kill Colored Sheep",
+      "iconPath": "/lockout-textures/custom/sheep/kill_white_sheep.png"
+    },
+    {
+      "id": "KILL_ELDER_GUARDIAN",
+      "label": "Kill Elder Guardian",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_elder_guardian.png",
+      "description": "Kill Elder Guardian",
+      "iconPath": "/lockout-textures/custom/kill/kill_elder_guardian.png"
+    },
+    {
+      "id": "KILL_GHAST",
+      "label": "Kill Ghast",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_ghast.png",
+      "description": "Kill Ghast",
+      "iconPath": "/lockout-textures/custom/kill/kill_ghast.png"
+    },
+    {
+      "id": "KILL_GUARDIAN",
+      "label": "Kill Guardian",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_guardian.png",
+      "description": "Kill Guardian",
+      "iconPath": "/lockout-textures/custom/kill/kill_guardian.png"
+    },
+    {
+      "id": "KILL_SILVERFISH",
+      "label": "Kill Silverfish",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_silverfish.png",
+      "description": "Kill Silverfish",
+      "iconPath": "/lockout-textures/custom/kill/kill_silverfish.png"
+    },
+    {
+      "id": "KILL_SLIME",
+      "label": "Kill Slime",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "slime.png",
+      "description": "Kill Slime",
+      "iconPath": "/lockout-textures/custom/slime.png"
+    },
+    {
+      "id": "KILL_SNOW_GOLEM",
+      "label": "Kill Snow Golem",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_snow_golem.png",
+      "description": "Kill Snow Golem",
+      "iconPath": "/lockout-textures/custom/kill/kill_snow_golem.png"
+    },
+    {
+      "id": "KILL_SNOW_GOLEM_IN_NETHER",
+      "label": "Kill Snow Golem in The Nether",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_snowman_nether.png",
+      "description": "Kill Snow Golem in The Nether",
+      "iconPath": "/lockout-textures/custom/kill/kill_snowman_nether.png"
+    },
+    {
+      "id": "KILL_STRAY",
+      "label": "Kill Stray",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_stray.png",
+      "description": "Kill Stray",
+      "iconPath": "/lockout-textures/custom/kill/kill_stray.png"
+    },
+    {
+      "id": "KILL_WITCH",
+      "label": "Kill Witch",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_witch.png",
+      "description": "Kill Witch",
+      "iconPath": "/lockout-textures/custom/kill/kill_witch.png"
+    },
+    {
+      "id": "KILL_ZOGLIN",
+      "label": "Kill Zoglin",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_zoglin.png",
+      "description": "Kill Zoglin",
+      "iconPath": "/lockout-textures/custom/kill/kill_zoglin.png"
+    },
+    {
+      "id": "KILL_ZOMBIE_VILLAGER",
+      "label": "Kill Zombie Villager",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "kill/kill_zombie_villager.png",
+      "description": "Kill Zombie Villager",
+      "iconPath": "/lockout-textures/custom/kill/kill_zombie_villager.png"
+    },
+    {
+      "id": "LIGHT_CANDLE",
+      "label": "Light a Candle",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "light_candle.png",
+      "description": "Light a Candle",
+      "iconPath": "/lockout-textures/custom/light_candle.png"
+    },
+    {
+      "id": "MAP_BANNER_WAYPOINT",
+      "label": "Mark Banner on Map",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "filled_map",
+      "description": "Mark Banner on Map",
+      "iconPath": "/lockout-textures/vanilla/filled_map.png"
+    },
+    {
+      "id": "MINE_CRAFTER",
+      "label": "Mine Crafter",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "crafter",
+      "description": "Mine Crafter",
+      "iconPath": "/lockout-textures/vanilla/stone_axe.png"
+    },
+    {
+      "id": "MINE_DIAMOND_ORE",
+      "label": "Mine Diamond Ore",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "diamond_ore",
+      "description": "Mine Diamond Ore",
+      "iconPath": "/lockout-textures/vanilla/diamond_ore.png"
+    },
+    {
+      "id": "MINE_EMERALD_ORE",
+      "label": "Mine Emerald Ore",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "emerald_ore",
+      "description": "Mine Emerald Ore",
+      "iconPath": "/lockout-textures/vanilla/emerald_ore.png"
+    },
+    {
+      "id": "MINE_MOB_SPAWNER",
+      "label": "Mine Mob Spawner",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "spawner",
+      "description": "Mine Mob Spawner",
+      "iconPath": "/lockout-textures/vanilla/spawner.png"
+    },
+    {
+      "id": "MINE_TURTLE_EGG",
+      "label": "Mine Turtle Egg",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "turtle_egg",
+      "description": "Mine Turtle Egg",
+      "iconPath": "/lockout-textures/vanilla/turtle_egg.png"
+    },
+    {
+      "id": "OBTAIN_4_UNIQUE_HORSE_ARMOR",
+      "label": "Obtain 4 unique Horse Armors",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "diamond_horse_armor",
+      "description": "Obtain 4 unique Horse Armors",
+      "iconPath": "/lockout-textures/vanilla/diamond_horse_armor.png"
+    },
+    {
+      "id": "OBTAIN_4_UNIQUE_SAPLINGS",
+      "label": "Obtain 4 Unique Saplings",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "oak_sapling",
+      "description": "Obtain 4 Unique Saplings",
+      "iconPath": "/lockout-textures/vanilla/oak_sapling.png"
+    },
+    {
+      "id": "OBTAIN_4_UNIQUE_SEEDS",
+      "label": "Obtain 4 Unique Seeds",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "wheat_seeds",
+      "description": "Obtain 4 Unique Seeds",
+      "iconPath": "/lockout-textures/vanilla/wheat_seeds.png"
+    },
+    {
+      "id": "OBTAIN_5_UNIQUE_PRESSURE_PLATES",
+      "label": "Obtain 5 unique Pressure Plates",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "oak_pressure_plate",
+      "description": "Obtain 5 unique Pressure Plates",
+      "iconPath": "/lockout-textures/vanilla/oak_shelf.png"
+    },
+    {
+      "id": "OBTAIN_6_UNIQUE_BUCKETS",
+      "label": "Obtain 6 Unique Buckets",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "bucket",
+      "description": "Obtain 6 Unique Buckets",
+      "iconPath": "/lockout-textures/vanilla/bucket.png"
+    },
+    {
+      "id": "OBTAIN_6_UNIQUE_FLOWERS",
+      "label": "Obtain 6 Unique Flowers",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "dandelion",
+      "description": "Obtain 6 Unique Flowers",
+      "iconPath": "/lockout-textures/vanilla/dandelion.png"
+    },
+    {
+      "id": "OBTAIN_64_ARROWS",
+      "label": "Obtain 64 Arrows",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "arrow",
+      "description": "Obtain 64 Arrows",
+      "iconPath": "/lockout-textures/vanilla/arrow.png"
+    },
+    {
+      "id": "OBTAIN_64_COLORED_CONCRETE",
+      "label": "Obtain 64 Colored Concrete",
+      "variable": true,
+      "iconType": "item",
+      "iconRef": "white_concrete",
+      "description": "Obtain 64 Colored Concrete",
+      "iconPath": "/lockout-textures/vanilla/white_concrete.png"
+    },
+    {
+      "id": "OBTAIN_64_COLORED_WOOL",
+      "label": "Obtain 64 Colored Wool",
+      "variable": true,
+      "iconType": "item",
+      "iconRef": "white_wool",
+      "description": "Obtain 64 Colored Wool",
+      "iconPath": "/lockout-textures/vanilla/white_wool.png"
+    },
+    {
+      "id": "OBTAIN_7_UNIQUE_WORKSTATIONS",
+      "label": "Obtain 7 Unique Workstations",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "blast_furnace",
+      "description": "Obtain 7 Unique Workstations",
+      "iconPath": "/lockout-textures/vanilla/brewing_stand.png"
+    },
+    {
+      "id": "OBTAIN_8_UNIQUE_BRICKS",
+      "label": "Obtain 8 unique Bricks",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "bricks",
+      "description": "Obtain 8 unique Bricks",
+      "iconPath": "/lockout-textures/vanilla/bricks.png"
+    },
+    {
+      "id": "OBTAIN_DEAD_BUSH",
+      "label": "Obtain a Dead Bush",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "dead_bush",
+      "description": "Obtain a Dead Bush",
+      "iconPath": "/lockout-textures/vanilla/dead_bush.png"
+    },
+    {
+      "id": "OBTAIN_ACTIVATOR_RAIL",
+      "label": "Obtain Activator Rail",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "activator_rail",
+      "description": "Obtain Activator Rail",
+      "iconPath": "/lockout-textures/vanilla/activator_rail.png"
+    },
+    {
+      "id": "OBTAIN_COPPER_TOOLS",
+      "label": "Obtain all Copper Tools",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "copper_axe",
+      "description": "Obtain all Copper Tools",
+      "iconPath": "/lockout-textures/vanilla/copper_axe.png"
+    },
+    {
+      "id": "OBTAIN_DIAMOND_TOOLS",
+      "label": "Obtain all Diamond Tools",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "diamond_axe",
+      "description": "Obtain all Diamond Tools",
+      "iconPath": "/lockout-textures/vanilla/diamond_axe.png"
+    },
+    {
+      "id": "OBTAIN_ALL_DYES",
+      "label": "Obtain all Dyes",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "red_dye",
+      "description": "Obtain all Dyes",
+      "iconPath": "/lockout-textures/vanilla/red_dye.png"
+    },
+    {
+      "id": "OBTAIN_GOLDEN_TOOLS",
+      "label": "Obtain all Golden Tools",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "golden_axe",
+      "description": "Obtain all Golden Tools",
+      "iconPath": "/lockout-textures/vanilla/golden_axe.png"
+    },
+    {
+      "id": "OBTAIN_IRON_TOOLS",
+      "label": "Obtain all Iron Tools",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "iron_axe",
+      "description": "Obtain all Iron Tools",
+      "iconPath": "/lockout-textures/vanilla/iron_axe.png"
+    },
+    {
+      "id": "OBTAIN_STONE_TOOLS",
+      "label": "Obtain all Stone Tools",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "stone_axe",
+      "description": "Obtain all Stone Tools",
+      "iconPath": "/lockout-textures/vanilla/stone_axe.png"
+    },
+    {
+      "id": "OBTAIN_WOODEN_TOOLS",
+      "label": "Obtain all Wooden Tools",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "wooden_axe",
+      "description": "Obtain all Wooden Tools",
+      "iconPath": "/lockout-textures/vanilla/wooden_axe.png"
+    },
+    {
+      "id": "OBTAIN_ANCIENT_DEBRIS",
+      "label": "Obtain Ancient Debris",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "ancient_debris",
+      "description": "Obtain Ancient Debris",
+      "iconPath": "/lockout-textures/vanilla/nether_bricks.png"
+    },
+    {
+      "id": "OBTAIN_ANY_NAUTILUS_ARMOR",
+      "label": "Obtain any Nautilus Armor",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "iron_nautilus_armor",
+      "description": "Obtain any Nautilus Armor",
+      "iconPath": "/lockout-textures/vanilla/iron_nautilus_armor.png"
+    },
+    {
+      "id": "OBTAIN_BELL",
+      "label": "Obtain Bell",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "bell",
+      "description": "Obtain Bell",
+      "iconPath": "/lockout-textures/vanilla/bell.png"
+    },
+    {
+      "id": "OBTAIN_BOOKSHELF",
+      "label": "Obtain Bookshelf",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "bookshelf",
+      "description": "Obtain Bookshelf",
+      "iconPath": "/lockout-textures/vanilla/bookshelf.png"
+    },
+    {
+      "id": "OBTAIN_BRICK_WALL",
+      "label": "Obtain Brick Wall",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "brick_wall",
+      "description": "Obtain Brick Wall",
+      "iconPath": "/lockout-textures/vanilla/bricks.png"
+    },
+    {
+      "id": "OBTAIN_TROPICAL_FISH_BUCKET",
+      "label": "Obtain Bucket of Tropical Fish",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "tropical_fish_bucket",
+      "description": "Obtain Bucket of Tropical Fish",
+      "iconPath": "/lockout-textures/vanilla/tropical_fish_bucket.png"
+    },
+    {
+      "id": "OBTAIN_CALIBRATED_SCULK_SENSOR",
+      "label": "Obtain Calibrated Sculk Sensor",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "calibrated_sculk_sensor",
+      "description": "Obtain Calibrated Sculk Sensor",
+      "iconPath": "/lockout-textures/custom/filled_composter.png"
+    },
+    {
+      "id": "OBTAIN_CLOCK",
+      "label": "Obtain Clock",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "clock",
+      "description": "Obtain Clock",
+      "iconPath": "/lockout-textures/vanilla/filled_map.png"
+    },
+    {
+      "id": "OBTAIN_COBWEB",
+      "label": "Obtain Cobweb",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "cobweb",
+      "description": "Obtain Cobweb",
+      "iconPath": "/lockout-textures/vanilla/cobweb.png"
+    },
+    {
+      "id": "OBTAIN_COLORED_GLAZED_TERRACOTTA",
+      "label": "Obtain Colored Glazed Terracotta",
+      "variable": true,
+      "iconType": "item",
+      "iconRef": "white_glazed_terracotta",
+      "description": "Obtain Colored Glazed Terracotta",
+      "iconPath": "/lockout-textures/vanilla/white_glazed_terracotta.png"
+    },
+    {
+      "id": "OBTAIN_DAYLIGHT_DETECTOR",
+      "label": "Obtain Daylight Detector",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "daylight_detector",
+      "description": "Obtain Daylight Detector",
+      "iconPath": "/lockout-textures/vanilla/redstone_lamp.png"
+    },
+    {
+      "id": "OBTAIN_DETECTOR_RAIL",
+      "label": "Obtain Detector Rail",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "detector_rail",
+      "description": "Obtain Detector Rail",
+      "iconPath": "/lockout-textures/vanilla/detector_rail.png"
+    },
+    {
+      "id": "OBTAIN_DISPENSER",
+      "label": "Obtain Dispenser",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "dispenser",
+      "description": "Obtain Dispenser",
+      "iconPath": "/lockout-textures/vanilla/arrow.png"
+    },
+    {
+      "id": "OBTAIN_DRAGON_EGG",
+      "label": "Obtain Dragon Egg",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "dragon_egg",
+      "description": "Obtain Dragon Egg",
+      "iconPath": "/lockout-textures/vanilla/dragon_egg.png"
+    },
+    {
+      "id": "OBTAIN_END_ROD",
+      "label": "Obtain End Rod",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "end_rod",
+      "description": "Obtain End Rod",
+      "iconPath": "/lockout-textures/vanilla/end_rod.png"
+    },
+    {
+      "id": "OBTAIN_ENDER_CHEST",
+      "label": "Obtain Ender Chest",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "ender_chest",
+      "description": "Obtain Ender Chest",
+      "iconPath": "/lockout-textures/vanilla/ender_eye.png"
+    },
+    {
+      "id": "OBTAIN_ALL_MINECARTS",
+      "label": "Obtain every type of Minecart",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "minecart",
+      "description": "Obtain every type of Minecart",
+      "iconPath": "/lockout-textures/vanilla/minecart.png"
+    },
+    {
+      "id": "OBTAIN_ALL_MUSHROOMS",
+      "label": "Obtain every type of Mushroom",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "red_mushroom",
+      "description": "Obtain every type of Mushroom",
+      "iconPath": "/lockout-textures/vanilla/red_mushroom.png"
+    },
+    {
+      "id": "OBTAIN_ALL_PUMPKINS",
+      "label": "Obtain every type of Pumpkin",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "pumpkin",
+      "description": "Obtain every type of Pumpkin",
+      "iconPath": "/lockout-textures/vanilla/carved_pumpkin.png"
+    },
+    {
+      "id": "OBTAIN_ALL_RAW_ORE_BLOCKS",
+      "label": "Obtain every type of Raw Ore Block",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "raw_copper_block",
+      "description": "Obtain every type of Raw Ore Block",
+      "iconPath": "/lockout-textures/vanilla/raw_copper_block.png"
+    },
+    {
+      "id": "OBTAIN_ENCHANT_BOTTLE",
+      "label": "Obtain Experience Bottle",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "experience_bottle",
+      "description": "Obtain Experience Bottle",
+      "iconPath": "/lockout-textures/vanilla/experience_bottle.png"
+    },
+    {
+      "id": "OBTAIN_FLOWERING_AZALEA",
+      "label": "Obtain Flowering Azalea",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "flowering_azalea",
+      "description": "Obtain Flowering Azalea",
+      "iconPath": "/lockout-textures/custom/flower_in_a_pot.png"
+    },
+    {
+      "id": "OBTAIN_HEART_OF_THE_SEA",
+      "label": "Obtain Heart Of The Sea",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "heart_of_the_sea",
+      "description": "Obtain Heart Of The Sea",
+      "iconPath": "/lockout-textures/vanilla/heart_of_the_sea.png"
+    },
+    {
+      "id": "OBTAIN_MOSSY_STONE_BRICK_WALL",
+      "label": "Obtain Mossy Stone Brick Wall",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "mossy_stone_brick_wall",
+      "description": "Obtain Mossy Stone Brick Wall",
+      "iconPath": "/lockout-textures/vanilla/bricks.png"
+    },
+    {
+      "id": "OBTAIN_MUD_BRICK_WALL",
+      "label": "Obtain Mud Brick Wall",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "mud_brick_wall",
+      "description": "Obtain Mud Brick Wall",
+      "iconPath": "/lockout-textures/vanilla/bricks.png"
+    },
+    {
+      "id": "OBTAIN_OBSERVER",
+      "label": "Obtain Observer",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "observer",
+      "description": "Obtain Observer",
+      "iconPath": "/lockout-textures/vanilla/comparator.png"
+    },
+    {
+      "id": "OBTAIN_PISTON",
+      "label": "Obtain Piston",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "piston",
+      "description": "Obtain Piston",
+      "iconPath": "/lockout-textures/vanilla/comparator.png"
+    },
+    {
+      "id": "OBTAIN_POWDER_SNOW_BUCKET",
+      "label": "Obtain Powder Snow Bucket",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "powder_snow_bucket",
+      "description": "Obtain Powder Snow Bucket",
+      "iconPath": "/lockout-textures/vanilla/powder_snow_bucket.png"
+    },
+    {
+      "id": "OBTAIN_POWERED_RAIL",
+      "label": "Obtain Powered Rail",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "powered_rail",
+      "description": "Obtain Powered Rail",
+      "iconPath": "/lockout-textures/vanilla/powered_rail.png"
+    },
+    {
+      "id": "OBTAIN_RED_NETHER_BRICK_STAIRS",
+      "label": "Obtain Red Nether Brick Stairs",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "red_nether_brick_stairs",
+      "description": "Obtain Red Nether Brick Stairs",
+      "iconPath": "/lockout-textures/vanilla/nether_bricks.png"
+    },
+    {
+      "id": "OBTAIN_REDSTONE_COMPARATOR",
+      "label": "Obtain Redstone Comparator",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "comparator",
+      "description": "Obtain Redstone Comparator",
+      "iconPath": "/lockout-textures/vanilla/comparator.png"
+    },
+    {
+      "id": "OBTAIN_REDSTONE_LAMP",
+      "label": "Obtain Redstone Lamp",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "redstone_lamp",
+      "description": "Obtain Redstone Lamp",
+      "iconPath": "/lockout-textures/vanilla/redstone_lamp.png"
+    },
+    {
+      "id": "OBTAIN_REDSTONE_REPEATER",
+      "label": "Obtain Redstone Repeater",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "repeater",
+      "description": "Obtain Redstone Repeater",
+      "iconPath": "/lockout-textures/vanilla/repeater.png"
+    },
+    {
+      "id": "OBTAIN_RESIN_BRICK_STAIR",
+      "label": "Obtain Resin Brick Stairs",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "resin_brick_stairs",
+      "description": "Obtain Resin Brick Stairs",
+      "iconPath": "/lockout-textures/vanilla/bricks.png"
+    },
+    {
+      "id": "OBTAIN_SCAFFOLDING",
+      "label": "Obtain Scaffolding",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "scaffolding",
+      "description": "Obtain Scaffolding",
+      "iconPath": "/lockout-textures/custom/scaffolding.png"
+    },
+    {
+      "id": "OBTAIN_SEA_LANTERN",
+      "label": "Obtain Sea Lantern",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "sea_lantern",
+      "description": "Obtain Sea Lantern",
+      "iconPath": "/lockout-textures/vanilla/sea_lantern.png"
+    },
+    {
+      "id": "OBTAIN_SMOOTH_QUARTZ_STAIRS",
+      "label": "Obtain Smooth Quartz Stairs",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "smooth_quartz_stairs",
+      "description": "Obtain Smooth Quartz Stairs",
+      "iconPath": "/lockout-textures/vanilla/bricks.png"
+    },
+    {
+      "id": "OBTAIN_SOUL_CAMPFIRE",
+      "label": "Obtain Soul Campfire",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "soul_campfire",
+      "description": "Obtain Soul Campfire",
+      "iconPath": "/lockout-textures/vanilla/soul_campfire.png"
+    },
+    {
+      "id": "OBTAIN_SOUL_LANTERN",
+      "label": "Obtain Soul Lantern",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "soul_lantern",
+      "description": "Obtain Soul Lantern",
+      "iconPath": "/lockout-textures/vanilla/soul_lantern.png"
+    },
+    {
+      "id": "OBTAIN_SPONGE",
+      "label": "Obtain Sponge",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "sponge",
+      "description": "Obtain Sponge",
+      "iconPath": "/lockout-textures/vanilla/sponge.png"
+    },
+    {
+      "id": "OBTAIN_TINTED_GLASS",
+      "label": "Obtain Tinted Glass",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "tinted_glass",
+      "description": "Obtain Tinted Glass",
+      "iconPath": "/lockout-textures/vanilla/tinted_glass.png"
+    },
+    {
+      "id": "OBTAIN_TNT",
+      "label": "Obtain TNT",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "tnt",
+      "description": "Obtain TNT",
+      "iconPath": "/lockout-textures/custom/die_to_tnt_minecart.png"
+    },
+    {
+      "id": "OBTAIN_WITHER_SKELETON_SKULL",
+      "label": "Obtain Wither Skeleton Skull",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "wither_skeleton_skull",
+      "description": "Obtain Wither Skeleton Skull",
+      "iconPath": "/lockout-textures/custom/undead/kill_wither_skeleton.png"
+    },
+    {
+      "id": "PLACE_PAINTING",
+      "label": "Place a Painting",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "painting",
+      "description": "Place a Painting",
+      "iconPath": "/lockout-textures/vanilla/painting.png"
+    },
+    {
+      "id": "PLACE_END_CRYSTAL",
+      "label": "Place End Crystal",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "end_crystal.png",
+      "description": "Place End Crystal",
+      "iconPath": "/lockout-textures/custom/end_crystal.png"
+    },
+    {
+      "id": "PUT_FLOWER_IN_POT",
+      "label": "Pot any plant in Flower Pot",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "flower_in_a_pot.png",
+      "description": "Pot any plant in Flower Pot",
+      "iconPath": "/lockout-textures/custom/flower_in_a_pot.png"
+    },
+    {
+      "id": "ITEM_FRAME_IN_ITEM_FRAME",
+      "label": "Put Item Frame in an Item Frame",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "item_frame_in_item_frame.png",
+      "description": "Put Item Frame in an Item Frame",
+      "iconPath": "/lockout-textures/custom/item_frame_in_item_frame.png"
+    },
+    {
+      "id": "PUT_WOLF_ARMOR_ON_WOLF",
+      "label": "Put Wolf Armor on Wolf",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "wolf_armor",
+      "description": "Put Wolf Armor on Wolf",
+      "iconPath": "/lockout-textures/vanilla/wolf_armor.png"
+    },
+    {
+      "id": "REACH_BEDROCK",
+      "label": "Reach Bedrock",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/down_overlay.png",
+      "description": "Reach Bedrock",
+      "iconPath": "/lockout-textures/custom/overlay/down_overlay.png"
+    },
+    {
+      "id": "REACH_HEIGHT_LIMIT",
+      "label": "Reach height limit in Overworld",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "height_limit.png",
+      "description": "Reach height limit in Overworld",
+      "iconPath": "/lockout-textures/custom/height_limit.png"
+    },
+    {
+      "id": "REACH_EXP_LEVEL_15",
+      "label": "Reach XP level 15",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "experience/level_15.png",
+      "description": "Reach XP level 15",
+      "iconPath": "/lockout-textures/custom/experience/level_15.png"
+    },
+    {
+      "id": "REACH_EXP_LEVEL_30",
+      "label": "Reach XP level 30",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "experience/level_30.png",
+      "description": "Reach XP level 30",
+      "iconPath": "/lockout-textures/custom/experience/level_30.png"
+    },
+    {
+      "id": "REMOVE_STATUS_EFFECT_USING_MILK",
+      "label": "Remove Effect using Milk Bucket",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "milk_bucket",
+      "description": "Remove Effect using Milk Bucket",
+      "iconPath": "/lockout-textures/vanilla/milk_bucket.png"
+    },
+    {
+      "id": "RIDE_HORSE",
+      "label": "Ride a Horse",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "saddle",
+      "description": "Ride a Horse",
+      "iconPath": "/lockout-textures/vanilla/saddle.png"
+    },
+    {
+      "id": "RIDE_MINECART",
+      "label": "Ride a Minecart",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "minecart",
+      "description": "Ride a Minecart",
+      "iconPath": "/lockout-textures/vanilla/minecart.png"
+    },
+    {
+      "id": "RIDE_NAUTILUS",
+      "label": "Ride a Nautilus",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "ride_nautilus.png",
+      "description": "Ride a Nautilus",
+      "iconPath": "/lockout-textures/custom/ride_nautilus.png"
+    },
+    {
+      "id": "RIDE_PIG",
+      "label": "Ride Pig with Carrot on a Stick",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "carrot_on_a_stick",
+      "description": "Ride Pig with Carrot on a Stick",
+      "iconPath": "/lockout-textures/vanilla/carrot_on_a_stick.png"
+    },
+    {
+      "id": "GET_WAX_OFF_ADVANCEMENT",
+      "label": "Scrape wax off of Copper Block",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "stone_axe",
+      "description": "Scrape wax off of Copper Block",
+      "iconPath": "/lockout-textures/vanilla/stone_axe.png"
+    },
+    {
+      "id": "SHOOT_FIREWORK_FROM_CROSSBOW",
+      "label": "Shoot Firework from Crossbow",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "crossbow",
+      "description": "Shoot Firework from Crossbow",
+      "iconPath": "/lockout-textures/vanilla/bow.png"
+    },
+    {
+      "id": "SKEWER_MOBS",
+      "label": "Skewer 5 mobs at once",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "netherite_spear",
+      "description": "Skewer 5 mobs at once",
+      "iconPath": "/lockout-textures/vanilla/netherite_spear.png"
+    },
+    {
+      "id": "SPRINT_1_KM",
+      "label": "Sprint 1km",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "sprint_1km.png",
+      "description": "Sprint 1km",
+      "iconPath": "/lockout-textures/custom/sprint_1km.png"
+    },
+    {
+      "id": "TAKE_200_DAMAGE",
+      "label": "Take 200 damage",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "take_200_damage.png",
+      "description": "Take 200 damage",
+      "iconPath": "/lockout-textures/custom/take_200_damage.png"
+    },
+    {
+      "id": "TAME_CAT",
+      "label": "Tame a Cat",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "tame/tame_cat.png",
+      "description": "Tame a Cat",
+      "iconPath": "/lockout-textures/custom/tame/tame_cat.png"
+    },
+    {
+      "id": "TAME_HORSE",
+      "label": "Tame a Horse",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "tame/tame_horse.png",
+      "description": "Tame a Horse",
+      "iconPath": "/lockout-textures/custom/tame/tame_horse.png"
+    },
+    {
+      "id": "TAME_PARROT",
+      "label": "Tame a Parrot",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "tame/tame_parrot.png",
+      "description": "Tame a Parrot",
+      "iconPath": "/lockout-textures/custom/tame/tame_parrot.png"
+    },
+    {
+      "id": "TAME_WOLF",
+      "label": "Tame a Wolf",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "tame/tame_wolf.png",
+      "description": "Tame a Wolf",
+      "iconPath": "/lockout-textures/custom/tame/tame_wolf.png"
+    },
+    {
+      "id": "TOOT_GOAT_HORN",
+      "label": "Toot a Goat Horn",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "goat_horn",
+      "description": "Toot a Goat Horn",
+      "iconPath": "/lockout-textures/vanilla/goat_horn.png"
+    },
+    {
+      "id": "GET_WHAT_A_DEAL_ADVANCEMENT",
+      "label": "Trade with a Villager",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "emerald",
+      "description": "Trade with a Villager",
+      "iconPath": "/lockout-textures/vanilla/emerald.png"
+    },
+    {
+      "id": "TUNE_NOTE_BLOCK",
+      "label": "Tune a Note Block",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "note_block",
+      "description": "Tune a Note Block",
+      "iconPath": "/lockout-textures/vanilla/note_block.png"
+    },
+    {
+      "id": "GET_COUNTRY_LODE_TAKE_ME_HOME_ADVANCEMENT",
+      "label": "Use a compass on a lodestone",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "lodestone",
+      "description": "Use a compass on a lodestone",
+      "iconPath": "/lockout-textures/vanilla/filled_map.png"
+    },
+    {
+      "id": "USE_ANVIL",
+      "label": "Use Anvil",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "anvil",
+      "description": "Use Anvil",
+      "iconPath": "/lockout-textures/vanilla/anvil.png"
+    },
+    {
+      "id": "USE_BREWING_STAND",
+      "label": "Use Brewing Stand",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "brewing_stand",
+      "description": "Use Brewing Stand",
+      "iconPath": "/lockout-textures/vanilla/brewing_stand.png"
+    },
+    {
+      "id": "USE_BRUSH_ON_SUSPICIOUS_BLOCK",
+      "label": "Use Brush on Suspicious Sand/Gravel",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "overlay/brush_overlay.png",
+      "description": "Use Brush on Suspicious Sand/Gravel",
+      "iconPath": "/lockout-textures/custom/overlay/brush_overlay.png"
+    },
+    {
+      "id": "USE_CAULDRON",
+      "label": "Use Cauldron to wash something",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "use_cauldron.png",
+      "description": "Use Cauldron to wash something",
+      "iconPath": "/lockout-textures/custom/use_cauldron.png"
+    },
+    {
+      "id": "USE_ENCHANTING_TABLE",
+      "label": "Use Enchanting Table",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "enchanting_table",
+      "description": "Use Enchanting Table",
+      "iconPath": "/lockout-textures/vanilla/written_book.png"
+    },
+    {
+      "id": "USE_GLOW_INK",
+      "label": "Use Glow Ink on Crimson Sign",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "glow_crimson_sign.png",
+      "description": "Use Glow Ink on Crimson Sign",
+      "iconPath": "/lockout-textures/custom/glow_crimson_sign.png"
+    },
+    {
+      "id": "USE_GRINDSTONE",
+      "label": "Use Grindstone",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "grindstone",
+      "description": "Use Grindstone",
+      "iconPath": "/lockout-textures/custom/break_tool.png"
+    },
+    {
+      "id": "USE_JUKEBOX",
+      "label": "Use Jukebox to play a Music Disc",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "jukebox",
+      "description": "Use Jukebox to play a Music Disc",
+      "iconPath": "/lockout-textures/vanilla/note_block.png"
+    },
+    {
+      "id": "USE_LOOM",
+      "label": "Use Loom to design a Banner",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "loom",
+      "description": "Use Loom to design a Banner",
+      "iconPath": "/lockout-textures/vanilla/wheat_seeds.png"
+    },
+    {
+      "id": "USE_SMITHING_TABLE",
+      "label": "Use Smithing Table",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "smithing_table",
+      "description": "Use Smithing Table",
+      "iconPath": "/lockout-textures/custom/break_tool.png"
+    },
+    {
+      "id": "USE_STONECUTTER",
+      "label": "Use Stonecutter",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "stonecutter",
+      "description": "Use Stonecutter",
+      "iconPath": "/lockout-textures/custom/break_tool.png"
+    },
+    {
+      "id": "VISIT_10_UNIQUE_BIOMES",
+      "label": "Visit 10 Unique Biomes",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "unique_biomes.png",
+      "description": "Visit 10 Unique Biomes",
+      "iconPath": "/lockout-textures/custom/unique_biomes.png"
+    },
+    {
+      "id": "VISIT_15_UNIQUE_BIOMES",
+      "label": "Visit 15 Unique Biomes",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "unique_biomes.png",
+      "description": "Visit 15 Unique Biomes",
+      "iconPath": "/lockout-textures/custom/unique_biomes.png"
+    },
+    {
+      "id": "VISIT_20_UNIQUE_BIOMES",
+      "label": "Visit 20 Unique Biomes",
+      "variable": false,
+      "iconType": "custom",
+      "iconRef": "unique_biomes.png",
+      "description": "Visit 20 Unique Biomes",
+      "iconPath": "/lockout-textures/custom/unique_biomes.png"
+    },
+    {
+      "id": "GET_HOT_TOURIST_DESTINATIONS_ADVANCEMENT",
+      "label": "Visit All Nether Biomes",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "crimson_nylium",
+      "description": "Visit All Nether Biomes",
+      "iconPath": "/lockout-textures/vanilla/crimson_nylium.png"
+    },
+    {
+      "id": "GET_WAX_ON_ADVANCEMENT",
+      "label": "Wax a Copper Block",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "honeycomb",
+      "description": "Wax a Copper Block",
+      "iconPath": "/lockout-textures/vanilla/honeycomb.png"
+    },
+    {
+      "id": "WEAR_CARVED_PUMPKIN_FOR_5_MINUTES",
+      "label": "Wear a Carved Pumpkin for 5 minutes",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "carved_pumpkin",
+      "description": "Wear a Carved Pumpkin for 5 minutes",
+      "iconPath": "/lockout-textures/vanilla/carved_pumpkin.png"
+    },
+    {
+      "id": "WEAR_CHAIN_ARMOR_PIECE",
+      "label": "Wear a Chain Armor Piece",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "chainmail_helmet",
+      "description": "Wear a Chain Armor Piece",
+      "iconPath": "/lockout-textures/vanilla/chainmail_helmet.png"
+    },
+    {
+      "id": "WEAR_COLORED_LEATHER_ARMOR_PIECE",
+      "label": "Wear Colored Leather Armor Piece",
+      "variable": true,
+      "iconType": "item",
+      "iconRef": "leather_chestplate",
+      "description": "Wear Colored Leather Armor Piece",
+      "iconPath": "/lockout-textures/vanilla/leather_chestplate.png"
+    },
+    {
+      "id": "WEAR_COPPER_ARMOR",
+      "label": "Wear Full Copper Armor",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "copper_helmet",
+      "description": "Wear Full Copper Armor",
+      "iconPath": "/lockout-textures/vanilla/copper_helmet.png"
+    },
+    {
+      "id": "WEAR_DIAMOND_ARMOR",
+      "label": "Wear Full Diamond Armor",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "diamond_helmet",
+      "description": "Wear Full Diamond Armor",
+      "iconPath": "/lockout-textures/vanilla/diamond_helmet.png"
+    },
+    {
+      "id": "WEAR_FULL_ENCHANTED_ARMOR",
+      "label": "Wear Full Enchanted Armor",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "leather_helmet",
+      "description": "Wear Full Enchanted Armor",
+      "iconPath": "/lockout-textures/vanilla/leather_helmet.png"
+    },
+    {
+      "id": "WEAR_GOLDEN_ARMOR",
+      "label": "Wear Full Golden Armor",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "golden_helmet",
+      "description": "Wear Full Golden Armor",
+      "iconPath": "/lockout-textures/vanilla/golden_helmet.png"
+    },
+    {
+      "id": "WEAR_IRON_ARMOR",
+      "label": "Wear Full Iron Armor",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "iron_helmet",
+      "description": "Wear Full Iron Armor",
+      "iconPath": "/lockout-textures/vanilla/iron_helmet.png"
+    },
+    {
+      "id": "WEAR_LEATHER_ARMOR",
+      "label": "Wear Full Leather Armor",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "leather_helmet",
+      "description": "Wear Full Leather Armor",
+      "iconPath": "/lockout-textures/vanilla/leather_helmet.png"
+    },
+    {
+      "id": "WEAR_UNIQUE_COLORED_LEATHER_ARMOR",
+      "label": "Wear Full Leather Armor, in different colors",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "leather_helmet",
+      "description": "Wear Full Leather Armor, in different colors",
+      "iconPath": "/lockout-textures/vanilla/leather_helmet.png"
+    },
+    {
+      "id": "OBTAIN_WRITTEN_BOOK",
+      "label": "Write a Book",
+      "variable": false,
+      "iconType": "item",
+      "iconRef": "written_book",
+      "description": "Write a Book",
+      "iconPath": "/lockout-textures/vanilla/written_book.png"
+    }
+  ]
+}
