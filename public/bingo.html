@@ -61,10 +61,6 @@
       font-weight: 700;
       color: var(--accent);
     }
-    .title-sub {
-      font-size: .8rem;
-      color: var(--muted);
-    }
     .actions {
       display: flex;
       align-items: center;
@@ -106,11 +102,6 @@
     }
     .search-input:focus {
       border-color: var(--accent);
-    }
-    .meta {
-      margin-top: .55rem;
-      font-size: .76rem;
-      color: var(--muted);
     }
     .grid {
       display: grid;
@@ -172,16 +163,14 @@
       <div class="title">
         <div class="title-top">lockout fabric</div>
         <div class="title-main">bingo wiki</div>
-        <div class="title-sub">goal library extracted from the mod source</div>
       </div>
       <div class="actions">
-        <a class="btn" href="/">back to tracker</a>
+        <a class="btn" href="/">back to subathon</a>
       </div>
     </div>
 
     <div class="search-wrap">
       <input class="search-input" id="search" type="text" placeholder="search goals like bookshelf, armor, geode, end crystal..." autocomplete="off" spellcheck="false" />
-      <div class="meta" id="meta">loading goals…</div>
     </div>
 
     <div class="grid" id="grid"></div>
@@ -195,7 +184,6 @@
       const goals = !q
         ? state.goals
         : state.goals.filter((goal) => goal.label.toLowerCase().includes(q) || goal.id.toLowerCase().includes(q));
-      document.getElementById('meta').textContent = `${state.goals.length.toLocaleString()} goals`;
 
       const grid = document.getElementById('grid');
       grid.innerHTML = '';
@@ -235,7 +223,6 @@
 
     document.getElementById('search').addEventListener('input', render);
     init().catch(() => {
-      document.getElementById('meta').textContent = 'failed to load goals';
       document.getElementById('grid').innerHTML = '<div class="empty">could not load the bingo wiki</div>';
     });
   </script>
