@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=IBM+Plex+Sans:wght@500;700&family=Archivo+Black&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --panel-width: 780px;
+      --panel-width: 620px;
       --panel-pad: 20px;
       --eyebrow-size: 22px;
       --goal-size: 40px;
@@ -85,12 +85,33 @@
       font-weight: 800;
     }
     .goal {
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
       font-size: var(--goal-size);
       font-weight: 800;
       line-height: 1.1;
       letter-spacing: -.03em;
       margin-bottom: 12px;
-      text-wrap: balance;
+      min-height: calc(var(--goal-size) * 1.15);
+    }
+    .goal-text {
+      display: inline-block;
+      max-width: 100%;
+      vertical-align: top;
+    }
+    .goal.marquee .goal-text {
+      max-width: none;
+      padding-right: 2.5rem;
+      animation: goal-marquee var(--goal-marquee-duration, 12s) linear infinite;
+    }
+    @keyframes goal-marquee {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(calc(-1 * (100% - var(--goal-visible-width, 0px))));
+      }
     }
     .bar {
       width: 100%;
@@ -116,7 +137,7 @@
       display: none !important;
     }
     body.size-1 {
-      --panel-width: 500px;
+      --panel-width: 430px;
       --panel-pad: 14px;
       --eyebrow-size: 13px;
       --goal-size: 21px;
@@ -124,7 +145,7 @@
       --radius: 12px;
     }
     body.size-2 {
-      --panel-width: 640px;
+      --panel-width: 520px;
       --panel-pad: 17px;
       --eyebrow-size: 16px;
       --goal-size: 28px;
@@ -132,7 +153,7 @@
       --radius: 14px;
     }
     body.size-3 {
-      --panel-width: 780px;
+      --panel-width: 620px;
       --panel-pad: 20px;
       --eyebrow-size: 22px;
       --goal-size: 36px;
@@ -140,7 +161,7 @@
       --radius: 18px;
     }
     body.size-4 {
-      --panel-width: 980px;
+      --panel-width: 760px;
       --panel-pad: 24px;
       --eyebrow-size: 26px;
       --goal-size: 46px;
@@ -155,7 +176,7 @@
       <div class="eyebrow-label">GOALS</div>
       <div class="eyebrow-target"><strong id="goal-current">0</strong> / <span id="goal-next">0</span></div>
     </div>
-    <div class="goal" id="goal-name">loading…</div>
+    <div class="goal" id="goal-name"><span class="goal-text" id="goal-name-text">loading…</span></div>
     <div class="bar"><div class="bar-fill" id="goal-fill"></div></div>
   </div>
 
@@ -253,7 +274,21 @@
       const goal = goalState(total);
       document.getElementById('goal-current').textContent = fmt(goal.total);
       document.getElementById('goal-next').textContent = fmt(goal.next);
-      document.getElementById('goal-name').textContent = goal.label;
+      const goalEl = document.getElementById('goal-name');
+      const goalTextEl = document.getElementById('goal-name-text');
+      goalTextEl.textContent = goal.label;
+      goalEl.classList.remove('marquee');
+      requestAnimationFrame(() => {
+        const visibleWidth = goalEl.clientWidth;
+        const textWidth = goalTextEl.scrollWidth;
+        goalEl.style.setProperty('--goal-visible-width', `${visibleWidth}px`);
+        if (textWidth > visibleWidth && goal.label.length > 20) {
+          const extra = Math.max(0, textWidth - visibleWidth);
+          const duration = Math.max(8, Math.min(18, 7 + (extra / 45)));
+          goalEl.style.setProperty('--goal-marquee-duration', `${duration}s`);
+          goalEl.classList.add('marquee');
+        }
+      });
       document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
     }
 
