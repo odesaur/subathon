@@ -1,13 +1,9 @@
 import { Database } from "bun:sqlite";
-import { existsSync, readFileSync, rmSync } from "fs";
 import { join } from "path";
 
 const DB_PATH = process.env.DATA_DIR
   ? join(process.env.DATA_DIR, "subathon.db")
   : join(import.meta.dir, "..", "subathon.db");
-const LEGACY_CHECKPOINT_PATH = process.env.DATA_DIR
-  ? join(process.env.DATA_DIR, "fruitberries-checkpoint.json")
-  : join(import.meta.dir, "..", "fruitberries-checkpoint.json");
 
 const db = new Database(DB_PATH);
 
@@ -110,33 +106,6 @@ function initCounters() {
   initCounterStmt.run("giftedSubs");
 }
 
-function migrateLegacyCheckpoint() {
-  if (db.query("SELECT COUNT(*) AS count FROM config").get()!.count) return;
-  if (!existsSync(LEGACY_CHECKPOINT_PATH)) return;
-  try {
-    const raw = readFileSync(LEGACY_CHECKPOINT_PATH, "utf8");
-    const data = JSON.parse(raw) as {
-      config?: Record<string, string>;
-      counters?: { trackedSubs?: number; trackedBits?: number; giftedSubs?: number };
-      gifters?: { key: string; name: string; id: string | null; gifts: number }[];
-    };
-    const tx = db.transaction(() => {
-      for (const [key, value] of Object.entries(data.config ?? {})) {
-        upsertConfigStmt.run(key, value);
-      }
-      setCounterStmt.run("trackedSubs", data.counters?.trackedSubs ?? 0);
-      setCounterStmt.run("trackedBits", data.counters?.trackedBits ?? 0);
-      setCounterStmt.run("giftedSubs", data.counters?.giftedSubs ?? 0);
-      clearGiftersStmt.run();
-      for (const gifter of data.gifters ?? []) {
-        upsertGifterStmt.run(gifter.key, gifter.name, gifter.id, gifter.gifts);
-      }
-    });
-    tx();
-    rmSync(LEGACY_CHECKPOINT_PATH, { force: true });
-  } catch {}
-}
-
 function loadState() {
   config.clear();
   for (const row of db.query("SELECT key, value FROM config").all() as { key: string; value: string }[]) {
@@ -193,7 +162,6 @@ function seedFruitberriesBits() {
 }
 
 initCounters();
-migrateLegacyCheckpoint();
 loadState();
 seedFruitberriesGifters();
 seedFruitberriesBits();
@@ -429,6 +397,12 @@ export function getChannelGoals(channelLogin: string): ChannelGoal[] {
   return (getChannelGoalsStmt.all(login) as { subs: number; label: string }[])
     .map((row) => normalizeChannelGoal(row))
     .filter((row): row is ChannelGoal => !!row);
+}
+
+export function deleteChannelGoals(channelLogin: string): void {
+  const login = channelLogin.trim().toLowerCase();
+  if (!login) return;
+  deleteChannelGoalsStmt.run(login);
 }
 
 export function replaceChannelGoals(channelLogin: string, goals: Partial<ChannelGoal>[]): ChannelGoal[] {

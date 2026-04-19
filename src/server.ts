@@ -1,8 +1,8 @@
 import {
   getStats, getConfig, setConfig, deleteConfigKeys, clearTrackedEvents,
-  getChannelGoals, replaceChannelGoals,
+  getChannelGoals, replaceChannelGoals, deleteChannelGoals,
   saveSessionTracker, loadSessionTracker, listSessionTrackers,
-  deleteSessionTracker as deleteSavedSessionTracker, deleteExpiredSessionTrackers,
+  deleteSessionTracker as deleteSavedSessionTracker,
   type PersistedSessionTracker, type ChannelGoal,
 } from "./db.ts";
 import {
@@ -271,6 +271,34 @@ function uncappedSession(login: string) {
 
 function sessionExpired(tracker: SessionTracker) {
   return !!tracker.expiresAt && tracker.expiresAt <= Math.floor(Date.now() / 1000);
+}
+
+function hasOtherSavedChannelSession(channel: string, excludingSessionId: string) {
+  const login = channel.trim().toLowerCase();
+  if (!login || login === DEFAULT_CHANNEL) return true;
+  const now = Math.floor(Date.now() / 1000);
+
+  for (const tracker of sessionTrackers.values()) {
+    if (tracker.sessionId === excludingSessionId) continue;
+    if (!tracker.persistent || tracker.channel !== login || sessionExpired(tracker)) continue;
+    return true;
+  }
+
+  for (const saved of listSessionTrackers()) {
+    if (saved.sessionId === excludingSessionId) continue;
+    if (saved.channel !== login) continue;
+    if (saved.expiresAt && saved.expiresAt <= now) continue;
+    return true;
+  }
+
+  return false;
+}
+
+function cleanupChannelGoalsIfOrphaned(channel: string | null | undefined, excludingSessionId: string) {
+  const login = channel?.trim().toLowerCase() || "";
+  if (!login || login === DEFAULT_CHANNEL) return;
+  if (hasOtherSavedChannelSession(login, excludingSessionId)) return;
+  deleteChannelGoals(login);
 }
 
 function serializeSessionTracker(tracker: SessionTracker): PersistedSessionTracker {
@@ -615,6 +643,8 @@ async function createSessionTracker(
 
 function destroySessionTracker(sessionId: string, removeSaved = true) {
   const tracker = sessionTrackers.get(sessionId);
+  const savedSnapshot = !tracker && removeSaved ? loadSessionTracker(sessionId) : null;
+  const trackedChannel = tracker?.persistent ? tracker.channel : savedSnapshot?.channel;
   if (tracker) {
     cancelSessionDestroy(tracker);
     if (tracker.reconnectTimer) clearTimeout(tracker.reconnectTimer);
@@ -623,7 +653,10 @@ function destroySessionTracker(sessionId: string, removeSaved = true) {
     tracker.ws = null;
     sessionTrackers.delete(sessionId);
   }
-  if (removeSaved && (!tracker || tracker.persistent)) deleteSavedSessionTracker(sessionId);
+  if (removeSaved && (!tracker || tracker.persistent)) {
+    deleteSavedSessionTracker(sessionId);
+    cleanupChannelGoalsIfOrphaned(trackedChannel, sessionId);
+  }
 }
 
 async function restoreSessionTracker(sessionId: string) {
@@ -636,7 +669,7 @@ async function restoreSessionTracker(sessionId: string) {
   const saved = loadSessionTracker(sessionId);
   if (!saved) return null;
   if (saved.expiresAt && saved.expiresAt <= Math.floor(Date.now() / 1000)) {
-    deleteSavedSessionTracker(sessionId);
+    destroySessionTracker(sessionId, true);
     return null;
   }
   const tracker = hydrateSessionTracker(saved);
@@ -649,9 +682,11 @@ async function restoreSessionTracker(sessionId: string) {
 
 async function restoreSavedSessionTrackers() {
   const now = Math.floor(Date.now() / 1000);
-  deleteExpiredSessionTrackers(now);
   for (const saved of listSessionTrackers()) {
-    if (saved.expiresAt && saved.expiresAt <= now) continue;
+    if (saved.expiresAt && saved.expiresAt <= now) {
+      destroySessionTracker(saved.sessionId, true);
+      continue;
+    }
     const tracker = hydrateSessionTracker(saved);
     sessionTrackers.set(tracker.sessionId, tracker);
     connectSessionIRC(tracker);
@@ -666,7 +701,10 @@ function pruneExpiredSessionTrackers() {
     if (!tracker.expiresAt || tracker.expiresAt > now) continue;
     destroySessionTracker(sessionId, true);
   }
-  deleteExpiredSessionTrackers(now);
+  for (const saved of listSessionTrackers()) {
+    if (!saved.expiresAt || saved.expiresAt > now) continue;
+    destroySessionTracker(saved.sessionId, true);
+  }
 }
 
 function requestedChannelFromUrl(url: URL) {
@@ -771,7 +809,14 @@ async function statsForRequest(req: Request) {
         hasBroadcasterAuth: false,
       });
     }
-    return { notFound: true, channel: requestedChannel };
+    const info = await lookupChannel(requestedChannel);
+    return {
+      notFound: true,
+      channel: info?.login ?? requestedChannel,
+      channelDisplay: info?.displayName ?? requestedChannel,
+      channelAvatar: info?.avatarUrl ?? "",
+      defaultChannel: DEFAULT_CHANNEL,
+    };
   }
   const matchingSavedTracker = savedTracker?.persistent && savedTracker.channel === DEFAULT_CHANNEL;
   return presentStats(buildStats(), {
@@ -891,6 +936,23 @@ Bun.serve({
     }
     if (path === "/api/stats") {
       return withSessionState(Response.json(await statsForRequest(req)), req, sessionId);
+    }
+
+    if (path === "/api/channel-lookup") {
+      const login = url.searchParams.get("login")?.trim().toLowerCase();
+      if (!login) {
+        return withSessionState(Response.json({ error: "missing login" }, { status: 400 }), req, sessionId);
+      }
+      const info = await lookupChannel(login);
+      if (!info) {
+        return withSessionState(Response.json({ exists: false, channel: login }), req, sessionId);
+      }
+      return withSessionState(Response.json({
+        exists: true,
+        channel: info.login,
+        channelDisplay: info.displayName,
+        channelAvatar: info.avatarUrl,
+      }), req, sessionId);
     }
 
     if (path === "/api/goals" && req.method === "POST") {

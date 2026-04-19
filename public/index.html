@@ -231,6 +231,41 @@
 
     /* Sidebar divider */
     .sidebar_actions { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
+    .channel-jump {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.05);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .channel-jump-label {
+      color: #8f98a0;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .channel-jump-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .channel-jump-input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid rgba(80,80,80,.6);
+      background: rgba(0,0,0,.5);
+      color: #c6d4df;
+      border-radius: 2px;
+      padding: 0 10px;
+      line-height: 28px;
+      height: 28px;
+      font-family: inherit;
+      font-size: 12px;
+      outline: none;
+    }
+    .channel-jump-input:focus { border-color: rgba(140,140,140,.8); }
+    .channel-jump-input::placeholder { color: #898989; }
     .sidebar_footer_actions { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
 
     /* ─── Profile customization blocks (left col panels) */
@@ -560,6 +595,13 @@
           <button class="btn-grey danger" id="btn-logout" style="display:none"><span>Log Out</span></button>
           <button class="btn-grey danger" id="btn-reset" style="display:none"><span>Reset Tracker</span></button>
         </div>
+        <div class="channel-jump">
+        <div class="channel-jump-label">SEARCH CHANNEL</div>
+          <div class="channel-jump-row">
+            <input class="channel-jump-input" id="channel-jump-input" type="text" spellcheck="false" autocomplete="off" placeholder="Twitch Username" />
+            <button class="btn-grey" id="channel-jump-go" type="button"><span>Go</span></button>
+          </div>
+        </div>
 
       </div>
 
@@ -731,6 +773,24 @@
   function currentRequestedChannel() {
     return new URL(window.location.href).searchParams.get('channel')?.trim().toLowerCase() || '';
   }
+  function openPublicChannel(channel) {
+    const login = String(channel || '').trim().toLowerCase();
+    if (!login) return;
+    const url = new URL(window.location.href);
+    url.pathname = `${BASE}/`;
+    url.searchParams.set('channel', login);
+    window.location.href = url.toString();
+  }
+  async function searchPublicChannel(rawChannel) {
+    const login = String(rawChannel || '').trim().toLowerCase();
+    if (!login) return;
+    const lookup = await fetch(`${BASE}/api/channel-lookup?login=${encodeURIComponent(login)}`).then((r) => r.json()).catch(() => null);
+    if (!lookup?.exists || !lookup?.channel) {
+      toast('Channel Not Found');
+      return;
+    }
+    openPublicChannel(lookup.channel);
+  }
   function statsUrl(channel = currentRequestedChannel()) {
     const url = new URL(`${BASE}/api/stats`, window.location.origin);
     if (channel) url.searchParams.set('channel', channel);
@@ -893,6 +953,7 @@
     document.getElementById('channel-name').textContent = stats.channelDisplay || stats.channel;
     document.getElementById('channel-avatar').src = stats.channelAvatar || '';
     document.title = `${stats.channelDisplay || stats.channel} · Subathon`;
+    document.getElementById('channel-jump-input').value = stats.channel || '';
 
     const authed = stats.hasBroadcasterAuth;
     const viewingPrivate = !!stats.viewingPrivateTracker;
@@ -968,14 +1029,16 @@
     const stats = await fetch(statsUrl()).then(r => r.json());
     latestStats = stats;
     if (stats?.notFound) {
-      document.getElementById('channel-name').textContent = stats.channel || 'Channel Not Found';
-      document.getElementById('channel-avatar').src = '';
+      document.getElementById('channel-name').textContent = stats.channelDisplay || stats.channel || 'Channel Not Found';
+      document.getElementById('channel-avatar').src = stats.channelAvatar || '';
       document.getElementById('stream-label').textContent = 'Not Tracked Publicly';
       document.getElementById('goal-current').textContent = '0';
       document.getElementById('goal-next').textContent = '0';
       document.getElementById('goal-name').textContent = 'Channel Not Public';
       document.getElementById('goal-fill').style.width = '0%';
       document.getElementById('goal-status').textContent = 'No Public Tracker Exists For This Channel Yet.';
+      document.title = `${stats.channelDisplay || stats.channel || 'Channel Not Found'} · Subathon`;
+      document.getElementById('channel-jump-input').value = stats.channel || '';
       return;
     }
     renderStats(stats);
@@ -993,6 +1056,14 @@
     const mode = document.getElementById('btn-view-public').dataset.mode;
     await fetch(`${BASE}/api/view/${mode === 'private' ? 'private' : 'public'}`, { method:'POST' });
     await refreshStats(); reconnectSSE();
+  });
+  document.getElementById('channel-jump-go').addEventListener('click', async () => {
+    await searchPublicChannel(document.getElementById('channel-jump-input').value);
+  });
+  document.getElementById('channel-jump-input').addEventListener('keydown', async (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    await searchPublicChannel(e.currentTarget.value);
   });
   document.getElementById('goals-add').addEventListener('click', () => {
     document.getElementById('goals-list').appendChild(makeGoalRow());
