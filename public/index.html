@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>subathon tracker</title>
+  <title>Subathon Tracker</title>
   <link rel="icon" href="__APP_BASE_PATH__/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -45,9 +45,8 @@
       cursor: pointer; text-decoration: none; white-space: nowrap;
       transition: background .1s;
     }
-    .btn-grey > span { padding: 0 10px; line-height: 26px; display: block; background: var(--btn-background); border-radius: 2px; }
+    .btn-grey > span { padding: 0 10px; line-height: 26px; display: block; background: transparent; border-radius: 2px; }
     .btn-grey:hover { background: var(--btn-background-hover); color: #fff; }
-    .btn-grey:hover > span { background: var(--btn-background-hover); }
     .btn-grey.danger > span { color: #c86464; }
     .btn-grey.danger:hover > span { color: #ff9999; }
     #tracker-screen { display: none; }
@@ -176,10 +175,10 @@
     }
     .btn_profile_action > span {
       padding: 0 10px; line-height: 26px; border-radius: 2px;
-      display: block; background-color: var(--btn-background);
+      display: block; background-color: transparent;
     }
     .btn_profile_action:hover, .btn_profile_action:focus { color: #fff !important; background-color: var(--btn-background-hover); }
-    .btn_profile_action:hover > span { background-color: var(--btn-background-hover); color: #fff; }
+    .btn_profile_action:hover > span { color: #fff; }
 
     /* ─── Profile content area ──────────────────────── */
     .profile_content {
@@ -422,6 +421,16 @@
       font-size: .82rem;
       outline: none;
     }
+    .goal-edit-input[type="number"] {
+      appearance: textfield;
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+    }
+    .goal-edit-input[type="number"]::-webkit-outer-spin-button,
+    .goal-edit-input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
     .goal-edit-input:focus { border-color: rgba(140,140,140,.8); }
     .goal-edit-remove {
       background: none;
@@ -488,11 +497,11 @@
             <div class="profile_header_centered_persona">
               <div class="persona_name">
                 <span class="actual_persona_name" id="channel-name">—</span>
-                <span class="broadcaster-badge" id="broadcaster-badge">broadcaster</span>
+                <span class="broadcaster-badge" id="broadcaster-badge">Broadcaster</span>
               </div>
               <!-- Status line: "117 viewers" + "21:30:05" when live, "offline" when not -->
               <div class="header_real_name">
-                <span id="stream-label">offline</span>
+                <span id="stream-label">Offline</span>
                 <span id="channel-uptime"></span>
               </div>
             </div>
@@ -542,9 +551,9 @@
 
         <!-- Actions -->
         <div class="sidebar_actions">
-          <button class="btn-grey" id="btn-view-public" style="display:none"><span>view public page</span></button>
-          <button class="btn-grey" id="btn-logout" style="display:none"><span>log out</span></button>
-          <button class="btn-grey danger" id="btn-reset" style="display:none"><span>reset tracker</span></button>
+          <button class="btn-grey" id="btn-view-public" style="display:none"><span>View As Public</span></button>
+          <button class="btn-grey" id="btn-logout" style="display:none"><span>Log Out</span></button>
+          <button class="btn-grey danger" id="btn-reset" style="display:none"><span>Reset Tracker</span></button>
         </div>
 
       </div>
@@ -564,7 +573,7 @@
             <div class="recent_games">
               <div class="recent_game">
                 <div class="recent_game_content">
-                  <div class="game_name" id="recent-sub-text">no recent sub yet</div>
+                  <div class="game_name" id="recent-sub-text">No Recent Sub Yet</div>
                 </div>
               </div>
             </div>
@@ -580,7 +589,7 @@
           <div class="goal_body">
             <div class="goal-name" id="goal-name">—</div>
             <div class="goal-bar"><div class="goal-fill" id="goal-fill"></div></div>
-            <div class="goal-copy"><span id="goal-status">50 more to reach the goal</span></div>
+            <div class="goal-copy"><span id="goal-status">50 More To Reach The Goal</span></div>
           </div>
         </div>
 
@@ -590,7 +599,7 @@
             <div>Gifter Leaderboard</div>
             <div style="font-size:12px; color:#898989;" id="lb-since"></div>
           </div>
-          <div id="lb-body"><div class="lb-empty">no gifters yet this subathon</div></div>
+          <div id="lb-body"><div class="lb-empty">No Gifters Yet This Subathon</div></div>
         </div>
 
       </div><!-- /profile_leftcol -->
@@ -606,11 +615,11 @@
 <!-- Confirm Modal -->
 <div class="modal-shell" id="confirm-modal">
   <div class="modal-card">
-    <div class="modal-title" id="confirm-title">confirm action</div>
+    <div class="modal-title" id="confirm-title">Confirm Action</div>
     <div class="modal-copy" id="confirm-copy"></div>
     <div class="modal-actions">
-      <button class="btn-grey" id="confirm-cancel"><span>cancel</span></button>
-      <button class="btn-grey" id="confirm-ok"><span>continue</span></button>
+      <button class="btn-grey" id="confirm-cancel"><span>Cancel</span></button>
+      <button class="btn-grey" id="confirm-ok"><span>Continue</span></button>
     </div>
   </div>
 </div>
@@ -619,11 +628,11 @@
 <div class="modal-shell" id="overlay-modal">
   <div class="modal-card overlay-card">
     <button class="overlay-close-icon" id="overlay-close" type="button" aria-label="close">×</button>
-    <div class="modal-title">overlay link</div>
+    <div class="modal-title">Overlay Link</div>
     <div class="overlay-preview">
       <div class="overlay-preview-head">
-        <div class="overlay-preview-title">preview</div>
-        <div class="overlay-preview-size" id="overlay-preview-size">live overlay</div>
+        <div class="overlay-preview-title">Preview</div>
+        <div class="overlay-preview-size" id="overlay-preview-size">Live Overlay</div>
       </div>
       <div class="overlay-preview-body">
         <iframe class="overlay-preview-frame" id="overlay-preview-frame" title="goal overlay preview"></iframe>
@@ -631,11 +640,11 @@
     </div>
     <div class="overlay-form">
       <div class="overlay-field full">
-        <label for="overlay-channel">channel</label>
+        <label for="overlay-channel">Channel</label>
         <input class="overlay-input" id="overlay-channel" type="text" spellcheck="false" autocomplete="off" />
       </div>
       <div class="overlay-field">
-        <label for="overlay-font">font</label>
+        <label for="overlay-font">Font</label>
         <select class="overlay-select" id="overlay-font">
           <option value="1">JETBRAINS MONO</option>
           <option value="2" selected>IBM PLEX SANS</option>
@@ -643,7 +652,7 @@
         </select>
       </div>
       <div class="overlay-field">
-        <label for="overlay-accent">accent</label>
+        <label for="overlay-accent">Accent</label>
         <select class="overlay-select" id="overlay-accent">
           <option value="5" selected>SOFT WHITE</option>
           <option value="1">ROSE</option>
@@ -657,7 +666,7 @@
         <input class="overlay-range" id="overlay-alpha" type="range" min="20" max="95" value="58" />
       </div>
       <div class="overlay-field full">
-        <label for="overlay-link">overlay url</label>
+        <label for="overlay-link">Overlay Url</label>
         <input class="overlay-link" id="overlay-link" type="text" readonly />
       </div>
     </div>
@@ -666,14 +675,14 @@
 
 <div class="modal-shell" id="goals-modal">
   <div class="modal-card goals-card">
-    <div class="modal-title">custom goals</div>
-    <div class="goals-copy">Add the sub count and the goal text for your channel. These will appear on your public page and the goal overlay.</div>
+    <div class="modal-title">Custom Goals</div>
+    <div class="goals-copy">Add The Sub Count And The Goal Text For Your Channel. These Will Appear On Your Public Page And The Goal Overlay.</div>
     <div class="goals-list" id="goals-list"></div>
     <div class="modal-actions" style="justify-content: space-between;">
-      <button class="btn-grey" id="goals-add"><span>add goal</span></button>
+      <button class="btn-grey" id="goals-add"><span>Add Goal</span></button>
       <div style="display:flex; gap:.5rem;">
-        <button class="btn-grey" id="goals-close"><span>close</span></button>
-        <button class="btn-grey" id="goals-save"><span>save</span></button>
+        <button class="btn-grey" id="goals-close"><span>Close</span></button>
+        <button class="btn-grey" id="goals-save"><span>Save</span></button>
       </div>
     </div>
   </div>
@@ -754,7 +763,7 @@
     const overlayLink = document.getElementById('overlay-link');
     overlayLink.value = overlayUrl();
     requestAnimationFrame(() => { overlayLink.scrollLeft = 0; });
-    document.getElementById('overlay-preview-size').textContent = `${alpha}% opacity`;
+    document.getElementById('overlay-preview-size').textContent = `${alpha}% Opacity`;
     const frame = document.getElementById('overlay-preview-frame');
     const pu = overlayPreviewUrl();
     if (frame.dataset.src !== pu) { frame.src = pu; frame.dataset.src = pu; }
@@ -803,20 +812,20 @@
     if (goal.empty) {
       document.getElementById('goal-current').textContent = fmt(goal.total);
       document.getElementById('goal-next').textContent = '—';
-      document.getElementById('goal-name').textContent = 'No goals configured';
+      document.getElementById('goal-name').textContent = 'No Goals Configured';
       document.getElementById('goal-fill').style.width = '0%';
-      document.getElementById('goal-status').textContent = 'Add goals to show progress here.';
+      document.getElementById('goal-status').textContent = 'Add Goals To Show Progress Here.';
       return;
     }
     document.getElementById('goal-current').textContent = fmt(goal.total);
     document.getElementById('goal-next').textContent = fmt(goal.next);
     document.getElementById('goal-name').textContent = goal.label || '—';
     document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
-    document.getElementById('goal-status').innerHTML = goal.complete ? 'goal reached' : `<strong>${fmt(goal.remaining)}</strong> more to unlock`;
+    document.getElementById('goal-status').innerHTML = goal.complete ? 'Goal Reached' : `<strong>${fmt(goal.remaining)}</strong> More To Unlock`;
   }
   function renderRecentSub(stats) {
     const r = stats?.recentSub;
-    document.getElementById('recent-sub-text').textContent = r?.text || 'no recent sub yet';
+    document.getElementById('recent-sub-text').textContent = r?.text || 'No Recent Sub Yet';
     document.getElementById('recent-sub-time').textContent = r?.at ? timeAgo(r.at) : '';
   }
   function askConfirm(title, copy, ok='continue') {
@@ -844,9 +853,9 @@
     const row = document.createElement('div');
     row.className = 'goal-edit-row';
     row.innerHTML = `
-      <input class="goal-edit-input" data-role="subs" type="number" min="1" max="100000" placeholder="subs" value="${escHtml(goal.subs || '')}" />
-      <input class="goal-edit-input" data-role="label" type="text" maxlength="120" placeholder="goal" value="${escHtml(goal.label || '')}" />
-      <button class="goal-edit-remove" type="button">remove</button>`;
+      <input class="goal-edit-input" data-role="subs" type="number" min="1" max="100000" inputmode="numeric" placeholder="Sub Count" value="${escHtml(goal.subs || '')}" />
+      <input class="goal-edit-input" data-role="label" type="text" maxlength="120" placeholder="Goal" value="${escHtml(goal.label || '')}" />
+      <button class="goal-edit-remove" type="button">Remove</button>`;
     row.querySelector('.goal-edit-remove').addEventListener('click', () => row.remove());
     return row;
   }
@@ -877,16 +886,23 @@
     document.getElementById('label-subs').textContent = stats.subsCardLabel || 'Subs Gained';
     document.getElementById('channel-name').textContent = stats.channelDisplay || stats.channel;
     document.getElementById('channel-avatar').src = stats.channelAvatar || '';
-    document.title = `${stats.channelDisplay || stats.channel} · subathon`;
+    document.title = `${stats.channelDisplay || stats.channel} · Subathon`;
 
     const authed = stats.hasBroadcasterAuth;
     const viewingPrivate = !!stats.viewingPrivateTracker;
     const persistent = !!stats.privateTrackerPersistent;
+    const authButton = document.getElementById('btn-auth');
+    const authButtonLabel = authButton.querySelector('span');
+    const publicPreviewButton = document.getElementById('btn-view-public');
+    const publicPreviewLabel = publicPreviewButton.querySelector('span');
 
     document.getElementById('broadcaster-badge').style.display = authed ? 'inline-block' : 'none';
-    document.getElementById('btn-auth').style.display = authed ? 'none' : 'inline-block';
-    document.getElementById('btn-auth').dataset.mode = persistent && !viewingPrivate ? 'resume' : 'login';
-    document.getElementById('btn-view-public').style.display = viewingPrivate ? 'inline-flex' : 'none';
+    authButton.style.display = viewingPrivate || persistent ? 'none' : 'inline-block';
+    authButton.dataset.mode = persistent && !viewingPrivate ? 'resume' : 'login';
+    authButtonLabel.textContent = persistent && !viewingPrivate ? 'Resume' : 'Login';
+    publicPreviewButton.style.display = persistent ? 'inline-flex' : 'none';
+    publicPreviewButton.dataset.mode = viewingPrivate ? 'public' : 'private';
+    publicPreviewLabel.textContent = viewingPrivate ? 'View As Public' : 'Exit Public Preview';
     document.getElementById('btn-logout').style.display = persistent ? 'inline-flex' : 'none';
     document.getElementById('btn-reset').style.display  = authed ? 'inline-flex' : 'none';
     document.getElementById('btn-goals').style.display = authed && viewingPrivate && stats.channel !== stats.defaultChannel ? 'inline-block' : 'none';
@@ -900,7 +916,7 @@
     const body = document.getElementById('lb-body');
     const gifters = stats.gifters || [];
     if (!gifters.length) {
-      body.innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
+      body.innerHTML = '<div class="lb-empty">No Gifters Yet This Subathon</div>';
     } else {
       const vis = leaderboardExpanded ? gifters : gifters.slice(0, 10);
       body.innerHTML = `
@@ -931,10 +947,10 @@
     const uptime = document.getElementById('channel-uptime');
     if (d.live) {
       lbl.className = 'live';
-      lbl.textContent = d.viewers ? `${fmt(d.viewers)} viewers` : 'live';
+      lbl.textContent = d.viewers ? `${fmt(d.viewers)} Viewers` : 'Live';
     } else {
       lbl.className = '';
-      lbl.textContent = 'offline';
+      lbl.textContent = 'Offline';
       if (uptime) uptime.style.display = 'none';
     }
   }
@@ -946,14 +962,14 @@
     const stats = await fetch(statsUrl()).then(r => r.json());
     latestStats = stats;
     if (stats?.notFound) {
-      document.getElementById('channel-name').textContent = stats.channel || 'channel not found';
+      document.getElementById('channel-name').textContent = stats.channel || 'Channel Not Found';
       document.getElementById('channel-avatar').src = '';
-      document.getElementById('stream-label').textContent = 'not tracked publicly';
+      document.getElementById('stream-label').textContent = 'Not Tracked Publicly';
       document.getElementById('goal-current').textContent = '0';
       document.getElementById('goal-next').textContent = '0';
-      document.getElementById('goal-name').textContent = 'channel not public';
+      document.getElementById('goal-name').textContent = 'Channel Not Public';
       document.getElementById('goal-fill').style.width = '0%';
-      document.getElementById('goal-status').textContent = 'No public tracker exists for this channel yet.';
+      document.getElementById('goal-status').textContent = 'No Public Tracker Exists For This Channel Yet.';
       return;
     }
     renderStats(stats);
@@ -968,7 +984,8 @@
     await refreshStats(); reconnectSSE();
   });
   document.getElementById('btn-view-public').addEventListener('click', async () => {
-    await fetch(`${BASE}/api/view/public`, { method:'POST' });
+    const mode = document.getElementById('btn-view-public').dataset.mode;
+    await fetch(`${BASE}/api/view/${mode === 'private' ? 'private' : 'public'}`, { method:'POST' });
     await refreshStats(); reconnectSSE();
   });
   document.getElementById('goals-add').addEventListener('click', () => {
@@ -985,21 +1002,21 @@
       body: JSON.stringify({ goals: readGoalRows() }),
     });
     if (!res.ok) {
-      toast('could not save goals');
+      toast('Could Not Save Goals');
       return;
     }
     const payload = await res.json();
     if (payload?.stats) renderStats(payload.stats);
     closeGoalsModal();
-    toast('goals saved', 'reset');
+    toast('Goals Saved', 'reset');
   });
   document.getElementById('btn-reset').addEventListener('click', async () => {
-    const ok = await askConfirm('reset tracker', 'Resetting will clear the current tracked subs, bits, gifts, and restart the tracker from now.', 'reset');
+    const ok = await askConfirm('Reset Tracker', 'Resetting Will Clear The Current Tracked Subs, Bits, Gifts, And Restart The Tracker From Now.', 'Reset');
     if (!ok) return;
     await fetch(`${BASE}/api/start`, { method:'POST' });
   });
   document.getElementById('btn-logout').addEventListener('click', async () => {
-    const ok = await askConfirm('log out', 'Logging out will delete this saved private tracker and its tracked data for this browser session.', 'log out');
+    const ok = await askConfirm('Log Out', 'Logging Out Will Delete This Saved Private Tracker And Its Tracked Data For This Browser Session.', 'Log Out');
     if (!ok) return;
     window.location.href = `${BASE}/auth/logout`;
   });
@@ -1009,7 +1026,7 @@
   document.getElementById('overlay-close').addEventListener('click', closeOverlayModal);
   document.getElementById('overlay-link').addEventListener('click', async () => {
     const link = document.getElementById('overlay-link').value;
-    try { await navigator.clipboard.writeText(link); toast('overlay link copied','reset'); }
+    try { await navigator.clipboard.writeText(link); toast('Overlay Link Copied','reset'); }
     catch { document.getElementById('overlay-link').focus(); document.getElementById('overlay-link').select(); }
   });
   document.getElementById('overlay-modal').addEventListener('click', e => { if (e.target.id==='overlay-modal') closeOverlayModal(); });
@@ -1030,14 +1047,14 @@
       if (msg.stats)  renderStats(msg.stats);
       if (msg.stream) renderStream(msg.stream);
       switch (msg.type) {
-        case 'sub':         flashEl('val-subs'); toast(`${msg.userName} subscribed`); break;
-        case 'resub':       flashEl('val-subs'); toast(`${msg.userName} resubscribed`); break;
-        case 'gift':        flashEl('val-gifts'); flashEl('val-subs'); toast(`${msg.gifterName} gifted ${msg.total} sub${msg.total!==1?'s':''}`, 'gift'); break;
-        case 'bits':        flashEl('val-bits'); toast(`${fmt(msg.bits)} bits cheered`, 'bits'); break;
-        case 'stream_live': toast(`${msg.stats?.channelDisplay||'stream'} is live`, 'reset'); break;
+        case 'sub':         flashEl('val-subs'); toast(`${msg.userName} Subscribed`); break;
+        case 'resub':       flashEl('val-subs'); toast(`${msg.userName} Resubscribed`); break;
+        case 'gift':        flashEl('val-gifts'); flashEl('val-subs'); toast(`${msg.gifterName} Gifted ${msg.total} Sub${msg.total!==1?'s':''}`, 'gift'); break;
+        case 'bits':        flashEl('val-bits'); toast(`${fmt(msg.bits)} Bits Cheered`, 'bits'); break;
+        case 'stream_live': toast(`${msg.stats?.channelDisplay||'Stream'} Is Live`, 'reset'); break;
         case 'channel_set': renderStats(msg.stats); break;
-        case 'goals_update': toast('goals updated', 'reset'); break;
-        case 'reset':       flashEl('val-subs'); flashEl('val-bits'); flashEl('val-gifts'); toast('tracker reset','reset'); break;
+        case 'goals_update': toast('Goals Updated', 'reset'); break;
+        case 'reset':       flashEl('val-subs'); flashEl('val-bits'); flashEl('val-gifts'); toast('Tracker Reset','reset'); break;
       }
     };
     sse.onerror = () => { sse.close(); setTimeout(connect, reconnectDelay); reconnectDelay = Math.min(reconnectDelay*2, 15000); };
