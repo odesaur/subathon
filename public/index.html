@@ -755,9 +755,8 @@
           <label for="overlay-size">size</label>
           <select class="overlay-select" id="overlay-size">
             <option value="1">small</option>
-            <option value="2">medium</option>
-            <option value="3" selected>large</option>
-            <option value="4">huge</option>
+            <option value="2" selected>medium</option>
+            <option value="3">large</option>
           </select>
         </div>
         <div class="overlay-field">
@@ -777,6 +776,20 @@
             <option value="3">aqua</option>
             <option value="4">lime</option>
           </select>
+        </div>
+        <div class="overlay-field">
+          <label for="overlay-width">horizontal size</label>
+          <div class="overlay-range-row">
+            <input class="overlay-range" id="overlay-width" type="range" min="0" max="100" value="0" />
+            <span class="overlay-value" id="overlay-width-value">0%</span>
+          </div>
+        </div>
+        <div class="overlay-field">
+          <label for="overlay-font-size">font size</label>
+          <div class="overlay-range-row">
+            <input class="overlay-range" id="overlay-font-size" type="range" min="80" max="140" value="100" />
+            <span class="overlay-value" id="overlay-font-size-value">100%</span>
+          </div>
         </div>
         <div class="overlay-field">
           <label for="overlay-alpha">transparency</label>
@@ -913,6 +926,8 @@
       url.searchParams.set('size', document.getElementById('overlay-size').value);
       url.searchParams.set('font', document.getElementById('overlay-font').value);
       url.searchParams.set('accent', document.getElementById('overlay-accent').value);
+      url.searchParams.set('width', document.getElementById('overlay-width').value);
+      url.searchParams.set('fontSize', document.getElementById('overlay-font-size').value);
       url.searchParams.set('alpha', document.getElementById('overlay-alpha').value);
       return url.toString();
     }
@@ -925,12 +940,16 @@
 
     function syncOverlayUrl() {
       const alpha = document.getElementById('overlay-alpha').value;
+      const width = document.getElementById('overlay-width').value;
+      const fontSize = document.getElementById('overlay-font-size').value;
       const outputUrl = overlayUrl();
       const previewUrl = overlayPreviewUrl();
       document.getElementById('overlay-alpha-value').textContent = `${alpha}%`;
+      document.getElementById('overlay-width-value').textContent = `${width}%`;
+      document.getElementById('overlay-font-size-value').textContent = `${fontSize}%`;
       document.getElementById('overlay-link').value = outputUrl;
       document.getElementById('overlay-preview-size').textContent =
-        `${document.getElementById('overlay-size').selectedOptions[0].textContent} · ${document.getElementById('overlay-font').selectedOptions[0].textContent}`;
+        `${document.getElementById('overlay-size').selectedOptions[0].textContent} · +${width}% width · ${fontSize}% text · ${document.getElementById('overlay-font').selectedOptions[0].textContent}`;
       const frame = document.getElementById('overlay-preview-frame');
       if (frame.dataset.src !== previewUrl) {
         frame.src = previewUrl;
@@ -1297,8 +1316,8 @@
     document.getElementById('overlay-modal').addEventListener('click', (e) => {
       if (e.target.id === 'overlay-modal') closeOverlayModal();
     });
-    ['overlay-channel', 'overlay-size', 'overlay-font', 'overlay-accent', 'overlay-alpha'].forEach((id) => {
-      document.getElementById(id).addEventListener(id === 'overlay-alpha' ? 'input' : 'change', syncOverlayUrl);
+    ['overlay-channel', 'overlay-size', 'overlay-font', 'overlay-accent', 'overlay-width', 'overlay-font-size', 'overlay-alpha'].forEach((id) => {
+      document.getElementById(id).addEventListener((id === 'overlay-alpha' || id === 'overlay-width' || id === 'overlay-font-size') ? 'input' : 'change', syncOverlayUrl);
     });
     document.getElementById('overlay-channel').addEventListener('input', syncOverlayUrl);
 

@@ -17,6 +17,8 @@
       --radius: 18px;
       --goal-width: 18ch;
       --content-width: 18ch;
+      --width-scale: 1;
+      --font-scale: 1;
       --alpha: 0.58;
       --accent: #ff79c6;
       --accent-soft: rgba(255, 121, 198, .35);
@@ -70,7 +72,7 @@
       justify-content: start;
       column-gap: 1rem;
       margin-bottom: 12px;
-      font-size: var(--eyebrow-size);
+      font-size: calc(var(--eyebrow-size) * var(--font-scale));
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .08em;
@@ -92,12 +94,12 @@
       overflow: hidden;
       white-space: nowrap;
       width: var(--goal-width);
-      font-size: var(--goal-size);
+      font-size: calc(var(--goal-size) * var(--font-scale));
       font-weight: 800;
       line-height: 1.1;
       letter-spacing: -.03em;
       margin-bottom: 12px;
-      min-height: calc(var(--goal-size) * 1.15);
+      min-height: calc(var(--goal-size) * var(--font-scale) * 1.15);
     }
     .goal-text {
       display: inline-block;
@@ -141,36 +143,29 @@
       display: none !important;
     }
     body.size-1 {
-      --panel-pad: 14px;
-      --eyebrow-size: 13px;
-      --goal-size: 21px;
-      --bar-height: 10px;
+      --panel-pad: 12px;
+      --eyebrow-size: 12px;
+      --goal-size: 22px;
+      --bar-height: 9px;
       --radius: 12px;
     }
     body.size-2 {
-      --panel-pad: 17px;
-      --eyebrow-size: 16px;
-      --goal-size: 28px;
+      --panel-pad: 18px;
+      --eyebrow-size: 18px;
+      --goal-size: 32px;
       --bar-height: 14px;
-      --radius: 14px;
+      --radius: 16px;
     }
     body.size-3 {
-      --panel-pad: 20px;
-      --eyebrow-size: 22px;
-      --goal-size: 36px;
+      --panel-pad: 24px;
+      --eyebrow-size: 24px;
+      --goal-size: 42px;
       --bar-height: 18px;
       --radius: 18px;
     }
-    body.size-4 {
-      --panel-pad: 24px;
-      --eyebrow-size: 26px;
-      --goal-size: 46px;
-      --bar-height: 22px;
-      --radius: 20px;
-    }
   </style>
 </head>
-<body class="size-3 font-2">
+<body class="size-2 font-2">
   <div class="overlay">
     <div class="eyebrow">
       <div class="eyebrow-label">GOALS</div>
@@ -221,9 +216,11 @@
 
     const params = new URLSearchParams(location.search);
     const requestedChannel = (params.get('channel') || 'fruitberries').trim().toLowerCase();
-    const size = Math.max(1, Math.min(4, parseInt(params.get('size') || '3', 10) || 3));
+    const size = Math.max(1, Math.min(3, parseInt(params.get('size') || '2', 10) || 2));
     const font = Math.max(1, Math.min(3, parseInt(params.get('font') || '2', 10) || 2));
-    const accent = Math.max(1, Math.min(5, parseInt(params.get('accent') || '1', 10) || 1));
+    const accent = Math.max(1, Math.min(5, parseInt(params.get('accent') || '5', 10) || 5));
+    const widthExtra = Math.max(0, Math.min(100, parseInt(params.get('width') || '0', 10) || 0));
+    const fontScale = Math.max(80, Math.min(140, parseInt(params.get('fontSize') || '100', 10) || 100));
     const alpha = Math.max(20, Math.min(95, parseInt(params.get('alpha') || '58', 10) || 58));
     const preview = params.get('preview') === '1';
 
@@ -242,9 +239,10 @@
     root.style.setProperty('--accent', activeAccent.accent);
     root.style.setProperty('--accent-soft', activeAccent.soft);
     root.style.setProperty('--glass', `rgba(9, 10, 18, ${alpha / 100})`);
+    root.style.setProperty('--font-scale', String(fontScale / 100));
     if (preview) {
-      const previewScaleMap = { 1: 0.8, 2: 0.82, 3: 0.84, 4: 0.72 };
-      root.style.setProperty('--preview-scale', String(previewScaleMap[size] || 0.8));
+      const previewScaleMap = { 1: 0.94, 2: 0.86, 3: 0.78 };
+      root.style.setProperty('--preview-scale', String(previewScaleMap[size] || 0.86));
     }
 
     function fmt(n) { return (n ?? 0).toLocaleString(); }
@@ -293,7 +291,8 @@
         measureEl.style.letterSpacing = getComputedStyle(goalEl).letterSpacing;
         const baselineWidth = Math.ceil(measureEl.scrollWidth);
         const textWidth = goalTextEl.scrollWidth;
-        const goalWidth = Math.max(baselineWidth, Math.min(textWidth, baselineWidth));
+        const scaledBaselineWidth = Math.ceil(baselineWidth * (1 + widthExtra / 100));
+        const goalWidth = scaledBaselineWidth;
         const headerWidth = labelWidth + targetWidth + 16;
         const contentWidth = Math.max(goalWidth, headerWidth);
         overlayEl.style.setProperty('--goal-width', `${goalWidth}px`);
