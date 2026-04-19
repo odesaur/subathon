@@ -1,8 +1,9 @@
 import {
   getStats, getConfig, setConfig, deleteConfigKeys, clearTrackedEvents,
+  getChannelGoals, replaceChannelGoals,
   saveSessionTracker, loadSessionTracker, listSessionTrackers,
   deleteSessionTracker as deleteSavedSessionTracker, deleteExpiredSessionTrackers,
-  type PersistedSessionTracker,
+  type PersistedSessionTracker, type ChannelGoal,
 } from "./db.ts";
 import {
   initTwitch, switchChannel, lookupChannel, lookupChannelById,
@@ -34,6 +35,42 @@ const SESSION_TTL = 48 * 60 * 60;
 const SESSION_COOKIE = "subathon_session";
 const VIEW_COOKIE = "subathon_view";
 const ANON_GIFTER_NAME = "AnAnonymousGifter";
+const FRUITBERRIES_GOALS: ChannelGoal[] = [
+  { subs: 1, label: "Game night with HBG" },
+  { subs: 25, label: "Chat picks pizza toppings" },
+  { subs: 50, label: "Fruitberries Q&A with Chat" },
+  { subs: 75, label: "MC Event game tierlist" },
+  { subs: 100, label: "Mine a chunk with Chat" },
+  { subs: 125, label: "Play a Stray UHC" },
+  { subs: 150, label: "Minecraft Lockout 1v1 vs Feinberg" },
+  { subs: 175, label: "Attempt 5 SkyBattle wins in a row" },
+  { subs: 200, label: "Geoguessr Ranked" },
+  { subs: 225, label: "One mouse one keyboard MC with girlfriend" },
+  { subs: 250, label: "Chat picks 2 Amazon items" },
+  { subs: 275, label: "Parkour Civilization homework" },
+  { subs: 300, label: "League with Yupplez" },
+  { subs: 325, label: "Party games with Chat" },
+  { subs: 350, label: "FNAF in the dark" },
+  { subs: 375, label: "1 Master Mode Hardcore Terraria attempt" },
+  { subs: 400, label: "Win a Hypixel UHC" },
+  { subs: 425, label: "Make a Hollowcube map" },
+  { subs: 450, label: "Hoplite with hackingnoises" },
+  { subs: 475, label: "Minecraft Bedrock speedrun no reset" },
+  { subs: 500, label: "Win Bedwars solos, duos, trios, quads" },
+  { subs: 600, label: "Chunklock Mod speedrun 1v1 w/ Boosfer" },
+  { subs: 700, label: "Cooking stream" },
+  { subs: 800, label: "Play 10 Hypixel UHCs" },
+  { subs: 900, label: "Geoguessr moving 25k attempts" },
+  { subs: 1000, label: "Go bald" },
+  { subs: 1250, label: "10 half-heart hardcore speedruns in a row" },
+  { subs: 1500, label: "All Advancements no reset stream" },
+  { subs: 1750, label: "25 no reset speedruns" },
+  { subs: 2000, label: "Pure Pain Marathon w/ Kaelan moral support" },
+  { subs: 2250, label: "Wear a maid outfit for next event" },
+  { subs: 2500, label: "Walk across my city IRL stream" },
+  { subs: 2750, label: "Dye hair green" },
+  { subs: 3000, label: "Solo BlazeAndCaves mod completion" },
+];
 
 /* SSE */
 type SSECtrl = ReadableStreamDefaultController<Uint8Array>;
@@ -59,7 +96,8 @@ type SessionTracker = {
   recentSub: { text: string; at: number; avatarUrl?: string } | null;
   seenSubIds: Set<string>;
   seenBitIds: Set<string>;
-  clients: Set<SSECtrl>;
+  privateClients: Set<SSECtrl>;
+  publicClients: Set<SSECtrl>;
   ws: WebSocket | null;
   reconnectTimer: ReturnType<typeof setTimeout> | null;
   pollTimer: ReturnType<typeof setInterval> | null;
@@ -70,6 +108,13 @@ type SessionTracker = {
 };
 
 const sessionTrackers = new Map<string, SessionTracker>();
+
+function goalsForChannel(channel: string | null | undefined) {
+  const login = channel?.trim().toLowerCase() || "";
+  if (!login) return [];
+  if (login === DEFAULT_CHANNEL) return FRUITBERRIES_GOALS;
+  return getChannelGoals(login);
+}
 
 function broadcast(data: unknown) {
   const chunk = new TextEncoder().encode(`data: ${JSON.stringify(data)}\n\n`);
@@ -141,7 +186,7 @@ let streamPollTimer: ReturnType<typeof setInterval> | null = null;
 let sawOfflineSinceActivation = false;
 const IRC_WS = "wss://irc-ws.chat.twitch.tv:443";
 
-function sessionStats(tracker: SessionTracker) {
+function trackerBaseStats(tracker: SessionTracker) {
   const gifters = [...tracker.gifters.values()]
     .sort((a, b) => b.gifts - a.gifts || a.name.localeCompare(b.name))
     .slice(0, 50);
@@ -163,19 +208,61 @@ function sessionStats(tracker: SessionTracker) {
     defaultChannel: DEFAULT_CHANNEL,
     anonymousMode: false,
     temporaryMode: !tracker.persistent,
-    privateTrackerPersistent: tracker.persistent,
     subsCardLabel: "Subs Gained",
-    hasPrivateTracker: true,
-    viewingPrivateTracker: true,
   };
 }
 
-function sessionBroadcast(tracker: SessionTracker, data: unknown) {
-  const chunk = new TextEncoder().encode(`data: ${JSON.stringify(data)}\n\n`);
-  for (const ctrl of tracker.clients) {
-    try { ctrl.enqueue(chunk); }
-    catch { tracker.clients.delete(ctrl); }
+function presentStats(
+  base: ReturnType<typeof trackerBaseStats> | ReturnType<typeof buildStats>,
+  opts: {
+    viewingPrivateTracker: boolean;
+    hasPrivateTracker: boolean;
+    privateTrackerPersistent: boolean;
+    hasBroadcasterAuth?: boolean;
   }
+) {
+  return {
+    ...base,
+    goals: goalsForChannel(base.channel),
+    hasBroadcasterAuth: opts.hasBroadcasterAuth ?? base.hasBroadcasterAuth,
+    hasPrivateTracker: opts.hasPrivateTracker,
+    viewingPrivateTracker: opts.viewingPrivateTracker,
+    privateTrackerPersistent: opts.privateTrackerPersistent,
+  };
+}
+
+function sessionStats(tracker: SessionTracker) {
+  return presentStats(trackerBaseStats(tracker), {
+    viewingPrivateTracker: true,
+    hasPrivateTracker: true,
+    privateTrackerPersistent: tracker.persistent,
+  });
+}
+
+function trackerClientCount(tracker: SessionTracker) {
+  return tracker.privateClients.size + tracker.publicClients.size;
+}
+
+function sendTrackerPayload(ctrls: Set<SSECtrl>, data: unknown) {
+  const chunk = new TextEncoder().encode(`data: ${JSON.stringify(data)}\n\n`);
+  for (const ctrl of ctrls) {
+    try { ctrl.enqueue(chunk); }
+    catch { ctrls.delete(ctrl); }
+  }
+}
+
+function sessionBroadcast(tracker: SessionTracker, data: unknown) {
+  sendTrackerPayload(tracker.privateClients, data);
+  if (!tracker.publicClients.size) return;
+  const publicData = typeof data === "object" && data && "stats" in (data as Record<string, unknown>)
+    ? { ...(data as Record<string, unknown>), stats: presentStats(trackerBaseStats(tracker), {
+        viewingPrivateTracker: false,
+        hasPrivateTracker: false,
+        privateTrackerPersistent: false,
+        hasBroadcasterAuth: false,
+      }) }
+    : data;
+  sendTrackerPayload(tracker.publicClients, publicData);
 }
 
 function uncappedSession(login: string) {
@@ -241,7 +328,8 @@ function hydrateSessionTracker(state: PersistedSessionTracker): SessionTracker {
     recentSub: state.recentSub,
     seenSubIds: new Set(state.seenSubIds),
     seenBitIds: new Set(state.seenBitIds),
-    clients: new Set(),
+    privateClients: new Set(),
+    publicClients: new Set(),
     ws: null,
     reconnectTimer: null,
     pollTimer: null,
@@ -471,10 +559,10 @@ function cancelSessionDestroy(tracker: SessionTracker) {
 }
 
 function scheduleSessionDestroy(tracker: SessionTracker) {
-  if (tracker.persistent || tracker.clients.size) return;
+  if (tracker.persistent || trackerClientCount(tracker)) return;
   cancelSessionDestroy(tracker);
   tracker.destroyTimer = setTimeout(() => {
-    if (!tracker.clients.size) destroySessionTracker(tracker.sessionId, true);
+    if (!trackerClientCount(tracker)) destroySessionTracker(tracker.sessionId, true);
   }, 30_000);
 }
 
@@ -506,7 +594,8 @@ async function createSessionTracker(
     recentSub: null,
     seenSubIds: new Set(),
     seenBitIds: new Set(),
-    clients: new Set(),
+    privateClients: new Set(),
+    publicClients: new Set(),
     ws: null,
     reconnectTimer: null,
     pollTimer: null,
@@ -580,6 +669,41 @@ function pruneExpiredSessionTrackers() {
   deleteExpiredSessionTrackers(now);
 }
 
+function requestedChannelFromUrl(url: URL) {
+  const value = url.searchParams.get("channel")?.trim().toLowerCase();
+  return value || null;
+}
+
+async function restoreTrackerForChannel(login: string) {
+  const target = login.trim().toLowerCase();
+  if (!target || target === DEFAULT_CHANNEL) return null;
+  for (const tracker of sessionTrackers.values()) {
+    if (!tracker.persistent || tracker.channel !== target) continue;
+    if (sessionExpired(tracker)) {
+      destroySessionTracker(tracker.sessionId, true);
+      continue;
+    }
+    return tracker;
+  }
+  for (const saved of listSessionTrackers()) {
+    if (!saved.channel || saved.channel !== target) continue;
+    if (saved.expiresAt && saved.expiresAt <= Math.floor(Date.now() / 1000)) continue;
+    return restoreSessionTracker(saved.sessionId);
+  }
+  return null;
+}
+
+function resetSessionTrackerData(tracker: SessionTracker) {
+  tracker.trackedSubs = 0;
+  tracker.trackedBits = 0;
+  tracker.giftedSubs = 0;
+  tracker.gifters.clear();
+  tracker.recentSub = null;
+  tracker.seenSubIds.clear();
+  tracker.seenBitIds.clear();
+  tracker.subathonStart = Math.floor(Date.now() / 1000);
+}
+
 async function pollStream() {
   const trackedChannel = getConfig("channel_login");
   const polledChannel = currentChannel;
@@ -608,7 +732,11 @@ async function startStreamPoll() {
 
 /* Stats */
 function fullStats() {
-  return buildStats();
+  return presentStats(buildStats(), {
+    viewingPrivateTracker: false,
+    hasPrivateTracker: false,
+    privateTrackerPersistent: false,
+  });
 }
 
 async function sessionTrackerForRequest(req: Request) {
@@ -625,26 +753,33 @@ async function savedTrackerForRequest(req: Request) {
 }
 
 async function statsForRequest(req: Request) {
+  const requestedChannel = requestedChannelFromUrl(new URL(req.url));
   const viewMode = viewModeFromReq(req);
   const tracker = await sessionTrackerForRequest(req);
   const savedTracker = tracker ?? (viewMode === VIEW_PRIVATE ? null : await savedTrackerForRequest(req));
-  const hasPrivateTracker = !!savedTracker;
-  const viewingPrivateTracker = !!tracker;
-  const privateTrackerPersistent = !!savedTracker?.persistent;
-  if (tracker) {
-    return {
-      ...sessionStats(tracker),
-      hasPrivateTracker,
-      viewingPrivateTracker,
-      privateTrackerPersistent,
-    };
+  if (tracker && (!requestedChannel || requestedChannel === tracker.channel)) {
+    return sessionStats(tracker);
   }
-  return {
-    ...fullStats(),
-    hasPrivateTracker,
-    viewingPrivateTracker,
-    privateTrackerPersistent,
-  };
+  if (requestedChannel && requestedChannel !== DEFAULT_CHANNEL) {
+    const publicTracker = await restoreTrackerForChannel(requestedChannel);
+    if (publicTracker) {
+      const matchingSavedTracker = savedTracker?.persistent && savedTracker.channel === requestedChannel;
+      return presentStats(trackerBaseStats(publicTracker), {
+        viewingPrivateTracker: false,
+        hasPrivateTracker: !!matchingSavedTracker,
+        privateTrackerPersistent: !!matchingSavedTracker,
+        hasBroadcasterAuth: false,
+      });
+    }
+    return { notFound: true, channel: requestedChannel };
+  }
+  const matchingSavedTracker = savedTracker?.persistent && savedTracker.channel === DEFAULT_CHANNEL;
+  return presentStats(buildStats(), {
+    viewingPrivateTracker: false,
+    hasPrivateTracker: !!matchingSavedTracker,
+    privateTrackerPersistent: !!matchingSavedTracker,
+    hasBroadcasterAuth: false,
+  });
 }
 
 function buildStats() {
@@ -667,7 +802,7 @@ function buildStats() {
   };
 }
 
-setStatsProvider(() => buildStats());
+setStatsProvider(() => fullStats());
 
 function resetTrackerState(clearAuth = true) {
   clearTrackedEvents();
@@ -718,10 +853,14 @@ Bun.serve({
   async fetch(req) {
     const url = new URL(req.url);
     const path = stripBasePath(url.pathname);
+    const requestedChannel = requestedChannelFromUrl(url);
     const sessionId = ensureSessionId(req);
     const privateTracker = await sessionTrackerForRequest(req);
+    const activePrivateTracker = privateTracker && (!requestedChannel || requestedChannel === privateTracker.channel)
+      ? privateTracker
+      : null;
 
-    if (path === "/" || path === "/index.html" || path === "/search") {
+    if (path === "/" || path === "/index.html") {
       const html = await Bun.file(new URL("../public/index.html", import.meta.url).pathname).text();
       return withSessionState(new Response(
         html.replaceAll("__APP_BASE_PATH__", BASE_PATH),
@@ -754,43 +893,29 @@ Bun.serve({
       return withSessionState(Response.json(await statsForRequest(req)), req, sessionId);
     }
 
-    if (path === "/api/channel") {
-      if (req.method === "GET") {
-        const q = url.searchParams.get("q")?.trim().toLowerCase();
-        if (!q) return Response.json({ error: "missing q" }, { status: 400 });
-        const info = await lookupChannel(q);
-        if (!info) return Response.json({ error: "channel not found" }, { status: 404 });
-        const stream = await fetchStreamStatusForChannel(info.login);
-        return Response.json({ ...info, live: stream?.live ?? false });
+    if (path === "/api/goals" && req.method === "POST") {
+      if (!privateTracker?.persistent) {
+        return withSessionState(Response.json({ error: "broadcaster auth required" }, { status: 403 }), req, sessionId, VIEW_PUBLIC);
       }
-
-      if (req.method === "POST") {
-        const body = await req.json().catch(() => ({})) as { login?: string };
-        const login = body.login?.trim().toLowerCase();
-        if (!login) return Response.json({ error: "missing login" }, { status: 400 });
-        const info = await lookupChannel(login);
-        if (!info) return Response.json({ error: "channel not found" }, { status: 404 });
-        if (info.login.toLowerCase() === DEFAULT_CHANNEL) {
-          return withSessionState(Response.json({ ok: true, public: true, ...info }), req, sessionId, VIEW_PUBLIC);
-        }
-        await createSessionTracker(sessionId, info);
-        return withSessionState(Response.json({ ok: true, public: false, ...sessionStats(sessionTrackers.get(sessionId)!) }), req, sessionId, VIEW_PRIVATE);
+      if (privateTracker.channel === DEFAULT_CHANNEL) {
+        return withSessionState(Response.json({ error: "default goals are read-only" }, { status: 403 }), req, sessionId, VIEW_PRIVATE);
       }
+      const body = await req.json().catch(() => ({})) as { goals?: Partial<ChannelGoal>[] };
+      const goals = replaceChannelGoals(privateTracker.channel, body.goals ?? []);
+      const stats = sessionStats(privateTracker);
+      sessionBroadcast(privateTracker, { type: "goals_update", stats });
+      return withSessionState(Response.json({ ok: true, goals, stats }), req, sessionId, VIEW_PRIVATE);
     }
 
     if (path === "/api/start" && req.method === "POST") {
-      if (privateTracker) {
-        privateTracker.trackedSubs = 0;
-        privateTracker.trackedBits = 0;
-        privateTracker.giftedSubs = 0;
-        privateTracker.gifters.clear();
-        privateTracker.recentSub = null;
-        privateTracker.seenSubIds.clear();
-        privateTracker.seenBitIds.clear();
-        privateTracker.subathonStart = Math.floor(Date.now() / 1000);
+      if (privateTracker?.persistent) {
+        resetSessionTrackerData(privateTracker);
         persistSessionTrackerState(privateTracker);
         sessionBroadcast(privateTracker, { type: "reset", stats: sessionStats(privateTracker) });
         return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PRIVATE);
+      }
+      if (privateTracker) {
+        return withSessionState(Response.json({ error: "broadcaster auth required" }, { status: 403 }), req, sessionId, VIEW_PRIVATE);
       }
       if (!getConfig("broadcaster_token")) {
         return Response.json({ error: "broadcaster auth required" }, { status: 403 });
@@ -802,23 +927,55 @@ Bun.serve({
     }
 
     if (path === "/api/events") {
+      const savedTracker = activePrivateTracker ? activePrivateTracker : await savedTrackerForRequest(req);
+      const publicTracker = !activePrivateTracker && requestedChannel && requestedChannel !== DEFAULT_CHANNEL
+        ? await restoreTrackerForChannel(requestedChannel)
+        : null;
+      const missingPublicTracker = !activePrivateTracker && requestedChannel && requestedChannel !== DEFAULT_CHANNEL && !publicTracker;
       let ctrl: SSECtrl;
       const stream = new ReadableStream<Uint8Array>({
         start(c) {
           ctrl = c;
-          if (privateTracker) {
-            cancelSessionDestroy(privateTracker);
-            privateTracker.clients.add(ctrl);
-          } else sseClients.add(ctrl);
+          if (activePrivateTracker) {
+            cancelSessionDestroy(activePrivateTracker);
+            activePrivateTracker.privateClients.add(ctrl);
+          } else if (publicTracker) {
+            cancelSessionDestroy(publicTracker);
+            publicTracker.publicClients.add(ctrl);
+          } else if (!missingPublicTracker) {
+            sseClients.add(ctrl);
+          } else {
+            ctrl.enqueue(new TextEncoder().encode(
+              `data: ${JSON.stringify({ type: "init", stats: { notFound: true, channel: requestedChannel } })}\n\n`
+            ));
+            return;
+          }
           ctrl.enqueue(new TextEncoder().encode(
-            `data: ${JSON.stringify({ type: "init", stats: privateTracker ? sessionStats(privateTracker) : fullStats() })}\n\n`
+            `data: ${JSON.stringify({
+              type: "init",
+              stats: activePrivateTracker
+                ? sessionStats(activePrivateTracker)
+                : publicTracker
+                  ? presentStats(trackerBaseStats(publicTracker), {
+                      viewingPrivateTracker: false,
+                      hasPrivateTracker: !!savedTracker?.persistent && savedTracker.channel === publicTracker.channel,
+                      privateTrackerPersistent: !!savedTracker?.persistent && savedTracker.channel === publicTracker.channel,
+                      hasBroadcasterAuth: false,
+                    })
+                  : fullStats(),
+            })}\n\n`
           ));
         },
         cancel() {
-          if (privateTracker) {
-            privateTracker.clients.delete(ctrl);
-            scheduleSessionDestroy(privateTracker);
-          } else sseClients.delete(ctrl);
+          if (activePrivateTracker) {
+            activePrivateTracker.privateClients.delete(ctrl);
+            scheduleSessionDestroy(activePrivateTracker);
+          } else if (publicTracker) {
+            publicTracker.publicClients.delete(ctrl);
+            scheduleSessionDestroy(publicTracker);
+          } else if (!missingPublicTracker) {
+            sseClients.delete(ctrl);
+          }
         },
       });
       return withSessionState(new Response(stream, {

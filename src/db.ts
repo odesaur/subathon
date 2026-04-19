@@ -42,6 +42,14 @@ db.exec(`
     id TEXT,
     gifts INTEGER NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS channel_goals (
+    channel_login TEXT NOT NULL,
+    sort_order INTEGER NOT NULL,
+    subs INTEGER NOT NULL,
+    label TEXT NOT NULL,
+    PRIMARY KEY (channel_login, sort_order)
+  );
 `);
 
 const upsertConfigStmt = db.query("INSERT INTO config (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
@@ -62,6 +70,9 @@ const getAllCountersStmt = db.query("SELECT key, value FROM counters");
 const clearGiftersStmt = db.query("DELETE FROM gifters");
 const getAllGiftersStmt = db.query("SELECT key, name, id, gifts FROM gifters");
 const upsertGifterStmt = db.query("INSERT INTO gifters (key, name, id, gifts) VALUES (?, ?, ?, ?) ON CONFLICT(key) DO UPDATE SET name = excluded.name, id = excluded.id, gifts = excluded.gifts");
+const deleteChannelGoalsStmt = db.query("DELETE FROM channel_goals WHERE channel_login = ?");
+const getChannelGoalsStmt = db.query("SELECT sort_order, subs, label FROM channel_goals WHERE channel_login = ? ORDER BY sort_order ASC");
+const insertChannelGoalStmt = db.query("INSERT INTO channel_goals (channel_login, sort_order, subs, label) VALUES (?, ?, ?, ?)");
 
 const config = new Map<string, string>();
 let trackedSubs = 0;
@@ -262,6 +273,11 @@ export interface PersistedSessionTracker {
   expiresAt: number;
 }
 
+export interface ChannelGoal {
+  subs: number;
+  label: string;
+}
+
 function getRecentSub() {
   const raw = config.get("recent_sub");
   if (!raw) return null;
@@ -345,10 +361,10 @@ export function addSubEvent(event: {
       current.gifts += 1;
       gifterCounts.set(key, current);
       upsertGifterStmt.run(key, current.name, current.id, current.gifts);
-      return;
+    } else {
+      trackedSubs += 1;
+      persistCounter("trackedSubs", trackedSubs);
     }
-    trackedSubs += 1;
-    persistCounter("trackedSubs", trackedSubs);
   });
   tx();
 }
@@ -398,4 +414,37 @@ export function deleteSessionTracker(sessionId: string): void {
 
 export function deleteExpiredSessionTrackers(now: number): void {
   deleteExpiredSessionTrackersStmt.run(now);
+}
+
+function normalizeChannelGoal(goal: Partial<ChannelGoal> | null | undefined): ChannelGoal | null {
+  const subs = Math.round(Number(goal?.subs));
+  const label = String(goal?.label ?? "").trim().slice(0, 120);
+  if (!Number.isFinite(subs) || subs < 1 || !label) return null;
+  return { subs: Math.min(100000, subs), label };
+}
+
+export function getChannelGoals(channelLogin: string): ChannelGoal[] {
+  const login = channelLogin.trim().toLowerCase();
+  if (!login) return [];
+  return (getChannelGoalsStmt.all(login) as { subs: number; label: string }[])
+    .map((row) => normalizeChannelGoal(row))
+    .filter((row): row is ChannelGoal => !!row);
+}
+
+export function replaceChannelGoals(channelLogin: string, goals: Partial<ChannelGoal>[]): ChannelGoal[] {
+  const login = channelLogin.trim().toLowerCase();
+  const normalized = goals
+    .map((goal, index) => ({ goal: normalizeChannelGoal(goal), index }))
+    .filter((entry): entry is { goal: ChannelGoal; index: number } => !!entry.goal)
+    .sort((a, b) => a.goal.subs - b.goal.subs || a.index - b.index)
+    .map((entry) => entry.goal);
+
+  const tx = db.transaction(() => {
+    deleteChannelGoalsStmt.run(login);
+    normalized.forEach((goal, index) => {
+      insertChannelGoalStmt.run(login, index, goal.subs, goal.label);
+    });
+  });
+  tx();
+  return normalized;
 }

@@ -35,39 +35,7 @@
     }
     a { color: #c6d4df; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .whiteLink { color: #fff; }
-    .whiteLink:hover { color: #67c1f5; text-decoration: underline; }
 
-    /* ─── Search screen ─────────────────────────────── */
-    #search-screen {
-      display: none; align-items: center; justify-content: center;
-      min-height: 100vh; padding: 2rem;
-      background: rgba(0,0,0,.7);
-    }
-    .search-card {
-      width: 100%; max-width: 460px;
-      background: #1a1a1a; border: 1px solid rgba(80,80,80,.6);
-      border-radius: 3px; padding: 2rem;
-      box-shadow: 0 4px 24px rgba(0,0,0,.8);
-      position: relative;
-    }
-    .search-close {
-      position: absolute; top: .75rem; right: .75rem;
-      background: none; border: none; color: #8f98a0;
-      font-size: .85rem; cursor: pointer; padding: .2rem .4rem; border-radius: 2px;
-    }
-    .search-close:hover { color: #c6d4df; background: rgba(255,255,255,.06); }
-    .search-title { font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: #8f98a0; margin-bottom: .75rem; }
-    .setup-copy { color: #8f98a0; font-size: .85rem; margin-bottom: .75rem; }
-    .search-row { display: flex; gap: .5rem; flex-wrap: wrap; }
-    .search-row.top { margin-bottom: .75rem; }
-    .search-input {
-      flex: 1; background: rgba(0,0,0,.5); border: 1px solid rgba(80,80,80,.6);
-      border-radius: 2px; padding: .5rem .75rem; color: #c6d4df;
-      font-family: inherit; font-size: .9rem; outline: none;
-    }
-    .search-input:focus { border-color: rgba(140,140,140,.8); }
-    .search-input::placeholder { color: #898989; }
     .btn-grey {
       display: inline-flex; align-items: center; gap: .4rem;
       padding: 1px; border-radius: 2px;
@@ -82,21 +50,6 @@
     .btn-grey:hover > span { background: var(--btn-background-hover); }
     .btn-grey.danger > span { color: #c86464; }
     .btn-grey.danger:hover > span { color: #ff9999; }
-    .search-result {
-      margin-top: 1rem; display: none; align-items: center; gap: .75rem;
-      padding: .75rem; border: 1px solid rgba(60,60,60,.5); border-radius: 2px;
-      background: rgba(0,0,0,.3);
-    }
-    .search-result.visible { display: flex; }
-    .search-result img { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
-    .result-name { font-weight: 700; font-size: .95rem; }
-    .result-status { font-size: .72rem; color: #898989; }
-    .result-status.live { color: #57cbde; }
-    .search-error { margin-top: .75rem; font-size: .8rem; color: #e84c4c; display: none; }
-    .search-note { margin-top: .85rem; font-size: .76rem; color: #d6c67c; line-height: 1.5; display: none; }
-    .search-note.visible { display: block; }
-
-    /* ─── Tracker screen ────────────────────────────── */
     #tracker-screen { display: none; }
 
     /* Background wrapper — covers entire page */
@@ -175,7 +128,6 @@
 
     /* Header center column */
     .profile_header_centered_col { flex: 1; min-width: 0; }
-    .profile_header_centered_persona { }
     .persona_name {
       line-height: 40px; font-size: 24px; color: #fff; font-weight: 700;
       display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -320,15 +272,6 @@
       display: flex; align-items: center; justify-content: space-between;
     }
     .goal_customization_header > div { font-size: 14px; color: #c6d4df; }
-    .goal-nav { display: inline-flex; align-items: center; gap: 4px; }
-    .goal-nav-btn {
-      background: none; border: none; color: #898989;
-      font-family: inherit; cursor: pointer; font-size: 14px;
-      padding: 0 4px; line-height: 1;
-      transition: color .1s;
-    }
-    .goal-nav-btn:hover { color: #fff; }
-    .goal-nav-btn:disabled { color: #3a3a3a; cursor: default; }
     .goal-target { font-size: 13px; color: #c6d4df; }
     .goal-target strong { color: #90ba3c; font-weight: 700; }
     .goal_body { padding: 12px 16px 14px; }
@@ -375,37 +318,121 @@
       background: #1a1a1a; border: 1px solid rgba(80,80,80,.6);
       border-radius: 3px; padding: 1.25rem 1.25rem 1rem;
       box-shadow: 0 18px 48px rgba(0,0,0,.7);
+      position: relative;
     }
-    .modal-card.overlay-card { max-width: 760px; }
+    .modal-card.overlay-card {
+      max-width: 440px;
+      padding: .9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: scale(1.25);
+      transform-origin: center;
+      margin: auto;
+    }
+    .modal-card.goals-card { max-width: 500px; padding: .9rem; }
     .modal-title { font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: #8f98a0; margin-bottom: .75rem; }
+    .overlay-card .modal-title { text-align: center; width: 100%; margin-bottom: .55rem; }
     .modal-copy { color: #c6d4df; font-size: .85rem; line-height: 1.6; margin-bottom: 1.1rem; }
     .modal-actions { display: flex; justify-content: flex-end; gap: .5rem; }
-    .overlay-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-bottom: 1rem; }
+    .overlay-close-icon {
+      position: absolute;
+      top: .55rem;
+      right: .55rem;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: #8f98a0;
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .overlay-close-icon:hover { color: #fff; background: rgba(255,255,255,.05); }
+    .overlay-form {
+      width: 100%;
+      max-width: 320px;
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: stretch;
+      gap: .55rem;
+      margin: 0 auto;
+    }
     .overlay-field { display: flex; flex-direction: column; gap: .35rem; }
     .overlay-field.full { grid-column: 1 / -1; }
     .overlay-field label { color: #8f98a0; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; }
     .overlay-select, .overlay-input, .overlay-link {
       width: 100%; border: 1px solid rgba(80,80,80,.6); background: #1a1a1a;
-      color: #c6d4df; border-radius: 2px; padding: .5rem .65rem;
-      font-family: inherit; font-size: .82rem; outline: none;
+      color: #c6d4df; border-radius: 2px; padding: .42rem .55rem;
+      font-family: inherit; font-size: .78rem; outline: none;
       appearance: auto; -webkit-appearance: auto;
       color-scheme: dark;
     }
     .overlay-select option { background: #1a1a1a; color: #c6d4df; }
     .overlay-select:focus, .overlay-input:focus, .overlay-link:focus { border-color: rgba(140,140,140,.8); }
-    .overlay-range-row { display: flex; align-items: center; gap: .7rem; }
-    .overlay-range { flex: 1; accent-color: #67c1f5; }
-    .overlay-value { color: #c6d4df; font-size: .8rem; min-width: 3rem; text-align: right; }
-    .overlay-preview { margin-bottom: 1rem; border: 1px solid rgba(80,80,80,.6); border-radius: 3px; overflow: hidden; background: rgba(0,0,0,.4); }
+    .overlay-input[type="number"] { appearance: textfield; -webkit-appearance: none; color-scheme: dark; }
+    .overlay-range { width: 100%; accent-color: rgba(255, 255, 255, .92); }
+    .overlay-link {
+      cursor: pointer;
+      text-overflow: ellipsis;
+      font-size: 1.014rem;
+      text-align: left;
+      direction: ltr;
+    }
+    .overlay-preview {
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto .8rem;
+      border: 1px solid rgba(80,80,80,.6);
+      border-radius: 3px;
+      overflow: hidden;
+      background: rgba(0,0,0,.4);
+    }
     .overlay-preview-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .55rem .75rem; border-bottom: 1px solid rgba(60,60,60,.5); background: rgba(0,0,0,.3); }
     .overlay-preview-title { color: #8f98a0; font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; }
     .overlay-preview-size { color: #898989; font-size: .72rem; }
     .overlay-preview-body {
-      position: relative; min-height: 280px; padding: 1rem;
+      position: relative;
+      min-height: 188px;
+      padding: .55rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
       background-size: 24px 24px;
     }
-    .overlay-preview-frame { width: 100%; height: 280px; border: 0; background: transparent; display: block; }
+    .overlay-preview-frame { width: 100%; height: 188px; border: 0; background: transparent; display: block; }
+    .goals-copy { color: #8f98a0; font-size: .8rem; line-height: 1.5; margin-bottom: .8rem; }
+    .goals-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .85rem; max-height: 300px; max-width: 100%; overflow: auto; }
+    .goal-edit-row {
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr) auto;
+      gap: .5rem;
+      align-items: center;
+    }
+    .goal-edit-input {
+      width: 100%;
+      border: 1px solid rgba(80,80,80,.6);
+      background: #1a1a1a;
+      color: #c6d4df;
+      border-radius: 2px;
+      padding: .42rem .55rem;
+      font-family: inherit;
+      font-size: .82rem;
+      outline: none;
+    }
+    .goal-edit-input:focus { border-color: rgba(140,140,140,.8); }
+    .goal-edit-remove {
+      background: none;
+      border: 1px solid rgba(80,80,80,.6);
+      color: #8f98a0;
+      border-radius: 2px;
+      padding: .4rem .55rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .goal-edit-remove:hover { color: #fff; border-color: rgba(120,120,120,.75); }
 
     /* ─── Toasts ────────────────────────────────────── */
     #toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: .5rem; z-index: 200; pointer-events: none; }
@@ -428,39 +455,13 @@
       .profile_content { padding: 8px 8px 48px; }
       .profile_leftcol { width: 100%; float: none; }
       .profile_rightcol { width: 100%; float: none; margin-bottom: 12px; }
-      .overlay-form { grid-template-columns: 1fr; }
-      .overlay-preview-body, .overlay-preview-frame { min-height: 220px; height: 220px; }
+      .modal-card.overlay-card { transform: scale(1.08); }
+      .overlay-preview-body, .overlay-preview-frame { min-height: 164px; height: 164px; }
+      .goal-edit-row { grid-template-columns: 86px minmax(0, 1fr) auto; }
     }
   </style>
 </head>
 <body>
-
-<!-- Search Screen -->
-<div id="search-screen">
-  <div class="search-card">
-    <button class="search-close" id="search-close" style="display:none" title="close">✕</button>
-    <div class="search-title">subathon tracker</div>
-    <div class="setup-copy">Search any Twitch streamer to open a temporary tracker.</div>
-    <div class="search-row top">
-      <input class="search-input" id="search-input" type="text" placeholder="search twitch channel" autocomplete="off" spellcheck="false" />
-      <button class="btn-grey" id="search-btn"><span>Search</span></button>
-    </div>
-    <div class="search-result" id="search-result">
-      <img id="result-avatar" src="" alt="" />
-      <div>
-        <div class="result-name" id="result-name">—</div>
-        <div class="result-status" id="result-status">offline</div>
-      </div>
-      <div style="margin-left:auto">
-        <button class="btn-grey" id="result-track"><span>Track →</span></button>
-      </div>
-    </div>
-    <div class="search-note" id="search-note">
-      Temporary tracking does not persist. Closing this tab will reset it unless you log in as that streamer.
-    </div>
-    <div class="search-error" id="search-error"></div>
-  </div>
-</div>
 
 <!-- Tracker Screen -->
 <div id="tracker-screen">
@@ -487,7 +488,7 @@
             <div class="profile_header_centered_persona">
               <div class="persona_name">
                 <span class="actual_persona_name" id="channel-name">—</span>
-                <span class="broadcaster-badge" id="broadcaster-badge">broadcaster ✓</span>
+                <span class="broadcaster-badge" id="broadcaster-badge">broadcaster</span>
               </div>
               <!-- Status line: "117 viewers" + "21:30:05" when live, "offline" when not -->
               <div class="header_real_name">
@@ -499,9 +500,9 @@
           <!-- Right: actions (Goal Overlay = Edit Profile) -->
           <div class="profile_header_badgeinfo">
             <div class="profile_header_actions">
-              <button class="btn_profile_action" id="btn-overlay"><span>Goal Overlay</span></button>
-              <a href="__APP_BASE_PATH__/auth/twitch" class="btn_profile_action" id="btn-auth" style="display:none"><span>Track My Channel</span></a>
-              <button class="btn_profile_action" id="btn-change" style="display:none"><span>Search</span></button>
+              <button class="btn_profile_action" id="btn-overlay"><span>Overlays</span></button>
+              <button class="btn_profile_action" id="btn-goals" style="display:none"><span>Goals</span></button>
+              <a href="__APP_BASE_PATH__/auth/twitch" class="btn_profile_action" id="btn-auth" style="display:none"><span>Login</span></a>
             </div>
           </div>
 
@@ -541,9 +542,9 @@
 
         <!-- Actions -->
         <div class="sidebar_actions">
-          <button class="btn-grey" id="btn-view-public" style="display:none"><span>back to fruitberries</span></button>
+          <button class="btn-grey" id="btn-view-public" style="display:none"><span>view public page</span></button>
           <button class="btn-grey" id="btn-logout" style="display:none"><span>log out</span></button>
-          <button class="btn-grey danger" id="btn-reset" style="display:none"><span>reset timer</span></button>
+          <button class="btn-grey danger" id="btn-reset" style="display:none"><span>reset tracker</span></button>
         </div>
 
       </div>
@@ -573,19 +574,13 @@
         <!-- Goal Panel -->
         <div class="profile_customization goal-panel" id="goal-panel">
           <div class="goal_customization_header profile_customization_header">
-            <div>
-              <span class="goal-nav">
-                <button class="goal-nav-btn" id="goal-prev" aria-label="previous goal">&lt;</button>
-                <span style="padding: 0 6px; font-size:14px;">Subathon Goal</span>
-                <button class="goal-nav-btn" id="goal-next-btn" aria-label="next goal">&gt;</button>
-              </span>
-            </div>
+            <div style="font-size:14px;">Subathon Goal</div>
             <div class="goal-target"><strong id="goal-current">0</strong> / <span id="goal-next">50</span></div>
           </div>
           <div class="goal_body">
             <div class="goal-name" id="goal-name">—</div>
             <div class="goal-bar"><div class="goal-fill" id="goal-fill"></div></div>
-            <div class="goal-copy"><span id="goal-status">50 more to next sub goal</span></div>
+            <div class="goal-copy"><span id="goal-status">50 more to reach the goal</span></div>
           </div>
         </div>
 
@@ -623,7 +618,8 @@
 <!-- Overlay Modal -->
 <div class="modal-shell" id="overlay-modal">
   <div class="modal-card overlay-card">
-    <div class="modal-title">goal overlay link</div>
+    <button class="overlay-close-icon" id="overlay-close" type="button" aria-label="close">×</button>
+    <div class="modal-title">overlay link</div>
     <div class="overlay-preview">
       <div class="overlay-preview-head">
         <div class="overlay-preview-title">preview</div>
@@ -639,104 +635,52 @@
         <input class="overlay-input" id="overlay-channel" type="text" spellcheck="false" autocomplete="off" />
       </div>
       <div class="overlay-field">
-        <label for="overlay-size">size</label>
-        <select class="overlay-select" id="overlay-size">
-          <option value="1">small</option>
-          <option value="2" selected>medium</option>
-          <option value="3">large</option>
-        </select>
-      </div>
-      <div class="overlay-field">
         <label for="overlay-font">font</label>
         <select class="overlay-select" id="overlay-font">
-          <option value="1">mono</option>
-          <option value="2" selected>sans</option>
-          <option value="3">display</option>
+          <option value="1">JETBRAINS MONO</option>
+          <option value="2" selected>IBM PLEX SANS</option>
+          <option value="3">ARCHIVO BLACK</option>
         </select>
       </div>
       <div class="overlay-field">
         <label for="overlay-accent">accent</label>
         <select class="overlay-select" id="overlay-accent">
-          <option value="5" selected>soft white</option>
-          <option value="1">rose</option>
-          <option value="2">gold</option>
-          <option value="3">aqua</option>
-          <option value="4">lime</option>
+          <option value="5" selected>SOFT WHITE</option>
+          <option value="1">ROSE</option>
+          <option value="2">GOLD</option>
+          <option value="3">AQUA</option>
+          <option value="4">LIME</option>
         </select>
       </div>
       <div class="overlay-field">
-        <label for="overlay-width">horizontal size</label>
-        <div class="overlay-range-row">
-          <input class="overlay-range" id="overlay-width" type="range" min="0" max="100" value="0" />
-          <span class="overlay-value" id="overlay-width-value">0%</span>
-        </div>
-      </div>
-      <div class="overlay-field">
-        <label for="overlay-font-size">font size</label>
-        <div class="overlay-range-row">
-          <input class="overlay-range" id="overlay-font-size" type="range" min="80" max="140" value="100" />
-          <span class="overlay-value" id="overlay-font-size-value">100%</span>
-        </div>
-      </div>
-      <div class="overlay-field">
-        <label for="overlay-alpha">transparency</label>
-        <div class="overlay-range-row">
-          <input class="overlay-range" id="overlay-alpha" type="range" min="20" max="95" value="58" />
-          <span class="overlay-value" id="overlay-alpha-value">58%</span>
-        </div>
+        <label for="overlay-alpha">TRANSPARENCY</label>
+        <input class="overlay-range" id="overlay-alpha" type="range" min="20" max="95" value="58" />
       </div>
       <div class="overlay-field full">
         <label for="overlay-link">overlay url</label>
         <input class="overlay-link" id="overlay-link" type="text" readonly />
       </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-grey" id="overlay-copy"><span>copy link</span></button>
-      <button class="btn-grey" id="overlay-open"><span>open</span></button>
-      <button class="btn-grey" id="overlay-close"><span>close</span></button>
+  </div>
+</div>
+
+<div class="modal-shell" id="goals-modal">
+  <div class="modal-card goals-card">
+    <div class="modal-title">custom goals</div>
+    <div class="goals-copy">Add the sub count and the goal text for your channel. These will appear on your public page and the goal overlay.</div>
+    <div class="goals-list" id="goals-list"></div>
+    <div class="modal-actions" style="justify-content: space-between;">
+      <button class="btn-grey" id="goals-add"><span>add goal</span></button>
+      <div style="display:flex; gap:.5rem;">
+        <button class="btn-grey" id="goals-close"><span>close</span></button>
+        <button class="btn-grey" id="goals-save"><span>save</span></button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
   const BASE = '__APP_BASE_PATH__';
-  const SUBATHON_GOALS = [
-    { subs: 1,    label: 'Game night with HBG' },
-    { subs: 25,   label: 'Chat picks pizza toppings' },
-    { subs: 50,   label: 'Fruitberries Q&A with Chat' },
-    { subs: 75,   label: 'MC Event game tierlist' },
-    { subs: 100,  label: 'Mine a chunk with Chat' },
-    { subs: 125,  label: 'Play a Stray UHC' },
-    { subs: 150,  label: 'Minecraft Lockout 1v1 vs Feinberg' },
-    { subs: 175,  label: 'Attempt 5 SkyBattle wins in a row' },
-    { subs: 200,  label: 'Geoguessr Ranked' },
-    { subs: 225,  label: 'One mouse one keyboard MC with girlfriend' },
-    { subs: 250,  label: 'Chat picks 2 Amazon items' },
-    { subs: 275,  label: 'Parkour Civilization homework' },
-    { subs: 300,  label: 'League with Yupplez' },
-    { subs: 325,  label: 'Party games with Chat' },
-    { subs: 350,  label: 'FNAF in the dark' },
-    { subs: 375,  label: '1 Master Mode Hardcore Terraria attempt' },
-    { subs: 400,  label: 'Win a Hypixel UHC' },
-    { subs: 425,  label: 'Make a Hollowcube map' },
-    { subs: 450,  label: 'Hoplite with hackingnoises' },
-    { subs: 475,  label: 'Minecraft Bedrock speedrun no reset' },
-    { subs: 500,  label: 'Win Bedwars solos, duos, trios, quads' },
-    { subs: 600,  label: 'Chunklock Mod speedrun 1v1 w/ Boosfer' },
-    { subs: 700,  label: 'Cooking stream' },
-    { subs: 800,  label: 'Play 10 Hypixel UHCs' },
-    { subs: 900,  label: 'Geoguessr moving 25k attempts' },
-    { subs: 1000, label: 'Go bald' },
-    { subs: 1250, label: '10 half-heart hardcore speedruns in a row' },
-    { subs: 1500, label: 'All Advancements no reset stream' },
-    { subs: 1750, label: '25 no reset speedruns' },
-    { subs: 2000, label: 'Pure Pain Marathon w/ Kaelan moral support' },
-    { subs: 2250, label: 'Wear a maid outfit for next event' },
-    { subs: 2500, label: 'Walk across my city IRL stream' },
-    { subs: 2750, label: 'Dye hair green' },
-    { subs: 3000, label: 'Solo BlazeAndCaves mod completion' },
-  ];
-
   function fmt(n) { return (n ?? 0).toLocaleString(); }
   function timeAgo(u) {
     if (!u) return '';
@@ -770,49 +714,47 @@
     if (!el) return;
     el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
   }
-
-  let searchOpen = false, searchPinnedOpen = false;
-  const initialUrl = new URL(window.location.href);
-
-  function showSearch(canClose = false) {
-    searchOpen = true; searchPinnedOpen = canClose;
-    document.getElementById('search-screen').style.display  = 'flex';
-    document.getElementById('tracker-screen').style.display = 'none';
-    document.getElementById('search-close').style.display   = canClose ? 'block' : 'none';
-    document.title = 'subathon tracker';
+  function currentRequestedChannel() {
+    return new URL(window.location.href).searchParams.get('channel')?.trim().toLowerCase() || '';
   }
-  function showTracker() {
-    searchOpen = false; searchPinnedOpen = false;
-    document.getElementById('search-screen').style.display  = 'none';
-    document.getElementById('tracker-screen').style.display = 'block';
+  function statsUrl(channel = currentRequestedChannel()) {
+    const url = new URL(`${BASE}/api/stats`, window.location.origin);
+    if (channel) url.searchParams.set('channel', channel);
+    return url.toString();
   }
+  function eventsUrl(channel = currentRequestedChannel()) {
+    const url = new URL(`${BASE}/api/events`, window.location.origin);
+    if (channel) url.searchParams.set('channel', channel);
+    return url.toString();
+  }
+  document.getElementById('tracker-screen').style.display = 'block';
 
-  let latestStats = null, latestSearchResult = null, confirmResolver = null;
-  let selectedGoalIndex = null, leaderboardExpanded = false;
+  let latestStats = null, confirmResolver = null;
+  let leaderboardExpanded = false;
 
+  function clampNumberInput(id, min, max, fallback) {
+    const input = document.getElementById(id);
+    const raw = Number(input.value);
+    const value = Number.isFinite(raw) ? Math.max(min, Math.min(max, raw)) : fallback;
+    input.value = String(value);
+    return value;
+  }
   function overlayUrl() {
     const url = new URL(`${BASE}/overlay/goal`, window.location.origin);
     const ch = (document.getElementById('overlay-channel').value.trim().toLowerCase() || 'fruitberries');
     url.searchParams.set('channel', ch);
-    url.searchParams.set('size',     document.getElementById('overlay-size').value);
     url.searchParams.set('font',     document.getElementById('overlay-font').value);
     url.searchParams.set('accent',   document.getElementById('overlay-accent').value);
-    url.searchParams.set('width',    document.getElementById('overlay-width').value);
-    url.searchParams.set('fontSize', document.getElementById('overlay-font-size').value);
-    url.searchParams.set('alpha',    document.getElementById('overlay-alpha').value);
+    url.searchParams.set('alpha',    String(clampNumberInput('overlay-alpha', 20, 95, 58)));
     return url.toString();
   }
   function overlayPreviewUrl() { const u = new URL(overlayUrl()); u.searchParams.set('preview','1'); return u.toString(); }
   function syncOverlayUrl() {
-    const alpha = document.getElementById('overlay-alpha').value;
-    const width = document.getElementById('overlay-width').value;
-    const fontSize = document.getElementById('overlay-font-size').value;
-    document.getElementById('overlay-alpha-value').textContent = `${alpha}%`;
-    document.getElementById('overlay-width-value').textContent = `${width}%`;
-    document.getElementById('overlay-font-size-value').textContent = `${fontSize}%`;
-    document.getElementById('overlay-link').value = overlayUrl();
-    document.getElementById('overlay-preview-size').textContent =
-      `${document.getElementById('overlay-size').selectedOptions[0].textContent} · +${width}% · ${fontSize}% text`;
+    const alpha = clampNumberInput('overlay-alpha', 20, 95, 58);
+    const overlayLink = document.getElementById('overlay-link');
+    overlayLink.value = overlayUrl();
+    requestAnimationFrame(() => { overlayLink.scrollLeft = 0; });
+    document.getElementById('overlay-preview-size').textContent = `${alpha}% opacity`;
     const frame = document.getElementById('overlay-preview-frame');
     const pu = overlayPreviewUrl();
     if (frame.dataset.src !== pu) { frame.src = pu; frame.dataset.src = pu; }
@@ -834,35 +776,43 @@
     el.style.display = live ? 'inline' : 'none';
     if (live) el.textContent = streamUptime(stats.streamStart);
   }
-  function autoGoalIndex(total) {
-    const s = Math.max(0, total||0);
-    const i = SUBATHON_GOALS.findIndex(g => s < g.subs);
-    return i === -1 ? SUBATHON_GOALS.length-1 : i;
+  function activeGoals(stats) {
+    return Array.isArray(stats?.goals) ? stats.goals : [];
   }
-  function goalState(total, index=null) {
-    const s = Math.max(0, total||0);
-    const ri = index==null ? autoGoalIndex(s) : Math.max(0, Math.min(index, SUBATHON_GOALS.length-1));
-    const goal = SUBATHON_GOALS[ri];
-    const prev = ri>0 ? SUBATHON_GOALS[ri-1] : { subs:0, label:'subathon start' };
-    if (!goal) return { total:s, next:0, prev:0, progress:1, remaining:0, nextLabel:'', index:0, complete:true };
+  function autoGoalIndex(total, goals) {
+    const s = Math.max(0, total || 0);
+    const i = goals.findIndex(g => s < g.subs);
+    return i === -1 ? goals.length - 1 : i;
+  }
+  function goalState(total) {
+    const s = Math.max(0, total || 0);
+    const goals = activeGoals(latestStats);
+    if (!goals.length) return { total: s, next: 0, progress: 0, remaining: 0, label: '', complete: false, empty: true };
+    const index = autoGoalIndex(s, goals);
+    const goal = goals[index];
+    const prev = index > 0 ? goals[index - 1] : { subs: 0, label: 'subathon start' };
+    if (!goal) return { total: s, next: 0, progress: 1, remaining: 0, label: '', complete: true, empty: true };
     const complete = s >= goal.subs;
     const span = Math.max(1, goal.subs - prev.subs);
-    const progress = complete ? 1 : Math.max(0, Math.min(1, (s - prev.subs)/span));
-    return { total:s, next:goal.subs, progress, remaining:Math.max(0,goal.subs-s), nextLabel:goal.label, index:ri, complete };
+    const progress = complete ? 1 : Math.max(0, Math.min(1, (s - prev.subs) / span));
+    return { total: s, next: goal.subs, progress, remaining: Math.max(0, goal.subs - s), label: goal.label, complete, empty: false };
   }
   function renderGoal(stats) {
-    const show = (stats?.channel||'').toLowerCase() === 'fruitberries';
-    document.getElementById('goal-panel').classList.toggle('hidden', !show);
-    if (!show) return;
-    const goal = goalState((stats?.totalSubs||0)+(stats?.giftedSubs||0), selectedGoalIndex);
-    selectedGoalIndex = goal.index;
+    latestStats = stats || latestStats;
+    const goal = goalState((stats?.totalSubs || 0) + (stats?.giftedSubs || 0));
+    if (goal.empty) {
+      document.getElementById('goal-current').textContent = fmt(goal.total);
+      document.getElementById('goal-next').textContent = '—';
+      document.getElementById('goal-name').textContent = 'No goals configured';
+      document.getElementById('goal-fill').style.width = '0%';
+      document.getElementById('goal-status').textContent = 'Add goals to show progress here.';
+      return;
+    }
     document.getElementById('goal-current').textContent = fmt(goal.total);
-    document.getElementById('goal-next').textContent    = fmt(goal.next);
-    document.getElementById('goal-name').textContent    = goal.nextLabel || '—';
-    document.getElementById('goal-fill').style.width   = `${goal.progress*100}%`;
-    document.getElementById('goal-status').innerHTML   = goal.complete ? 'completed' : `<strong>${fmt(goal.remaining)}</strong> more to unlock`;
-    document.getElementById('goal-prev').disabled      = goal.index <= 0;
-    document.getElementById('goal-next-btn').disabled  = goal.index >= SUBATHON_GOALS.length-1;
+    document.getElementById('goal-next').textContent = fmt(goal.next);
+    document.getElementById('goal-name').textContent = goal.label || '—';
+    document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
+    document.getElementById('goal-status').innerHTML = goal.complete ? 'goal reached' : `<strong>${fmt(goal.remaining)}</strong> more to unlock`;
   }
   function renderRecentSub(stats) {
     const r = stats?.recentSub;
@@ -882,56 +832,64 @@
     const resolve = confirmResolver; confirmResolver = null; resolve(result);
   }
   function setViewUrl(stats) {
+    if (!stats?.channel) return;
     const url = new URL(window.location.href);
-    if (stats?.temporaryMode && stats?.channel) {
-      url.pathname = `${BASE}/search`; url.searchParams.set('channel', stats.channel);
-    } else {
-      url.pathname = `${BASE}/`; url.searchParams.delete('channel');
-    }
+    url.pathname = `${BASE}/`;
+    url.searchParams.set('channel', stats.channel);
     const next = `${url.pathname}${url.search}${url.hash}`;
     const cur  = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     if (next !== cur) history.replaceState(null, '', next);
   }
+  function makeGoalRow(goal = { subs: '', label: '' }) {
+    const row = document.createElement('div');
+    row.className = 'goal-edit-row';
+    row.innerHTML = `
+      <input class="goal-edit-input" data-role="subs" type="number" min="1" max="100000" placeholder="subs" value="${escHtml(goal.subs || '')}" />
+      <input class="goal-edit-input" data-role="label" type="text" maxlength="120" placeholder="goal" value="${escHtml(goal.label || '')}" />
+      <button class="goal-edit-remove" type="button">remove</button>`;
+    row.querySelector('.goal-edit-remove').addEventListener('click', () => row.remove());
+    return row;
+  }
+  function readGoalRows() {
+    return [...document.querySelectorAll('#goals-list .goal-edit-row')].map((row) => ({
+      subs: Number(row.querySelector('[data-role="subs"]').value),
+      label: row.querySelector('[data-role="label"]').value.trim(),
+    }));
+  }
+  function openGoalsModal() {
+    const goals = activeGoals(latestStats).length ? activeGoals(latestStats) : [{ subs: '', label: '' }];
+    const list = document.getElementById('goals-list');
+    list.innerHTML = '';
+    goals.forEach((goal) => list.appendChild(makeGoalRow(goal)));
+    document.getElementById('goals-modal').classList.add('open');
+  }
+  function closeGoalsModal() {
+    document.getElementById('goals-modal').classList.remove('open');
+  }
 
   function renderStats(stats) {
     latestStats = stats;
-    if (!stats.channel) { if (!searchOpen) showSearch(); return; }
-    if (!searchPinnedOpen) showTracker();
+    if (!stats?.channel || stats?.notFound) return;
 
     document.getElementById('val-subs').textContent   = fmt(stats.totalSubs);
     document.getElementById('val-bits').textContent   = fmt(stats.totalBits);
     document.getElementById('val-gifts').textContent  = fmt(stats.giftedSubs);
     document.getElementById('label-subs').textContent = stats.subsCardLabel || 'Subs Gained';
     document.getElementById('channel-name').textContent = stats.channelDisplay || stats.channel;
-    if (stats.channelAvatar) document.getElementById('channel-avatar').src = stats.channelAvatar;
+    document.getElementById('channel-avatar').src = stats.channelAvatar || '';
     document.title = `${stats.channelDisplay || stats.channel} · subathon`;
 
     const authed = stats.hasBroadcasterAuth;
-    const hasPrivate = !!stats.hasPrivateTracker;
     const viewingPrivate = !!stats.viewingPrivateTracker;
     const persistent = !!stats.privateTrackerPersistent;
-    const temp = !!stats.temporaryMode;
-    const anon = !!stats.anonymousMode;
 
     document.getElementById('broadcaster-badge').style.display = authed ? 'inline-block' : 'none';
-    document.getElementById('btn-auth').style.display  = authed ? 'none' : 'inline-block';
-    const authLabel = hasPrivate && persistent && !viewingPrivate ? 'My Tracker' : 'Track My Channel';
-    document.getElementById('btn-auth').querySelector('span').textContent = authLabel;
-    document.getElementById('btn-auth').dataset.mode = hasPrivate && persistent && !viewingPrivate ? 'resume' : 'login';
+    document.getElementById('btn-auth').style.display = authed ? 'none' : 'inline-block';
+    document.getElementById('btn-auth').dataset.mode = persistent && !viewingPrivate ? 'resume' : 'login';
     document.getElementById('btn-view-public').style.display = viewingPrivate ? 'inline-flex' : 'none';
     document.getElementById('btn-logout').style.display = persistent ? 'inline-flex' : 'none';
     document.getElementById('btn-reset').style.display  = authed ? 'inline-flex' : 'none';
-    document.getElementById('btn-change').style.display = authed ? 'none' : 'inline-block';
-
-    document.getElementById('mode-label').innerHTML = temp
-      ? `temporary · tracking <strong>${escHtml(stats.channelDisplay||stats.channel)}</strong>`
-      : anon
-        ? `anonymous · tracking <strong>${escHtml(stats.channelDisplay||stats.channel)}</strong>`
-        : `broadcaster · tracking <strong>${escHtml(stats.channelDisplay||stats.channel)}</strong>`;
-    document.querySelector('#mode-help .mode-popover').textContent = temp
-      ? 'Temporary tracking is not persistent. Closing this tab will reset it unless you log in as that streamer.'
-      : "Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster's own authorized channel token.";
-    document.getElementById('mode-help').style.display = (!authed || temp) ? 'block' : 'none';
+    document.getElementById('btn-goals').style.display = authed && viewingPrivate && stats.channel !== stats.defaultChannel ? 'inline-block' : 'none';
 
     renderTrackingTimes(stats);
     renderStreamUptime(stats);
@@ -981,42 +939,23 @@
     }
   }
 
-  document.getElementById('search-close').addEventListener('click', () => showTracker());
   document.getElementById('btn-overlay').addEventListener('click', openOverlayModal);
-  document.getElementById('btn-change').addEventListener('click', () => showSearch(true));
+  document.getElementById('btn-goals').addEventListener('click', openGoalsModal);
 
-  function showSearchError(msg='') {
-    const el = document.getElementById('search-error');
-    el.textContent = msg; el.style.display = msg ? 'block' : 'none';
-  }
-  function renderSearchResult(r) {
-    latestSearchResult = r;
-    document.getElementById('search-result').classList.add('visible');
-    document.getElementById('result-avatar').src = r.avatarUrl || '';
-    document.getElementById('result-name').textContent = r.displayName || r.login;
-    const s = document.getElementById('result-status');
-    s.textContent = r.live ? 'live' : 'offline';
-    s.className = `result-status ${r.live?'live':'offline'}`;
-    document.getElementById('search-note').classList.toggle('visible', r.login !== 'fruitberries');
-  }
-  async function searchChannel() {
-    const q = document.getElementById('search-input').value.trim();
-    if (!q) return;
-    showSearchError('');
-    try {
-      const res = await fetch(`${BASE}/api/channel?q=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'channel not found');
-      renderSearchResult(data);
-    } catch (err) {
-      latestSearchResult = null;
-      document.getElementById('search-result').classList.remove('visible');
-      document.getElementById('search-note').classList.remove('visible');
-      showSearchError(err.message || 'channel not found');
-    }
-  }
   async function refreshStats() {
-    const stats = await fetch(`${BASE}/api/stats`).then(r => r.json());
+    const stats = await fetch(statsUrl()).then(r => r.json());
+    latestStats = stats;
+    if (stats?.notFound) {
+      document.getElementById('channel-name').textContent = stats.channel || 'channel not found';
+      document.getElementById('channel-avatar').src = '';
+      document.getElementById('stream-label').textContent = 'not tracked publicly';
+      document.getElementById('goal-current').textContent = '0';
+      document.getElementById('goal-next').textContent = '0';
+      document.getElementById('goal-name').textContent = 'channel not public';
+      document.getElementById('goal-fill').style.width = '0%';
+      document.getElementById('goal-status').textContent = 'No public tracker exists for this channel yet.';
+      return;
+    }
     renderStats(stats);
     if (stats.channel) renderStream({ live: !!stats.streamLive, viewers: stats.streamViewers||0 });
   }
@@ -1032,28 +971,30 @@
     await fetch(`${BASE}/api/view/public`, { method:'POST' });
     await refreshStats(); reconnectSSE();
   });
-  document.getElementById('search-btn').addEventListener('click', searchChannel);
-  document.getElementById('goal-prev').addEventListener('click', () => {
-    selectedGoalIndex = Math.max(0, (selectedGoalIndex ?? autoGoalIndex((latestStats?.totalSubs||0)+(latestStats?.giftedSubs||0))) - 1);
-    renderGoal(latestStats||{});
+  document.getElementById('goals-add').addEventListener('click', () => {
+    document.getElementById('goals-list').appendChild(makeGoalRow());
   });
-document.getElementById('goal-next-btn').addEventListener('click', () => {
-    selectedGoalIndex = Math.min(SUBATHON_GOALS.length-1, (selectedGoalIndex ?? autoGoalIndex((latestStats?.totalSubs||0)+(latestStats?.giftedSubs||0))) + 1);
-    renderGoal(latestStats||{});
+  document.getElementById('goals-close').addEventListener('click', closeGoalsModal);
+  document.getElementById('goals-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'goals-modal') closeGoalsModal();
   });
-  document.getElementById('search-input').addEventListener('keydown', e => { if (e.key==='Enter') searchChannel(); });
-  document.getElementById('result-track').addEventListener('click', async () => {
-    if (!latestSearchResult) return;
-    const res = await fetch(`${BASE}/api/channel`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ login: latestSearchResult.login }),
+  document.getElementById('goals-save').addEventListener('click', async () => {
+    const res = await fetch(`${BASE}/api/goals`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ goals: readGoalRows() }),
     });
-    const data = await res.json().catch(()=>({}));
-    if (!res.ok) { showSearchError(data.error || 'could not start tracking'); return; }
-    showTracker(); await refreshStats(); reconnectSSE();
+    if (!res.ok) {
+      toast('could not save goals');
+      return;
+    }
+    const payload = await res.json();
+    if (payload?.stats) renderStats(payload.stats);
+    closeGoalsModal();
+    toast('goals saved', 'reset');
   });
   document.getElementById('btn-reset').addEventListener('click', async () => {
-    const ok = await askConfirm('reset timer', 'Resetting will clear the current tracked subs, bits, gifts, and restart the timer from now.', 'reset');
+    const ok = await askConfirm('reset tracker', 'Resetting will clear the current tracked subs, bits, gifts, and restart the tracker from now.', 'reset');
     if (!ok) return;
     await fetch(`${BASE}/api/start`, { method:'POST' });
   });
@@ -1066,54 +1007,49 @@ document.getElementById('goal-next-btn').addEventListener('click', () => {
   document.getElementById('confirm-ok').addEventListener('click',    () => closeConfirm(true));
   document.getElementById('confirm-modal').addEventListener('click', e => { if (e.target.id==='confirm-modal') closeConfirm(false); });
   document.getElementById('overlay-close').addEventListener('click', closeOverlayModal);
-  document.getElementById('overlay-open').addEventListener('click',  () => { window.open(document.getElementById('overlay-link').value,'_blank','noopener,noreferrer'); });
-  document.getElementById('overlay-copy').addEventListener('click',  async () => {
+  document.getElementById('overlay-link').addEventListener('click', async () => {
     const link = document.getElementById('overlay-link').value;
     try { await navigator.clipboard.writeText(link); toast('overlay link copied','reset'); }
     catch { document.getElementById('overlay-link').focus(); document.getElementById('overlay-link').select(); }
   });
   document.getElementById('overlay-modal').addEventListener('click', e => { if (e.target.id==='overlay-modal') closeOverlayModal(); });
-  ['overlay-channel','overlay-size','overlay-font','overlay-accent','overlay-width','overlay-font-size','overlay-alpha'].forEach(id => {
-    document.getElementById(id).addEventListener(['overlay-alpha','overlay-width','overlay-font-size'].includes(id)?'input':'change', syncOverlayUrl);
+  ['overlay-channel','overlay-font','overlay-accent','overlay-alpha'].forEach(id => {
+    document.getElementById(id).addEventListener(id === 'overlay-channel' ? 'input' : 'change', syncOverlayUrl);
+    if (id === 'overlay-alpha') {
+      document.getElementById(id).addEventListener('input', syncOverlayUrl);
+      document.getElementById(id).addEventListener('blur', syncOverlayUrl);
+    }
   });
-  document.getElementById('overlay-channel').addEventListener('input', syncOverlayUrl);
 
   let sse, reconnectDelay = 1000;
   function connect() {
-    sse = new EventSource(`${BASE}/api/events`);
+    sse = new EventSource(eventsUrl());
     sse.onopen = () => { reconnectDelay = 1000; };
     sse.onmessage = (e) => {
       let msg; try { msg = JSON.parse(e.data); } catch { return; }
       if (msg.stats)  renderStats(msg.stats);
       if (msg.stream) renderStream(msg.stream);
       switch (msg.type) {
-        case 'sub':         flashEl('val-subs'); toast(`✦ ${msg.userName} subscribed`); break;
-        case 'resub':       flashEl('val-subs'); toast(`↺ ${msg.userName} resubscribed`); break;
-        case 'gift':        flashEl('val-gifts'); flashEl('val-subs'); toast(`♡ ${msg.gifterName} gifted ${msg.total} sub${msg.total!==1?'s':''}`, 'gift'); break;
-        case 'bits':        flashEl('val-bits'); toast(`◈ ${fmt(msg.bits)} bits cheered`, 'bits'); break;
-        case 'stream_live': toast(`● ${msg.stats?.channelDisplay||'stream'} is live`, 'reset'); break;
+        case 'sub':         flashEl('val-subs'); toast(`${msg.userName} subscribed`); break;
+        case 'resub':       flashEl('val-subs'); toast(`${msg.userName} resubscribed`); break;
+        case 'gift':        flashEl('val-gifts'); flashEl('val-subs'); toast(`${msg.gifterName} gifted ${msg.total} sub${msg.total!==1?'s':''}`, 'gift'); break;
+        case 'bits':        flashEl('val-bits'); toast(`${fmt(msg.bits)} bits cheered`, 'bits'); break;
+        case 'stream_live': toast(`${msg.stats?.channelDisplay||'stream'} is live`, 'reset'); break;
         case 'channel_set': renderStats(msg.stats); break;
-        case 'reset':       flashEl('val-subs'); flashEl('val-bits'); flashEl('val-gifts'); toast('⊙ timer reset','reset'); break;
+        case 'goals_update': toast('goals updated', 'reset'); break;
+        case 'reset':       flashEl('val-subs'); flashEl('val-bits'); flashEl('val-gifts'); toast('tracker reset','reset'); break;
       }
     };
     sse.onerror = () => { sse.close(); setTimeout(connect, reconnectDelay); reconnectDelay = Math.min(reconnectDelay*2, 15000); };
   }
 
-  setInterval(() => { if (latestStats) renderStreamUptime(latestStats); }, 1000);
+  setInterval(() => { if (!latestStats || latestStats.notFound) return; renderStreamUptime(latestStats); }, 1000);
   setInterval(async () => { try { await refreshStats(); } catch {} }, 30_000);
 
   async function initApp() {
     try {
       await refreshStats();
-      const reqCh = initialUrl.searchParams.get('channel')?.trim().toLowerCase();
-      if (reqCh && (!latestStats?.channel || latestStats.channel !== reqCh || !latestStats.temporaryMode)) {
-        const res = await fetch('/api/channel', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ login: reqCh }),
-        });
-        if (res.ok) await refreshStats();
-      }
-    } catch { showSearch(); }
+    } catch {}
     connect();
   }
   initApp();

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>goal overlay</title>
-  <link rel="icon" href="/favicon.ico" />
+  <link rel="icon" href="__APP_BASE_PATH__/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=IBM+Plex+Sans:wght@500;700&family=Archivo+Black&display=swap" rel="stylesheet" />
@@ -177,54 +177,14 @@
   <span id="goal-width-measure" style="position:absolute;visibility:hidden;white-space:nowrap;pointer-events:none;">Play 10 Hypixel UHCs</span>
 
   <script>
-    const SUBATHON_GOALS = [
-      { subs: 1, label: 'Game night with HBG' },
-      { subs: 25, label: 'Chat picks pizza toppings' },
-      { subs: 50, label: 'Fruitberries Q&A with Chat' },
-      { subs: 75, label: 'MC Event game tierlist' },
-      { subs: 100, label: 'Mine a chunk with Chat' },
-      { subs: 125, label: 'Play a Stray UHC' },
-      { subs: 150, label: 'Minecraft Lockout 1v1 vs Feinberg' },
-      { subs: 175, label: 'Attempt 5 SkyBattle wins in a row' },
-      { subs: 200, label: 'Geoguessr Ranked' },
-      { subs: 225, label: 'One mouse one keyboard MC with girlfriend' },
-      { subs: 250, label: 'Chat picks 2 Amazon items' },
-      { subs: 275, label: 'Parkour Civilization homework' },
-      { subs: 300, label: 'League with Yupplez' },
-      { subs: 325, label: 'Party games with Chat' },
-      { subs: 350, label: 'FNAF in the dark' },
-      { subs: 375, label: '1 Master Mode Hardcore Terraria attempt' },
-      { subs: 400, label: 'Win a Hypixel UHC' },
-      { subs: 425, label: 'Make a Hollowcube map' },
-      { subs: 450, label: 'Hoplite with hackingnoises' },
-      { subs: 475, label: 'Minecraft Bedrock speedrun no reset' },
-      { subs: 500, label: 'Win Bedwars solos, duos, trios, quads' },
-      { subs: 600, label: 'Chunklock Mod speedrun 1v1 w/ Boosfer' },
-      { subs: 700, label: 'Cooking stream' },
-      { subs: 800, label: 'Play 10 Hypixel UHCs' },
-      { subs: 900, label: 'Geoguessr moving 25k attempts' },
-      { subs: 1000, label: 'Go bald' },
-      { subs: 1250, label: '10 half-heart hardcore speedruns in a row' },
-      { subs: 1500, label: 'All Advancements no reset stream' },
-      { subs: 1750, label: '25 no reset speedruns' },
-      { subs: 2000, label: 'Pure Pain Marathon w/ Kaelan moral support' },
-      { subs: 2250, label: 'Wear a maid outfit for next event' },
-      { subs: 2500, label: 'Walk across my city IRL stream' },
-      { subs: 2750, label: 'Dye hair green' },
-      { subs: 3000, label: 'Solo BlazeAndCaves mod completion' },
-    ];
-
     const params = new URLSearchParams(location.search);
     const requestedChannel = (params.get('channel') || 'fruitberries').trim().toLowerCase();
-    const size = Math.max(1, Math.min(3, parseInt(params.get('size') || '2', 10) || 2));
     const font = Math.max(1, Math.min(3, parseInt(params.get('font') || '2', 10) || 2));
     const accent = Math.max(1, Math.min(5, parseInt(params.get('accent') || '5', 10) || 5));
-    const widthExtra = Math.max(0, Math.min(100, parseInt(params.get('width') || '0', 10) || 0));
-    const fontScale = Math.max(80, Math.min(140, parseInt(params.get('fontSize') || '100', 10) || 100));
     const alpha = Math.max(20, Math.min(95, parseInt(params.get('alpha') || '58', 10) || 58));
     const preview = params.get('preview') === '1';
 
-    document.body.classList.add(`size-${size}`, `font-${font}`);
+    document.body.classList.add(`font-${font}`);
     if (preview) document.body.classList.add('preview');
 
     const accentMap = {
@@ -239,23 +199,43 @@
     root.style.setProperty('--accent', activeAccent.accent);
     root.style.setProperty('--accent-soft', activeAccent.soft);
     root.style.setProperty('--glass', `rgba(9, 10, 18, ${alpha / 100})`);
-    root.style.setProperty('--font-scale', String(fontScale / 100));
     if (preview) {
-      const previewScaleMap = { 1: 0.94, 2: 0.86, 3: 0.78 };
-      root.style.setProperty('--preview-scale', String(previewScaleMap[size] || 0.86));
+      root.style.setProperty('--preview-scale', '0.86');
     }
 
     function fmt(n) { return (n ?? 0).toLocaleString(); }
-    function autoGoalIndex(total) {
-      const safeTotal = Math.max(0, total || 0);
-      const nextIndex = SUBATHON_GOALS.findIndex((goal) => safeTotal < goal.subs);
-      return nextIndex === -1 ? SUBATHON_GOALS.length - 1 : nextIndex;
+    function statsUrl() {
+      const url = new URL(`${BASE}/api/stats`, location.origin);
+      if (requestedChannel) url.searchParams.set('channel', requestedChannel);
+      return url.toString();
     }
-    function goalState(total) {
+    function eventsUrl() {
+      const url = new URL(`${BASE}/api/events`, location.origin);
+      if (requestedChannel) url.searchParams.set('channel', requestedChannel);
+      return url.toString();
+    }
+    function activeGoals(stats) {
+      return Array.isArray(stats?.goals) ? stats.goals : [];
+    }
+    function autoGoalIndex(total, goals) {
       const safeTotal = Math.max(0, total || 0);
-      const index = autoGoalIndex(safeTotal);
-      const goal = SUBATHON_GOALS[index];
-      const prevGoal = index > 0 ? SUBATHON_GOALS[index - 1] : { subs: 0, label: 'subathon start' };
+      const nextIndex = goals.findIndex((goal) => safeTotal < goal.subs);
+      return nextIndex === -1 ? goals.length - 1 : nextIndex;
+    }
+    function goalState(total, goals) {
+      const safeTotal = Math.max(0, total || 0);
+      if (!goals.length) {
+        return {
+          total: safeTotal,
+          next: 0,
+          progress: 0,
+          label: '',
+          empty: true,
+        };
+      }
+      const index = autoGoalIndex(safeTotal, goals);
+      const goal = goals[index];
+      const prevGoal = index > 0 ? goals[index - 1] : { subs: 0, label: 'subathon start' };
       const complete = safeTotal >= goal.subs;
       const span = Math.max(1, goal.subs - prevGoal.subs);
       const progress = complete ? 1 : Math.max(0, Math.min(1, (safeTotal - prevGoal.subs) / span));
@@ -263,23 +243,25 @@
         total: safeTotal,
         next: goal.subs,
         progress,
-        remaining: Math.max(0, goal.subs - safeTotal),
         label: goal.label,
-        complete,
+        empty: false,
       };
     }
-    function renderGoal(stats) {
-      const total = (stats?.totalSubs || 0) + (stats?.giftedSubs || 0);
-      const goal = goalState(total);
-      document.getElementById('goal-current').textContent = fmt(goal.total);
-      document.getElementById('goal-next').textContent = fmt(goal.next);
+    function layoutGoal(label, allowMarquee) {
       const goalEl = document.getElementById('goal-name');
       const goalTextEl = document.getElementById('goal-name-text');
       const overlayEl = document.querySelector('.overlay');
       const targetEl = document.querySelector('.eyebrow-target');
       const labelEl = document.querySelector('.eyebrow-label');
       const measureEl = document.getElementById('goal-width-measure');
-      goalTextEl.textContent = goal.label;
+      const bodyStyle = getComputedStyle(document.body);
+      const paddingX = (parseFloat(bodyStyle.paddingLeft) || 0) + (parseFloat(bodyStyle.paddingRight) || 0);
+      const overlayStyle = getComputedStyle(overlayEl);
+      const panelPad = (parseFloat(overlayStyle.paddingLeft) || 0) + (parseFloat(overlayStyle.paddingRight) || 0);
+      const border = ((parseFloat(overlayStyle.borderLeftWidth) || 0) + (parseFloat(overlayStyle.borderRightWidth) || 0));
+      const maxContentWidth = Math.max(180, Math.floor(window.innerWidth - paddingX - panelPad - border - 2));
+
+      goalTextEl.textContent = label;
       goalEl.classList.remove('marquee');
       requestAnimationFrame(() => {
         const labelWidth = labelEl.scrollWidth;
@@ -289,46 +271,52 @@
         measureEl.style.fontSize = getComputedStyle(goalEl).fontSize;
         measureEl.style.fontWeight = getComputedStyle(goalEl).fontWeight;
         measureEl.style.letterSpacing = getComputedStyle(goalEl).letterSpacing;
+        measureEl.textContent = label;
         const baselineWidth = Math.ceil(measureEl.scrollWidth);
-        const textWidth = goalTextEl.scrollWidth;
-        const scaledBaselineWidth = Math.ceil(baselineWidth * (1 + widthExtra / 100));
-        const goalWidth = scaledBaselineWidth;
-        const headerWidth = labelWidth + targetWidth + 16;
+        const goalWidth = Math.min(maxContentWidth, Math.max(180, baselineWidth));
+        const headerWidth = Math.min(maxContentWidth, labelWidth + targetWidth + 16);
         const contentWidth = Math.max(goalWidth, headerWidth);
         overlayEl.style.setProperty('--goal-width', `${goalWidth}px`);
         overlayEl.style.setProperty('--content-width', `${contentWidth}px`);
+        const textWidth = goalTextEl.scrollWidth;
         const visibleWidth = goalEl.clientWidth;
         goalEl.style.setProperty('--goal-visible-width', `${visibleWidth}px`);
-        if (textWidth > visibleWidth && goal.label.length > 20) {
+        if (allowMarquee && textWidth > visibleWidth && label.length > 20) {
           const extra = Math.max(0, textWidth - visibleWidth);
           const duration = Math.max(8, Math.min(18, 7 + (extra / 45)));
           goalEl.style.setProperty('--goal-marquee-duration', `${duration}s`);
           goalEl.classList.add('marquee');
         }
       });
+    }
+    function renderGoal(stats) {
+      if (stats?.notFound) {
+        document.getElementById('goal-current').textContent = '0';
+        document.getElementById('goal-next').textContent = '0';
+        layoutGoal('channel not public', false);
+        document.getElementById('goal-fill').style.width = '0%';
+        return;
+      }
+      const total = (stats?.totalSubs || 0) + (stats?.giftedSubs || 0);
+      const goals = activeGoals(stats);
+      const goal = goalState(total, goals);
+      document.getElementById('goal-current').textContent = fmt(total);
+      document.getElementById('goal-next').textContent = goal.empty ? '—' : fmt(goal.next);
+      layoutGoal(goal.empty ? 'No goals configured' : goal.label, !goal.empty);
       document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
     }
 
     const BASE = '__APP_BASE_PATH__';
 
-    async function ensureChannel() {
-      if (!requestedChannel || requestedChannel === 'fruitberries') return;
-      await fetch(`${BASE}/api/channel`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login: requestedChannel }),
-      }).catch(() => {});
-    }
-
     async function refreshStats() {
-      const stats = await fetch(`${BASE}/api/stats`).then((r) => r.json());
+      const stats = await fetch(statsUrl()).then((r) => r.json());
       renderGoal(stats);
     }
 
     let sse;
     function connect() {
       if (sse) sse.close();
-      sse = new EventSource(`${BASE}/api/events`);
+      sse = new EventSource(eventsUrl());
       sse.onmessage = (e) => {
         let msg;
         try { msg = JSON.parse(e.data); } catch { return; }
@@ -337,7 +325,6 @@
     }
 
     async function init() {
-      await ensureChannel();
       await refreshStats();
       connect();
       setInterval(async () => {
