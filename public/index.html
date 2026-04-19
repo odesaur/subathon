@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>subathon tracker</title>
-  <link rel="icon" href="/favicon.ico" />
+  <link rel="icon" href="__APP_BASE_PATH__/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -658,7 +658,7 @@
         </div>
         <div class="mode-actions">
           <button class="btn" id="btn-overlay">Goal Overlay</button>
-          <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
+          <a href="__APP_BASE_PATH__/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
         </div>
       </div>
 
@@ -812,6 +812,7 @@
   </div>
 
   <script>
+    const BASE = '__APP_BASE_PATH__';
     const SUBATHON_GOALS = [
       { subs: 1, label: 'Game night with HBG' },
       { subs: 25, label: 'Chat picks pizza toppings' },
@@ -920,7 +921,7 @@
     let leaderboardExpanded = false;
 
     function overlayUrl() {
-      const url = new URL('/overlay/goal', window.location.origin);
+      const url = new URL(`${BASE}/overlay/goal`, window.location.origin);
       const channel = (document.getElementById('overlay-channel').value.trim().toLowerCase() || 'fruitberries');
       url.searchParams.set('channel', channel);
       url.searchParams.set('size', document.getElementById('overlay-size').value);
@@ -1065,10 +1066,10 @@
     function setViewUrl(stats) {
       const url = new URL(window.location.href);
       if (stats?.temporaryMode && stats?.channel) {
-        url.pathname = '/search';
+        url.pathname = `${BASE}/search`;
         url.searchParams.set('channel', stats.channel);
       } else {
-        url.pathname = '/';
+        url.pathname = `${BASE}/`;
         url.searchParams.delete('channel');
       }
       const next = `${url.pathname}${url.search}${url.hash}`;
@@ -1200,7 +1201,7 @@
       if (!q) return;
       showSearchError('');
       try {
-        const res = await fetch(`/api/channel?q=${encodeURIComponent(q)}`);
+        const res = await fetch(`${BASE}/api/channel?q=${encodeURIComponent(q)}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'channel not found');
         renderSearchResult(data);
@@ -1213,7 +1214,7 @@
     }
 
     async function refreshStats() {
-      const stats = await fetch('/api/stats').then(r => r.json());
+      const stats = await fetch(`${BASE}/api/stats`).then(r => r.json());
       renderStats(stats);
       if (stats.channel) {
         renderStream({ live: !!stats.streamLive, viewers: stats.streamViewers || 0 });
@@ -1229,13 +1230,13 @@
     document.getElementById('btn-auth').addEventListener('click', async (e) => {
       if (e.currentTarget.dataset.mode !== 'resume') return;
       e.preventDefault();
-      await fetch('/api/view/private', { method: 'POST' });
+      await fetch(`${BASE}/api/view/private`, { method: 'POST' });
       await refreshStats();
       reconnectSSE();
     });
 
     document.getElementById('btn-view-public').addEventListener('click', async () => {
-      await fetch('/api/view/public', { method: 'POST' });
+      await fetch(`${BASE}/api/view/public`, { method: 'POST' });
       await refreshStats();
       reconnectSSE();
     });
@@ -1258,7 +1259,7 @@
     });
     document.getElementById('result-track').addEventListener('click', async () => {
       if (!latestSearchResult) return;
-      const res = await fetch('/api/channel', {
+      const res = await fetch(`${BASE}/api/channel`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login: latestSearchResult.login }),
@@ -1281,7 +1282,7 @@
         'reset'
       );
       if (!ok) return;
-      await fetch('/api/start', { method: 'POST' });
+      await fetch(`${BASE}/api/start`, { method: 'POST' });
     });
 
     document.getElementById('btn-logout').addEventListener('click', async () => {
@@ -1291,7 +1292,7 @@
         'log out'
       );
       if (!ok) return;
-      window.location.href = '/auth/logout';
+      window.location.href = `${BASE}/auth/logout`;
     });
 
     document.getElementById('confirm-cancel').addEventListener('click', () => closeConfirm(false));
@@ -1324,7 +1325,7 @@
     /* SSE */
     let sse, reconnectDelay = 1000;
     function connect() {
-      sse = new EventSource('/api/events');
+      sse = new EventSource(`${BASE}/api/events`);
       sse.onopen = () => { reconnectDelay = 1000; };
       sse.onmessage = (e) => {
         let msg; try { msg = JSON.parse(e.data); } catch { return; }

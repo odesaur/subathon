@@ -17,6 +17,15 @@ const CLIENT_ID     = process.env.TWITCH_CLIENT_ID!;
 const CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET!;
 const REDIRECT_URI  = process.env.REDIRECT_URI || `http://localhost:${PORT}/auth/callback`;
 const DEFAULT_CHANNEL = "fruitberries";
+const BASE_PATH     = (process.env.BASE_PATH || "").replace(/\/+$/, "");
+
+function appPath(p: string) { return BASE_PATH + p; }
+function stripBasePath(pathname: string) {
+  if (!BASE_PATH) return pathname;
+  if (pathname === BASE_PATH) return "/";
+  if (pathname.startsWith(BASE_PATH + "/")) return pathname.slice(BASE_PATH.length);
+  return pathname;
+}
 const PUBLIC_DIR = new URL("../public", import.meta.url).pathname;
 const AUTH_KEYS = ["broadcaster_token", "broadcaster_id", "broadcaster_refresh"];
 const VIEW_PRIVATE = "private";
@@ -699,33 +708,36 @@ Bun.serve({
 
   async fetch(req) {
     const url = new URL(req.url);
+    const path = stripBasePath(url.pathname);
     const sessionId = ensureSessionId(req);
     const privateTracker = await sessionTrackerForRequest(req);
 
-    if (url.pathname === "/" || url.pathname === "/index.html" || url.pathname === "/search") {
+    if (path === "/" || path === "/index.html" || path === "/search") {
+      const html = await Bun.file(new URL("../public/index.html", import.meta.url).pathname).text();
       return withSessionState(new Response(
-        Bun.file(new URL("../public/index.html", import.meta.url).pathname),
+        html.replaceAll("__APP_BASE_PATH__", BASE_PATH),
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
       ), req, sessionId);
     }
-    if (url.pathname === "/overlay/goal") {
+    if (path === "/overlay/goal") {
+      const html = await Bun.file(new URL("../public/overlay-goal.html", import.meta.url).pathname).text();
       return new Response(
-        Bun.file(new URL("../public/overlay-goal.html", import.meta.url).pathname),
+        html.replaceAll("__APP_BASE_PATH__", BASE_PATH),
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
       );
     }
 
-    if (url.pathname === "/favicon.ico") {
+    if (path === "/favicon.ico") {
       return new Response(
         Bun.file(new URL("../favicon.ico", import.meta.url).pathname),
         { headers: { "Content-Type": "image/x-icon" } }
       );
     }
-    if (url.pathname === "/api/stats") {
+    if (path === "/api/stats") {
       return withSessionState(Response.json(await statsForRequest(req)), req, sessionId);
     }
 
-    if (url.pathname === "/api/channel") {
+    if (path === "/api/channel") {
       if (req.method === "GET") {
         const q = url.searchParams.get("q")?.trim().toLowerCase();
         if (!q) return Response.json({ error: "missing q" }, { status: 400 });
@@ -749,7 +761,7 @@ Bun.serve({
       }
     }
 
-    if (url.pathname === "/api/start" && req.method === "POST") {
+    if (path === "/api/start" && req.method === "POST") {
       if (privateTracker) {
         privateTracker.trackedSubs = 0;
         privateTracker.trackedBits = 0;
@@ -772,7 +784,7 @@ Bun.serve({
       return withSessionState(Response.json({ ok: true }), req, sessionId);
     }
 
-    if (url.pathname === "/api/events") {
+    if (path === "/api/events") {
       let ctrl: SSECtrl;
       const stream = new ReadableStream<Uint8Array>({
         start(c) {
@@ -797,19 +809,19 @@ Bun.serve({
       }), req, sessionId);
     }
 
-    if (url.pathname === "/api/view/public" && req.method === "POST") {
+    if (path === "/api/view/public" && req.method === "POST") {
       return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PUBLIC);
     }
 
-    if (url.pathname === "/api/view/private" && req.method === "POST") {
+    if (path === "/api/view/private" && req.method === "POST") {
       const tracker = await restoreSessionTracker(sessionId);
       if (!tracker) return withSessionState(Response.json({ error: "no private tracker" }, { status: 404 }), req, sessionId, VIEW_PUBLIC);
       return withSessionState(Response.json({ ok: true }), req, sessionId, VIEW_PRIVATE);
     }
 
-    if (url.pathname === "/auth/twitch") {
+    if (path === "/auth/twitch") {
       const savedTracker = await restoreSessionTracker(sessionId);
-      if (savedTracker?.persistent) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PRIVATE);
+      if (savedTracker?.persistent) return withSessionState(Response.redirect(appPath("/")), req, sessionId, VIEW_PRIVATE);
       const params = new URLSearchParams({
         client_id:     CLIENT_ID,
         redirect_uri:  REDIRECT_URI,
@@ -821,11 +833,11 @@ Bun.serve({
       return withSessionState(Response.redirect(`https://id.twitch.tv/oauth2/authorize?${params}`), req, sessionId);
     }
 
-    if (url.pathname === "/auth/callback") {
+    if (path === "/auth/callback") {
       const code = url.searchParams.get("code");
       const state = decodeAuthState(url.searchParams.get("state"));
       const authError = url.searchParams.get("error");
-      if (authError || !code) return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PUBLIC);
+      if (authError || !code) return withSessionState(Response.redirect(appPath("/")), req, sessionId, VIEW_PUBLIC);
 
       const tokenRes = await fetch("https://id.twitch.tv/oauth2/token", {
         method: "POST",
@@ -866,12 +878,12 @@ Bun.serve({
       );
 
       console.log(`[broadcaster] authenticated as ${authedLogin}`);
-      return withSessionState(Response.redirect("/"), req, sessionId, VIEW_PRIVATE);
+      return withSessionState(Response.redirect(appPath("/")), req, sessionId, VIEW_PRIVATE);
     }
 
-    if (url.pathname === "/auth/logout") {
+    if (path === "/auth/logout") {
       destroySessionTracker(sessionId, true);
-      return withSessionState(Response.redirect("/"), req, crypto.randomUUID(), VIEW_PUBLIC);
+      return withSessionState(Response.redirect(appPath("/")), req, crypto.randomUUID(), VIEW_PUBLIC);
     }
 
     return new Response("Not Found", { status: 404 });

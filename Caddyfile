@@ -1,4 +1,0 @@
-# Replace with your actual domain
-yourdomain.com {
-    reverse_proxy localhost:3000
-}

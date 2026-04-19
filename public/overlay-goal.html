@@ -309,9 +309,11 @@
       document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
     }
 
+    const BASE = '__APP_BASE_PATH__';
+
     async function ensureChannel() {
       if (!requestedChannel || requestedChannel === 'fruitberries') return;
-      await fetch('/api/channel', {
+      await fetch(`${BASE}/api/channel`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login: requestedChannel }),
@@ -319,14 +321,14 @@
     }
 
     async function refreshStats() {
-      const stats = await fetch('/api/stats').then((r) => r.json());
+      const stats = await fetch(`${BASE}/api/stats`).then((r) => r.json());
       renderGoal(stats);
     }
 
     let sse;
     function connect() {
       if (sse) sse.close();
-      sse = new EventSource('/api/events');
+      sse = new EventSource(`${BASE}/api/events`);
       sse.onmessage = (e) => {
         let msg;
         try { msg = JSON.parse(e.data); } catch { return; }
