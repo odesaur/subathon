@@ -64,13 +64,18 @@
     .eyebrow {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
       gap: .75rem;
       margin-bottom: 12px;
       font-size: var(--eyebrow-size);
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .08em;
+    }
+    .eyebrow-label {
+      color: rgba(255, 255, 255, .9);
+      font-weight: 800;
+      letter-spacing: .1em;
     }
     .eyebrow-target {
       color: var(--text);
@@ -144,9 +149,10 @@
     }
   </style>
 </head>
-<body class="size-3 font-1">
+<body class="size-3 font-2">
   <div class="overlay">
     <div class="eyebrow">
+      <div class="eyebrow-label">GOALS</div>
       <div class="eyebrow-target"><strong id="goal-current">0</strong> / <span id="goal-next">0</span></div>
     </div>
     <div class="goal" id="goal-name">loading…</div>
@@ -194,7 +200,7 @@
     const params = new URLSearchParams(location.search);
     const requestedChannel = (params.get('channel') || 'fruitberries').trim().toLowerCase();
     const size = Math.max(1, Math.min(4, parseInt(params.get('size') || '3', 10) || 3));
-    const font = Math.max(1, Math.min(3, parseInt(params.get('font') || '1', 10) || 1));
+    const font = Math.max(1, Math.min(3, parseInt(params.get('font') || '2', 10) || 2));
     const accent = Math.max(1, Math.min(5, parseInt(params.get('accent') || '1', 10) || 1));
     const alpha = Math.max(20, Math.min(95, parseInt(params.get('alpha') || '58', 10) || 58));
     const preview = params.get('preview') === '1';
