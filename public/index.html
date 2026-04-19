@@ -334,6 +334,11 @@
     .overlay-card .modal-title { text-align: center; width: 100%; margin-bottom: .55rem; }
     .modal-copy { color: #c6d4df; font-size: .85rem; line-height: 1.6; margin-bottom: 1.1rem; }
     .modal-actions { display: flex; justify-content: flex-end; gap: .5rem; }
+    .modal-actions .btn-grey {
+      min-width: 112px;
+      justify-content: center;
+      text-align: center;
+    }
     .overlay-close-icon {
       position: absolute;
       top: .55rem;
@@ -552,7 +557,7 @@
         <!-- Actions -->
         <div class="sidebar_actions">
           <button class="btn-grey" id="btn-view-public" style="display:none"><span>View As Public</span></button>
-          <button class="btn-grey" id="btn-logout" style="display:none"><span>Log Out</span></button>
+          <button class="btn-grey danger" id="btn-logout" style="display:none"><span>Log Out</span></button>
           <button class="btn-grey danger" id="btn-reset" style="display:none"><span>Reset Tracker</span></button>
         </div>
 
@@ -676,7 +681,7 @@
 <div class="modal-shell" id="goals-modal">
   <div class="modal-card goals-card">
     <div class="modal-title">Custom Goals</div>
-    <div class="goals-copy">Add The Sub Count And The Goal Text For Your Channel. These Will Appear On Your Public Page And The Goal Overlay.</div>
+    <div class="goals-copy">Add The Sub Count And The Goal Text For Your Channel.</div>
     <div class="goals-list" id="goals-list"></div>
     <div class="modal-actions" style="justify-content: space-between;">
       <button class="btn-grey" id="goals-add"><span>Add Goal</span></button>
@@ -828,10 +833,11 @@
     document.getElementById('recent-sub-text').textContent = r?.text || 'No Recent Sub Yet';
     document.getElementById('recent-sub-time').textContent = r?.at ? timeAgo(r.at) : '';
   }
-  function askConfirm(title, copy, ok='continue') {
+  function askConfirm(title, copy, ok='Continue', danger=false) {
     document.getElementById('confirm-title').textContent = title;
     document.getElementById('confirm-copy').textContent  = copy;
     document.getElementById('confirm-ok').textContent    = ok;
+    document.getElementById('confirm-ok').classList.toggle('danger', danger);
     document.getElementById('confirm-modal').classList.add('open');
     return new Promise(resolve => { confirmResolver = resolve; });
   }
@@ -1011,12 +1017,12 @@
     toast('Goals Saved', 'reset');
   });
   document.getElementById('btn-reset').addEventListener('click', async () => {
-    const ok = await askConfirm('Reset Tracker', 'Resetting Will Clear The Current Tracked Subs, Bits, Gifts, And Restart The Tracker From Now.', 'Reset');
+    const ok = await askConfirm('Reset Tracker', 'Resetting Will Clear The Current Tracked Subs, Bits, Gifts.', 'Reset', true);
     if (!ok) return;
     await fetch(`${BASE}/api/start`, { method:'POST' });
   });
   document.getElementById('btn-logout').addEventListener('click', async () => {
-    const ok = await askConfirm('Log Out', 'Logging Out Will Delete This Saved Private Tracker And Its Tracked Data For This Browser Session.', 'Log Out');
+    const ok = await askConfirm('Log Out', 'Are you sure you want to log out?', 'Log Out', true);
     if (!ok) return;
     window.location.href = `${BASE}/auth/logout`;
   });
