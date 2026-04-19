@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>goal overlay</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=IBM+Plex+Sans:wght@500;700&family=Archivo+Black&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --panel-width: 780px;
+      --panel-pad: 20px;
+      --eyebrow-size: 22px;
+      --goal-size: 40px;
+      --bar-height: 18px;
+      --radius: 18px;
+      --alpha: 0.58;
+      --accent: #ff79c6;
+      --accent-soft: rgba(255, 121, 198, .35);
+      --text: #ffffff;
+      --muted: rgba(255, 255, 255, .82);
+      --glass: rgba(9, 10, 18, .58);
+      --border: rgba(255, 255, 255, .16);
+      --shadow: 0 26px 80px rgba(0, 0, 0, .28);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    body.preview {
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 12px;
+      overflow: auto;
+    }
+    body.font-2 { font-family: 'IBM Plex Sans', sans-serif; }
+    body.font-3 { font-family: 'Archivo Black', sans-serif; }
+    .overlay {
+      width: min(var(--panel-width), 100%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--glass) 92%, transparent), color-mix(in srgb, var(--glass) 100%, transparent));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(7px);
+      padding: var(--panel-pad);
+    }
+    body.preview .overlay {
+      transform-origin: top left;
+      transform: scale(var(--preview-scale, .78));
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: .75rem;
+      margin-bottom: 12px;
+      font-size: var(--eyebrow-size);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .eyebrow-target {
+      color: var(--text);
+    }
+    .eyebrow-target strong {
+      color: var(--accent);
+      font-weight: 800;
+    }
+    .goal {
+      font-size: var(--goal-size);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      margin-bottom: 12px;
+      text-wrap: balance;
+    }
+    .bar {
+      width: 100%;
+      height: var(--bar-height);
+      border-radius: 999px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.12);
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 74%, white 26%), var(--accent));
+      box-shadow: 0 0 18px var(--accent-soft);
+      transition: width .22s ease-out;
+    }
+    .copy {
+      display: none;
+    }
+    .hidden {
+      display: none !important;
+    }
+    body.size-1 {
+      --panel-width: 500px;
+      --panel-pad: 14px;
+      --eyebrow-size: 13px;
+      --goal-size: 21px;
+      --bar-height: 10px;
+      --radius: 12px;
+    }
+    body.size-2 {
+      --panel-width: 640px;
+      --panel-pad: 17px;
+      --eyebrow-size: 16px;
+      --goal-size: 28px;
+      --bar-height: 14px;
+      --radius: 14px;
+    }
+    body.size-3 {
+      --panel-width: 780px;
+      --panel-pad: 20px;
+      --eyebrow-size: 22px;
+      --goal-size: 36px;
+      --bar-height: 18px;
+      --radius: 18px;
+    }
+    body.size-4 {
+      --panel-width: 980px;
+      --panel-pad: 24px;
+      --eyebrow-size: 26px;
+      --goal-size: 46px;
+      --bar-height: 22px;
+      --radius: 20px;
+    }
+  </style>
+</head>
+<body class="size-3 font-1">
+  <div class="overlay">
+    <div class="eyebrow">
+      <div class="eyebrow-target"><strong id="goal-current">0</strong> / <span id="goal-next">0</span></div>
+    </div>
+    <div class="goal" id="goal-name">loading…</div>
+    <div class="bar"><div class="bar-fill" id="goal-fill"></div></div>
+  </div>
+
+  <script>
+    const SUBATHON_GOALS = [
+      { subs: 1, label: 'Game night with HBG' },
+      { subs: 25, label: 'Chat picks pizza toppings' },
+      { subs: 50, label: 'Fruitberries Q&A with Chat' },
+      { subs: 75, label: 'MC Event game tierlist' },
+      { subs: 100, label: 'Mine a chunk with Chat' },
+      { subs: 125, label: 'Play a Stray UHC' },
+      { subs: 150, label: 'Minecraft Lockout 1v1 vs Feinberg' },
+      { subs: 175, label: 'Attempt 5 SkyBattle wins in a row' },
+      { subs: 200, label: 'Geoguessr Ranked' },
+      { subs: 225, label: 'One mouse one keyboard MC with girlfriend' },
+      { subs: 250, label: 'Chat picks 2 Amazon items' },
+      { subs: 275, label: 'Parkour Civilization homework' },
+      { subs: 300, label: 'League with Yupplez' },
+      { subs: 325, label: 'Party games with Chat' },
+      { subs: 350, label: 'FNAF in the dark' },
+      { subs: 375, label: '1 Master Mode Hardcore Terraria attempt' },
+      { subs: 400, label: 'Win a Hypixel UHC' },
+      { subs: 425, label: 'Make a Hollowcube map' },
+      { subs: 450, label: 'Hoplite with hackingnoises' },
+      { subs: 475, label: 'Minecraft Bedrock speedrun no reset' },
+      { subs: 500, label: 'Win Bedwars solos, duos, trios, quads' },
+      { subs: 600, label: 'Chunklock Mod speedrun 1v1 w/ Boosfer' },
+      { subs: 700, label: 'Cooking stream' },
+      { subs: 800, label: 'Play 10 Hypixel UHCs' },
+      { subs: 900, label: 'Geoguessr moving 25k attempts' },
+      { subs: 1000, label: 'Go bald' },
+      { subs: 1250, label: '10 half-heart hardcore speedruns in a row' },
+      { subs: 1500, label: 'All Advancements no reset stream' },
+      { subs: 1750, label: '25 no reset speedruns' },
+      { subs: 2000, label: 'Pure Pain Marathon w/ Kaelan moral support' },
+      { subs: 2250, label: 'Wear a maid outfit for next event' },
+      { subs: 2500, label: 'Walk across my city IRL stream' },
+      { subs: 2750, label: 'Dye hair green' },
+      { subs: 3000, label: 'Solo BlazeAndCaves mod completion' },
+    ];
+
+    const params = new URLSearchParams(location.search);
+    const requestedChannel = (params.get('channel') || 'fruitberries').trim().toLowerCase();
+    const size = Math.max(1, Math.min(4, parseInt(params.get('size') || '3', 10) || 3));
+    const font = Math.max(1, Math.min(3, parseInt(params.get('font') || '1', 10) || 1));
+    const accent = Math.max(1, Math.min(5, parseInt(params.get('accent') || '1', 10) || 1));
+    const alpha = Math.max(20, Math.min(95, parseInt(params.get('alpha') || '58', 10) || 58));
+    const preview = params.get('preview') === '1';
+
+    document.body.classList.add(`size-${size}`, `font-${font}`);
+    if (preview) document.body.classList.add('preview');
+
+    const accentMap = {
+      1: { accent: '#ff79c6', soft: 'rgba(255, 121, 198, .35)' },
+      2: { accent: '#f6c177', soft: 'rgba(246, 193, 119, .35)' },
+      3: { accent: '#8be9fd', soft: 'rgba(139, 233, 253, .35)' },
+      4: { accent: '#50fa7b', soft: 'rgba(80, 250, 123, .35)' },
+      5: { accent: 'rgba(255, 255, 255, .92)', soft: 'rgba(255, 255, 255, .18)' },
+    };
+    const activeAccent = accentMap[accent];
+    const root = document.documentElement;
+    root.style.setProperty('--accent', activeAccent.accent);
+    root.style.setProperty('--accent-soft', activeAccent.soft);
+    root.style.setProperty('--glass', `rgba(9, 10, 18, ${alpha / 100})`);
+    if (preview) {
+      const previewScaleMap = { 1: 0.8, 2: 0.82, 3: 0.84, 4: 0.72 };
+      root.style.setProperty('--preview-scale', String(previewScaleMap[size] || 0.8));
+    }
+
+    function fmt(n) { return (n ?? 0).toLocaleString(); }
+    function autoGoalIndex(total) {
+      const safeTotal = Math.max(0, total || 0);
+      const nextIndex = SUBATHON_GOALS.findIndex((goal) => safeTotal < goal.subs);
+      return nextIndex === -1 ? SUBATHON_GOALS.length - 1 : nextIndex;
+    }
+    function goalState(total) {
+      const safeTotal = Math.max(0, total || 0);
+      const index = autoGoalIndex(safeTotal);
+      const goal = SUBATHON_GOALS[index];
+      const prevGoal = index > 0 ? SUBATHON_GOALS[index - 1] : { subs: 0, label: 'subathon start' };
+      const complete = safeTotal >= goal.subs;
+      const span = Math.max(1, goal.subs - prevGoal.subs);
+      const progress = complete ? 1 : Math.max(0, Math.min(1, (safeTotal - prevGoal.subs) / span));
+      return {
+        total: safeTotal,
+        next: goal.subs,
+        progress,
+        remaining: Math.max(0, goal.subs - safeTotal),
+        label: goal.label,
+        complete,
+      };
+    }
+    function renderGoal(stats) {
+      const total = (stats?.totalSubs || 0) + (stats?.giftedSubs || 0);
+      const goal = goalState(total);
+      document.getElementById('goal-current').textContent = fmt(goal.total);
+      document.getElementById('goal-next').textContent = fmt(goal.next);
+      document.getElementById('goal-name').textContent = goal.label;
+      document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
+    }
+
+    async function ensureChannel() {
+      if (!requestedChannel || requestedChannel === 'fruitberries') return;
+      await fetch('/api/channel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login: requestedChannel }),
+      }).catch(() => {});
+    }
+
+    async function refreshStats() {
+      const stats = await fetch('/api/stats').then((r) => r.json());
+      renderGoal(stats);
+    }
+
+    let sse;
+    function connect() {
+      if (sse) sse.close();
+      sse = new EventSource('/api/events');
+      sse.onmessage = (e) => {
+        let msg;
+        try { msg = JSON.parse(e.data); } catch { return; }
+        if (msg.stats) renderGoal(msg.stats);
+      };
+    }
+
+    async function init() {
+      await ensureChannel();
+      await refreshStats();
+      connect();
+      setInterval(async () => {
+        try { await refreshStats(); } catch {}
+      }, 30000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

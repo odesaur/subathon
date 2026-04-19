@@ -708,9 +708,9 @@ Bun.serve({
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
       ), req, sessionId);
     }
-    if (url.pathname === "/bingo") {
+    if (url.pathname === "/overlay/goal") {
       return new Response(
-        Bun.file(new URL("../public/bingo.html", import.meta.url).pathname),
+        Bun.file(new URL("../public/overlay-goal.html", import.meta.url).pathname),
         { headers: { "Content-Type": "text/html; charset=utf-8" } }
       );
     }
@@ -721,16 +721,6 @@ Bun.serve({
         { headers: { "Content-Type": "image/x-icon" } }
       );
     }
-    if (url.pathname === "/lockout-goals.json") {
-      return new Response(
-        Bun.file(`${PUBLIC_DIR}/lockout-goals.json`),
-        { headers: { "Content-Type": "application/json; charset=utf-8" } }
-      );
-    }
-    if (url.pathname.startsWith("/lockout-textures/")) {
-      return new Response(Bun.file(`${PUBLIC_DIR}${url.pathname}`));
-    }
-
     if (url.pathname === "/api/stats") {
       return withSessionState(Response.json(await statsForRequest(req)), req, sessionId);
     }

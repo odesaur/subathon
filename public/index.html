@@ -117,16 +117,6 @@
     .btn:hover { border-color: var(--muted); color: var(--text); }
     .btn.primary { border-color: var(--purple); color: var(--purple); }
     .btn.primary:hover { background: color-mix(in srgb,var(--purple) 15%,transparent); color: var(--text); }
-    #btn-bingo {
-      border-color: #f6c177;
-      color: #f6c177;
-      background: color-mix(in srgb, #f6c177 10%, transparent);
-    }
-    #btn-bingo:hover {
-      border-color: #f6c177;
-      color: var(--text);
-      background: color-mix(in srgb, #f6c177 18%, transparent);
-    }
     .btn.easter { border-color: var(--orange); color: var(--orange); }
     .btn.easter:hover { background: color-mix(in srgb,var(--orange) 12%,transparent); color: var(--text); }
 
@@ -421,6 +411,12 @@
     .lb-title { font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
     .lb-title strong { color:var(--text); font-weight:700; }
     .lb-empty { padding:2.5rem; text-align:center; color:var(--muted); font-size:.85rem; }
+    .lb-more {
+      padding: .75rem 1.25rem 1rem;
+      border-top: 1px solid color-mix(in srgb,var(--border) 50%,transparent);
+      display: flex;
+      justify-content: center;
+    }
     table { width:100%; border-collapse:collapse; }
     thead th { padding:.5rem 1.25rem; text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); border-bottom:1px solid var(--border); font-weight:500; }
     thead th.right { text-align:right; }
@@ -460,6 +456,9 @@
       padding: 1rem 1rem .9rem;
       box-shadow: 0 18px 48px rgba(0,0,0,.42);
     }
+    .modal-card.overlay-card {
+      max-width: 760px;
+    }
     .modal-title {
       font-size: .76rem;
       text-transform: uppercase;
@@ -477,6 +476,113 @@
       display: flex;
       justify-content: flex-end;
       gap: .5rem;
+    }
+    .overlay-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .75rem;
+      margin-bottom: 1rem;
+    }
+    .overlay-field {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .overlay-field.full {
+      grid-column: 1 / -1;
+    }
+    .overlay-field label {
+      color: var(--muted);
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .overlay-select,
+    .overlay-input,
+    .overlay-link {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      border-radius: 4px;
+      padding: .55rem .65rem;
+      font-family: inherit;
+      font-size: .82rem;
+      outline: none;
+    }
+    .overlay-select:focus,
+    .overlay-input:focus,
+    .overlay-link:focus {
+      border-color: var(--purple);
+    }
+    .overlay-range-row {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+    }
+    .overlay-range {
+      flex: 1;
+      accent-color: var(--purple);
+    }
+    .overlay-value {
+      color: var(--text);
+      font-size: .8rem;
+      min-width: 3rem;
+      text-align: right;
+    }
+    .overlay-preview {
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(196, 167, 231, .14), transparent 34%),
+        linear-gradient(180deg, rgba(24, 25, 38, .96), rgba(12, 12, 18, .98));
+    }
+    .overlay-preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding: .55rem .75rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+    }
+    .overlay-preview-title {
+      color: var(--muted);
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+    .overlay-preview-size {
+      color: var(--dim);
+      font-size: .72rem;
+    }
+    .overlay-preview-body {
+      position: relative;
+      min-height: 280px;
+      padding: 1rem;
+      background:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .overlay-preview-frame {
+      width: 100%;
+      height: 280px;
+      border: 0;
+      background: transparent;
+      display: block;
+    }
+    @media(max-width:600px){
+      .overlay-form {
+        grid-template-columns: 1fr;
+      }
+      .overlay-preview-body,
+      .overlay-preview-frame {
+        min-height: 220px;
+        height: 220px;
+      }
     }
 
     /* Toasts */
@@ -551,7 +657,7 @@
           </details>
         </div>
         <div class="mode-actions">
-          <a href="/bingo" class="btn primary" id="btn-bingo">Bingo Wiki</a>
+          <button class="btn" id="btn-overlay">Goal Overlay</button>
           <a href="/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
         </div>
       </div>
@@ -624,6 +730,70 @@
       <div class="modal-actions">
         <button class="btn" id="confirm-cancel">cancel</button>
         <button class="btn primary" id="confirm-ok">continue</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-shell" id="overlay-modal">
+    <div class="modal-card overlay-card">
+      <div class="modal-title">goal overlay link</div>
+      <div class="overlay-preview">
+        <div class="overlay-preview-head">
+          <div class="overlay-preview-title">preview</div>
+          <div class="overlay-preview-size" id="overlay-preview-size">live overlay</div>
+        </div>
+        <div class="overlay-preview-body">
+          <iframe class="overlay-preview-frame" id="overlay-preview-frame" title="goal overlay preview"></iframe>
+        </div>
+      </div>
+      <div class="overlay-form">
+        <div class="overlay-field full">
+          <label for="overlay-channel">channel</label>
+          <input class="overlay-input" id="overlay-channel" type="text" spellcheck="false" autocomplete="off" />
+        </div>
+        <div class="overlay-field">
+          <label for="overlay-size">size</label>
+          <select class="overlay-select" id="overlay-size">
+            <option value="1">small</option>
+            <option value="2">medium</option>
+            <option value="3" selected>large</option>
+            <option value="4">huge</option>
+          </select>
+        </div>
+        <div class="overlay-field">
+          <label for="overlay-font">font</label>
+          <select class="overlay-select" id="overlay-font">
+            <option value="1" selected>mono</option>
+            <option value="2">sans</option>
+            <option value="3">display</option>
+          </select>
+        </div>
+        <div class="overlay-field">
+          <label for="overlay-accent">accent</label>
+          <select class="overlay-select" id="overlay-accent">
+            <option value="5" selected>soft white</option>
+            <option value="1">rose</option>
+            <option value="2">gold</option>
+            <option value="3">aqua</option>
+            <option value="4">lime</option>
+          </select>
+        </div>
+        <div class="overlay-field">
+          <label for="overlay-alpha">transparency</label>
+          <div class="overlay-range-row">
+            <input class="overlay-range" id="overlay-alpha" type="range" min="20" max="95" value="58" />
+            <span class="overlay-value" id="overlay-alpha-value">58%</span>
+          </div>
+        </div>
+        <div class="overlay-field full">
+          <label for="overlay-link">overlay url</label>
+          <input class="overlay-link" id="overlay-link" type="text" readonly />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary" id="overlay-copy">copy link</button>
+        <button class="btn" id="overlay-open">open</button>
+        <button class="btn" id="overlay-close">close</button>
       </div>
     </div>
   </div>
@@ -734,6 +904,50 @@
     let latestSearchResult = null;
     let confirmResolver = null;
     let selectedGoalIndex = null;
+    let leaderboardExpanded = false;
+
+    function overlayUrl() {
+      const url = new URL('/overlay/goal', window.location.origin);
+      const channel = (document.getElementById('overlay-channel').value.trim().toLowerCase() || 'fruitberries');
+      url.searchParams.set('channel', channel);
+      url.searchParams.set('size', document.getElementById('overlay-size').value);
+      url.searchParams.set('font', document.getElementById('overlay-font').value);
+      url.searchParams.set('accent', document.getElementById('overlay-accent').value);
+      url.searchParams.set('alpha', document.getElementById('overlay-alpha').value);
+      return url.toString();
+    }
+
+    function overlayPreviewUrl() {
+      const url = new URL(overlayUrl());
+      url.searchParams.set('preview', '1');
+      return url.toString();
+    }
+
+    function syncOverlayUrl() {
+      const alpha = document.getElementById('overlay-alpha').value;
+      const outputUrl = overlayUrl();
+      const previewUrl = overlayPreviewUrl();
+      document.getElementById('overlay-alpha-value').textContent = `${alpha}%`;
+      document.getElementById('overlay-link').value = outputUrl;
+      document.getElementById('overlay-preview-size').textContent =
+        `${document.getElementById('overlay-size').selectedOptions[0].textContent} · ${document.getElementById('overlay-font').selectedOptions[0].textContent}`;
+      const frame = document.getElementById('overlay-preview-frame');
+      if (frame.dataset.src !== previewUrl) {
+        frame.src = previewUrl;
+        frame.dataset.src = previewUrl;
+      }
+    }
+
+    function openOverlayModal() {
+      const currentChannel = (latestStats?.channel || 'fruitberries').toLowerCase();
+      document.getElementById('overlay-channel').value = currentChannel;
+      syncOverlayUrl();
+      document.getElementById('overlay-modal').classList.add('open');
+    }
+
+    function closeOverlayModal() {
+      document.getElementById('overlay-modal').classList.remove('open');
+    }
 
     function renderTrackingTimes(stats) {
       const t = stats?.subathonStart;
@@ -892,20 +1106,32 @@
       setViewUrl(stats);
 
       const body = document.getElementById('lb-body');
-      if (!stats.gifters?.length) {
+      const gifters = stats.gifters || [];
+      if (!gifters.length) {
         body.innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
       } else {
+        const visibleGifters = leaderboardExpanded ? gifters : gifters.slice(0, 10);
         body.innerHTML = `
           <table>
             <thead><tr><th>#</th><th>user</th><th class="right">gifts</th></tr></thead>
-            <tbody>${stats.gifters.map((g,i) => `
+            <tbody>${visibleGifters.map((g,i) => `
               <tr>
                 <td class="rank-num ${i<3?'top3':''}">${i+1}</td>
                 <td class="gifter-name">${escHtml(g.name)}</td>
                 <td class="right gift-count">${fmt(g.gifts)}</td>
               </tr>`).join('')}
             </tbody>
-          </table>`;
+          </table>
+          ${gifters.length > 10 ? `
+            <div class="lb-more">
+              <button class="btn" id="lb-toggle">${leaderboardExpanded ? 'show less' : `view more (${gifters.length - 10})`}</button>
+            </div>` : ''}`;
+        if (gifters.length > 10) {
+          document.getElementById('lb-toggle').addEventListener('click', () => {
+            leaderboardExpanded = !leaderboardExpanded;
+            renderStats(latestStats || {});
+          });
+        }
       }
     }
 
@@ -927,6 +1153,7 @@
     document.getElementById('search-close').addEventListener('click', () => {
       showTracker();
     });
+    document.getElementById('btn-overlay').addEventListener('click', openOverlayModal);
 
     document.getElementById('btn-change').addEventListener('click', () => {
       showSearch(true);
@@ -1053,6 +1280,27 @@
     document.getElementById('confirm-modal').addEventListener('click', (e) => {
       if (e.target.id === 'confirm-modal') closeConfirm(false);
     });
+    document.getElementById('overlay-close').addEventListener('click', closeOverlayModal);
+    document.getElementById('overlay-open').addEventListener('click', () => {
+      window.open(document.getElementById('overlay-link').value, '_blank', 'noopener,noreferrer');
+    });
+    document.getElementById('overlay-copy').addEventListener('click', async () => {
+      const link = document.getElementById('overlay-link').value;
+      try {
+        await navigator.clipboard.writeText(link);
+        toast('overlay link copied', 'reset');
+      } catch {
+        document.getElementById('overlay-link').focus();
+        document.getElementById('overlay-link').select();
+      }
+    });
+    document.getElementById('overlay-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'overlay-modal') closeOverlayModal();
+    });
+    ['overlay-channel', 'overlay-size', 'overlay-font', 'overlay-accent', 'overlay-alpha'].forEach((id) => {
+      document.getElementById(id).addEventListener(id === 'overlay-alpha' ? 'input' : 'change', syncOverlayUrl);
+    });
+    document.getElementById('overlay-channel').addEventListener('input', syncOverlayUrl);
 
     /* SSE */
     let sse, reconnectDelay = 1000;
