@@ -5,7 +5,7 @@ import {
   type PersistedSessionTracker,
 } from "./db.ts";
 import {
-  initTwitch, switchChannel, lookupChannel,
+  initTwitch, switchChannel, lookupChannel, lookupChannelById,
   currentChannel,
   fetchStreamStatus, fetchStreamStatusForChannel,
   getBroadcasterIdByToken,
@@ -56,7 +56,7 @@ type SessionTracker = {
   trackedBits: number;
   giftedSubs: number;
   gifters: Map<string, { name: string; id: string | null; gifts: number }>;
-  recentSub: { text: string; at: number } | null;
+  recentSub: { text: string; at: number; avatarUrl?: string } | null;
   seenSubIds: Set<string>;
   seenBitIds: Set<string>;
   clients: Set<SSECtrl>;
@@ -164,7 +164,7 @@ function sessionStats(tracker: SessionTracker) {
     anonymousMode: false,
     temporaryMode: !tracker.persistent,
     privateTrackerPersistent: tracker.persistent,
-    subsCardLabel: "subs gained",
+    subsCardLabel: "Subs Gained",
     hasPrivateTracker: true,
     viewingPrivateTracker: true,
   };
@@ -292,12 +292,21 @@ function applySessionSub(tracker: SessionTracker, event: {
   if (tracker.seenSubIds.has(event.id)) return false;
   tracker.seenSubIds.add(event.id);
   if (!event.skipRecent) {
-    tracker.recentSub = event.isGift
+    const recentSubEntry = event.isGift
       ? { text: `${event.gifterName ?? ANON_GIFTER_NAME} gifted ${event.giftCount ?? 1}`, at: Math.floor(Date.now() / 1000) }
       : {
           text: event.kind === "resub" ? `${event.userName} resubscribed` : `${event.userName} subscribed`,
           at: Math.floor(Date.now() / 1000),
         };
+    tracker.recentSub = recentSubEntry;
+    const avatarUserId = event.isGift ? (event.gifterId ?? null) : event.userId;
+    if (avatarUserId) {
+      lookupChannelById(avatarUserId).then(url => {
+        if (url && tracker.recentSub === recentSubEntry) {
+          tracker.recentSub = { ...recentSubEntry, avatarUrl: url };
+        }
+      }).catch(() => {});
+    }
   }
   if (event.isGift) {
     tracker.giftedSubs += 1;
@@ -654,7 +663,7 @@ function buildStats() {
     defaultChannel: DEFAULT_CHANNEL,
     anonymousMode: !hasBroadcasterAuth && channel === DEFAULT_CHANNEL,
     temporaryMode: false,
-    subsCardLabel: "subs gained",
+    subsCardLabel: "Subs Gained",
   };
 }
 
@@ -732,6 +741,14 @@ Bun.serve({
         Bun.file(new URL("../favicon.ico", import.meta.url).pathname),
         { headers: { "Content-Type": "image/x-icon" } }
       );
+    }
+    if (path.startsWith("/images/")) {
+      const imgName = path.slice("/images/".length);
+      if (imgName && !imgName.includes("..")) {
+        const f = Bun.file(`${PUBLIC_DIR}/images/${imgName}`);
+        if (await f.exists()) return new Response(f);
+      }
+      return new Response("Not Found", { status: 404 });
     }
     if (path === "/api/stats") {
       return withSessionState(Response.json(await statsForRequest(req)), req, sessionId);

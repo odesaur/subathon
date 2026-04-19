@@ -7,1373 +7,1116 @@
   <link rel="icon" href="__APP_BASE_PATH__/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Motiva+Sans:wght@200;400;700&display=swap" rel="stylesheet" />
   <style>
+    /* Steam DarkMode theme */
     :root {
-      --bg:      #0a0a0f;
-      --surface: #111118;
-      --surface2:#1a1a24;
-      --border:  #2a2a38;
-      --green:   #50fa7b;
-      --cyan:    #8be9fd;
-      --purple:  #bd93f9;
-      --pink:    #ff79c6;
-      --orange:  #ffb86c;
-      --red:     #ff5555;
-      --yellow:  #f1fa8c;
-      --text:    #f8f8f2;
-      --muted:   #6272a4;
-      --dim:     #44475a;
-      --rp-rose: #ebbcba;
-      --rp-foam: #9ccfd8;
-      --rp-iris: #c4a7e7;
+      --gradient-right: rgba(49,49,49,.233);
+      --gradient-left:  rgba(51,51,51,.37);
+      --gradient-background: rgba(24,24,24,.93);
+      --gradient-background-right: rgba(34,34,34,0);
+      --gradient-background-left:  rgba(32,32,32,.13);
+      --color-showcase-header: rgba(0,0,0,.5);
+      --btn-background: rgba(0,0,0,.5);
+      --btn-background-hover: rgba(40,40,40,1);
+      --btn-outline: rgb(80,80,80);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      font-size: 14px;
-      min-height: 100vh;
-      line-height: 1.6;
-    }
 
-    /* Search */
+    html {
+      zoom: 1.2;
+    }
+    html, body {
+      background-color: #171717;
+      color: #c6d4df;
+      font-family: "Motiva Sans", Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      min-height: 100%;
+    }
+    a { color: #c6d4df; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .whiteLink { color: #fff; }
+    .whiteLink:hover { color: #67c1f5; text-decoration: underline; }
+
+    /* ─── Search screen ─────────────────────────────── */
     #search-screen {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 2rem;
+      display: none; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 2rem;
+      background: rgba(0,0,0,.7);
     }
     .search-card {
-      width: 100%;
-      max-width: 440px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      border-radius: 8px;
-      padding: 2rem;
+      width: 100%; max-width: 460px;
+      background: #1a1a1a; border: 1px solid rgba(80,80,80,.6);
+      border-radius: 3px; padding: 2rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,.8);
       position: relative;
     }
     .search-close {
-      position: absolute;
-      top: .75rem;
-      right: .75rem;
-      background: none;
-      border: none;
-      color: var(--comment);
-      font-size: .85rem;
-      cursor: pointer;
-      padding: .2rem .4rem;
-      border-radius: 4px;
-      line-height: 1;
+      position: absolute; top: .75rem; right: .75rem;
+      background: none; border: none; color: #8f98a0;
+      font-size: .85rem; cursor: pointer; padding: .2rem .4rem; border-radius: 2px;
     }
-    .search-close:hover { color: var(--fg); background: var(--border); }
-    .search-title {
-      font-size: .7rem;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      color: var(--muted);
-      margin-bottom: 1rem;
-    }
-    .setup-copy {
-      color: var(--muted);
-      font-size: .82rem;
-      margin-bottom: .6rem;
-    }
-    .search-row {
-      display: flex;
-      gap: .5rem;
-      flex-wrap: wrap;
-    }
-    .search-row.top {
-      margin-bottom: .75rem;
-    }
+    .search-close:hover { color: #c6d4df; background: rgba(255,255,255,.06); }
+    .search-title { font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: #8f98a0; margin-bottom: .75rem; }
+    .setup-copy { color: #8f98a0; font-size: .85rem; margin-bottom: .75rem; }
+    .search-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .search-row.top { margin-bottom: .75rem; }
     .search-input {
-      flex: 1;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: .5rem .75rem;
-      color: var(--text);
-      font-family: inherit;
-      font-size: .9rem;
-      outline: none;
-      transition: border-color .15s;
+      flex: 1; background: rgba(0,0,0,.5); border: 1px solid rgba(80,80,80,.6);
+      border-radius: 2px; padding: .5rem .75rem; color: #c6d4df;
+      font-family: inherit; font-size: .9rem; outline: none;
     }
-    .search-input:focus { border-color: var(--purple); }
-    .search-input::placeholder { color: var(--dim); }
-
-    .btn {
+    .search-input:focus { border-color: rgba(140,140,140,.8); }
+    .search-input::placeholder { color: #898989; }
+    .btn-grey {
       display: inline-flex; align-items: center; gap: .4rem;
-      padding: .45rem 1rem; border-radius: 4px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      font-family: inherit; font-size: .8rem; font-weight: 500;
+      padding: 1px; border-radius: 2px;
+      border: 1px solid var(--btn-outline);
+      background: var(--btn-background); color: lightgray;
+      font-family: inherit; font-size: 12px;
       cursor: pointer; text-decoration: none; white-space: nowrap;
-      transition: border-color .15s, color .15s, background .15s;
+      transition: background .1s;
     }
-    .btn:hover { border-color: var(--muted); color: var(--text); }
-    .btn.primary { border-color: var(--purple); color: var(--purple); }
-    .btn.primary:hover { background: color-mix(in srgb,var(--purple) 15%,transparent); color: var(--text); }
-    .btn.easter { border-color: var(--orange); color: var(--orange); }
-    .btn.easter:hover { background: color-mix(in srgb,var(--orange) 12%,transparent); color: var(--text); }
-
+    .btn-grey > span { padding: 0 10px; line-height: 26px; display: block; background: var(--btn-background); border-radius: 2px; }
+    .btn-grey:hover { background: var(--btn-background-hover); color: #fff; }
+    .btn-grey:hover > span { background: var(--btn-background-hover); }
+    .btn-grey.danger > span { color: #c86464; }
+    .btn-grey.danger:hover > span { color: #ff9999; }
     .search-result {
-      margin-top: 1rem;
-      display: none;
-      align-items: center;
-      gap: .75rem;
-      padding: .75rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--surface2);
+      margin-top: 1rem; display: none; align-items: center; gap: .75rem;
+      padding: .75rem; border: 1px solid rgba(60,60,60,.5); border-radius: 2px;
+      background: rgba(0,0,0,.3);
     }
     .search-result.visible { display: flex; }
-    .search-result img {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+    .search-result img { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
     .result-name { font-weight: 700; font-size: .95rem; }
-    .result-status { font-size: .72rem; color: var(--muted); }
-    .result-status.live { color: var(--red); }
-    .result-status.offline { color: var(--dim); }
-    .result-actions { margin-left: auto; }
-    .search-error { margin-top: .75rem; font-size: .8rem; color: var(--red); display: none; }
-    .search-note {
-      margin-top: .85rem;
-      font-size: .76rem;
-      color: var(--orange);
-      line-height: 1.5;
-      display: none;
-    }
+    .result-status { font-size: .72rem; color: #898989; }
+    .result-status.live { color: #57cbde; }
+    .search-error { margin-top: .75rem; font-size: .8rem; color: #e84c4c; display: none; }
+    .search-note { margin-top: .85rem; font-size: .76rem; color: #d6c67c; line-height: 1.5; display: none; }
     .search-note.visible { display: block; }
 
-    /* Tracker */
-    #tracker-screen {
-      display: none;
-      padding: 2rem;
-    }
-    .app { max-width: 860px; margin: 0 auto; }
+    /* ─── Tracker screen ────────────────────────────── */
+    #tracker-screen { display: none; }
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      padding: .75rem 1.25rem;
-      margin-bottom: 1.5rem;
-      border-radius: 6px;
-      gap: 1rem;
-    }
-    .header-left {
-      display: flex; align-items: center; gap: .75rem;
-      min-width: 0;
-    }
-    .channel-meta {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-      min-width: 0;
-    }
-    .channel-avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .channel-name {
-      font-size: 1rem; font-weight: 700;
-      color: var(--purple); letter-spacing: -.02em;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .channel-name span { color: var(--muted); font-weight: 400; }
-    .channel-uptime {
-      display: none;
-      align-items: center;
-      gap: .35rem;
-      color: var(--rp-iris);
-      font-size: .9rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .header-right {
-      display: flex; align-items: center; gap: .75rem; flex-shrink: 0;
-    }
-    .mode-strip {
-      margin: -0.5rem 0 1rem;
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      color: var(--muted);
-      font-size: .72rem;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-    }
-    .mode-main {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      min-width: 0;
-    }
-    .mode-actions {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    .mode-label strong { color: var(--text); font-weight: 500; }
-    .mode-help {
+    /* Background wrapper — covers entire page */
+    .no_header.profile_page {
       position: relative;
+      min-height: 100vh;
+      background-image: url('__APP_BASE_PATH__/images/background.jpg');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center top;
+      background-repeat: no-repeat;
     }
-    .mode-help summary {
-      list-style: none;
-      cursor: pointer;
-      color: var(--purple);
+
+    /* ─── Profile header ────────────────────────────── */
+    .profile_header_bg {
+      position: relative;
+      max-width: 1018px;
+      min-height: 224px;
+      margin: 0 auto;
     }
-    .mode-help summary::-webkit-details-marker { display: none; }
-    .mode-help[open] summary { color: var(--text); }
-    .mode-popover {
+    .profile_header_bg_texture {
+      max-width: 976px;
+      min-height: 224px;
+      margin: 0 auto;
+      background:
+        radial-gradient(farthest-side at bottom right, var(--gradient-right), transparent 500px),
+        radial-gradient(farthest-corner at bottom left, var(--gradient-left), transparent 600px);
+      background-color: var(--gradient-background);
+    }
+    .profile_header {
+      position: relative;
+      max-width: 976px;
+      padding: 24px 12px 0 24px;
+      margin: 0 auto;
+    }
+    .profile_header_content {
+      position: relative;
+      padding-top: 10px;
+      color: #c4c4c4;
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    /* Avatar — exact Steam profilev2.css values */
+    .playerAvatar.profile_header_size {
+      position: relative;
+      flex-shrink: 0;
+      width: 166px; height: 166px;
+      /* offline gradient border (1px padding + gradient bg = visible border) */
+      padding: 1px;
+      background: linear-gradient(to bottom, rgba(106,106,106,1) 5%, rgba(85,85,85,1) 95%);
+    }
+    .playerAvatarAutoSizeInner {
       position: absolute;
-      top: calc(100% + .45rem);
-      left: 0;
-      width: min(320px, calc(100vw - 3rem));
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: .7rem .8rem;
-      color: var(--text);
-      text-transform: none;
-      letter-spacing: 0;
-      line-height: 1.55;
-      z-index: 20;
-      box-shadow: 0 8px 24px rgba(0,0,0,.28);
+      top: 2px; right: 2px; bottom: 2px; left: 2px;
+    }
+    .playerAvatarAutoSizeInner > img {
+      background: none; filter: none;
+      display: block; padding: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    /* Frame PNG overlay — scaled 1.22x like Steam */
+    .profile_avatar_frame {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 1; pointer-events: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .profile_avatar_frame > img {
+      width: 100%; height: 100%;
+      transform: scale(1.22);
+      display: block;
+    }
+
+    /* Header center column */
+    .profile_header_centered_col { flex: 1; min-width: 0; }
+    .profile_header_centered_persona { }
+    .persona_name {
+      line-height: 40px; font-size: 24px; color: #fff; font-weight: 700;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     }
     .broadcaster-badge {
-      display: none;
-      font-size: .65rem; color: var(--green);
-      border: 1px solid color-mix(in srgb,var(--green) 30%,transparent);
-      padding: 2px 7px; border-radius: 3px;
-      letter-spacing: .06em; text-transform: uppercase;
+      display: none; font-size: .58rem; color: #90ba3c;
+      border: 1px solid rgba(144,186,60,.4); padding: 2px 7px;
+      border-radius: 2px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700;
     }
-    .stream-badge { display: flex; align-items: center; gap: .4rem; font-size: .75rem; }
-    .stream-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
-    .stream-dot.live { background: var(--red); box-shadow: 0 0 6px var(--red); animation: pulse 2s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .stream-label { color: var(--muted); }
-    .stream-label.live { color: var(--text); }
+    /* Status lines below name */
+    .header_real_name {
+      margin-top: 4px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    #stream-label { font-size: 14px; color: #898989; }
+    #stream-label.live { color: #57cbde; }
+    #channel-uptime { font-size: 13px; color: #8f98a0; display: none; }
+    /* Hidden elements kept for JS compat */
+    #stream-dot, .mode-strip, .profile_header_summary { display: none; }
+    .mode-help summary::-webkit-details-marker { display: none; }
+    .mode-help[open] summary { color: #c6d4df; }
+    .mode-popover {
+      position: absolute; top: calc(100% + 6px); left: 0;
+      width: min(320px, calc(100vw - 2rem));
+      background: #1a1a1a; border: 1px solid rgba(80,80,80,.6);
+      border-radius: 3px; padding: .7rem .8rem; color: #c6d4df;
+      font-size: .8rem; text-transform: none; letter-spacing: 0; line-height: 1.55;
+      z-index: 20; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    }
 
-    /* Cards */
-    .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem; }
-    @media(max-width:600px){ .cards{grid-template-columns:1fr} }
-    .card {
-      border: 1px solid var(--border); background: var(--surface);
-      border-radius: 6px; padding: 1.25rem 1.5rem;
-      position: relative; overflow: hidden;
+    /* Header right: badge/actions — aligns button to bottom-right like Steam */
+    .profile_header_badgeinfo {
+      align-self: flex-end;
+      padding-bottom: 12px;
+      display: flex; flex-direction: column;
+      align-items: flex-end; gap: 8px; min-width: 140px;
     }
-    .card::before { content:''; position:absolute; top:0;left:0;right:0;height:2px; background:var(--accent,var(--purple)); opacity:.7; }
-    .card.subs { --accent: var(--rp-rose); }
-    .card.bits { --accent: var(--rp-foam); }
-    .card.gifts{ --accent: var(--rp-iris); }
-    .card-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-bottom:.5rem; }
-    .card-value { font-size:2rem; font-weight:700; line-height:1.1; letter-spacing:-.03em; }
-    .card.subs  .card-value { color: var(--rp-rose); }
-    .card.bits  .card-value { color: var(--rp-foam); }
-    .card.gifts .card-value { color: var(--rp-iris); }
+    .profile_header_actions { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+    .btn_profile_action {
+      border-radius: 2px; color: lightgray !important;
+      padding: 1px; display: inline-block; text-decoration: none; cursor: pointer;
+      background-color: var(--btn-background);
+      border: 1px solid var(--btn-outline);
+      font-family: inherit; font-size: 13px;
+      transition: all .1s ease-in-out;
+    }
+    .btn_profile_action > span {
+      padding: 0 10px; line-height: 26px; border-radius: 2px;
+      display: block; background-color: var(--btn-background);
+    }
+    .btn_profile_action:hover, .btn_profile_action:focus { color: #fff !important; background-color: var(--btn-background-hover); }
+    .btn_profile_action:hover > span { background-color: var(--btn-background-hover); color: #fff; }
+
+    /* ─── Profile content area ──────────────────────── */
+    .profile_content {
+      position: relative;
+      background:
+        radial-gradient(farthest-side at top right, var(--gradient-right), transparent 500px),
+        radial-gradient(farthest-corner at top left, var(--gradient-left), transparent 600px),
+        radial-gradient(farthest-corner at bottom right, var(--gradient-background-right), transparent 500px),
+        radial-gradient(farthest-corner at bottom left, var(--gradient-background-left), transparent 600px);
+      background-color: var(--gradient-background);
+      padding: 12px 12px 64px 12px;
+      width: 976px;
+      margin: 0 auto;
+      font-size: 13px;
+    }
+    .profile_content_inner { position: relative; overflow: hidden; }
+    .profile_content_inner::after { content: ''; display: table; clear: both; }
+
+    /* Right column — appears first in HTML (float right) */
+    .profile_rightcol {
+      background-color: rgba(0,0,0,.3);
+      backdrop-filter: blur(20px);
+      padding: 10px; border-radius: 3px;
+      width: 268px; float: right;
+    }
+
+    /* Left column */
+    .profile_leftcol { width: 652px; float: left; }
+
+    /* Status widget in right col */
+    .profile_in_game { margin-bottom: 24px; }
+    .profile_in_game_header {
+      font-family: "Motiva Sans", sans-serif;
+      font-weight: 200; font-size: 20px; color: #c6d4df;
+    }
+    .profile_in_game_header.live { color: #57cbde; }
+    .profile_in_game_name { font-size: 15px; margin-bottom: 12px; color: #8f98a0; }
+
+    /* Count links */
+    .profile_item_links { margin-bottom: 16px; }
+    .profile_count_link {
+      font-size: 14px; margin-bottom: 4px; min-height: 29px;
+      display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    }
+    .count_link_label { color: #c6d4df; }
+    .profile_count_link_total {
+      font-family: "Motiva Sans", sans-serif;
+      font-weight: 200; color: #9b9b9b; font-size: 24px; line-height: 1;
+    }
+
+    /* Sidebar divider */
+    .sidebar_actions { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
+    .sidebar_footer_actions { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+
+    /* ─── Profile customization blocks (left col panels) */
+    .profile_customization {
+      position: relative;
+      background-color: rgba(0,0,0,.3);
+      backdrop-filter: blur(20px);
+      border-radius: 3px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .profile_customization_header, .profile_recentgame_header {
+      background-color: var(--color-showcase-header);
+      padding: 8px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 14px; color: #c6d4df;
+    }
+    .profile_customization_header > div:first-child,
+    .profile_recentgame_header > div:first-child { font-size: 14px; color: #c6d4df; font-weight: 400; }
+    .recentgame_recentplaytime { font-size: 12px; color: #898989; }
+    .profile_customization_block { padding: 0; }
+
+    /* Recent game entry (maps to recent sub) */
+    .recent_game { border-bottom: 1px solid rgba(255,255,255,.04); }
+    .recent_game:last-child { border-bottom: none; }
+    .recent_game_content { padding: 14px 16px; }
+    .game_name { font-size: 15px; font-weight: 700; color: #c6d4df; margin-bottom: 4px; }
+    .game_info_details { font-size: 12px; color: #898989; line-height: 1.6; margin-bottom: 6px; }
+    .game_info_details .sub_type_label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+      color: #898989;
+    }
+
+    /* Goal panel */
+    .goal_customization_header {
+      background-color: var(--color-showcase-header);
+      padding: 8px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .goal_customization_header > div { font-size: 14px; color: #c6d4df; }
+    .goal-nav { display: inline-flex; align-items: center; gap: 4px; }
+    .goal-nav-btn {
+      background: none; border: none; color: #898989;
+      font-family: inherit; cursor: pointer; font-size: 14px;
+      padding: 0 4px; line-height: 1;
+      transition: color .1s;
+    }
+    .goal-nav-btn:hover { color: #fff; }
+    .goal-nav-btn:disabled { color: #3a3a3a; cursor: default; }
+    .goal-target { font-size: 13px; color: #c6d4df; }
+    .goal-target strong { color: #90ba3c; font-weight: 700; }
+    .goal_body { padding: 12px 16px 14px; }
+    .goal-name { font-size: 15px; font-weight: 700; color: #c6d4df; margin-bottom: 8px; line-height: 1.4; }
+    .goal-bar {
+      height: 6px; background: rgba(0,0,0,.5); border-radius: 999px;
+      overflow: hidden; margin-bottom: 6px;
+    }
+    .goal-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #4c6b22, #90ba3c);
+      transition: width .2s ease-out;
+    }
+    .goal-copy { font-size: 12px; color: #898989; }
+    .goal-copy strong { color: #c6d4df; font-weight: 600; }
+
+    /* Leaderboard */
+    table { width: 100%; border-collapse: collapse; }
+    tbody tr { border-bottom: 1px solid rgba(255,255,255,.03); transition: background .1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,.03); }
+    tbody td { padding: .55rem 1rem; font-size: .95rem; }
+    tbody td.right { text-align: right; }
+    .rank-num { color: #898989; font-size: .75rem; width: 2.5rem; }
+    .rank-num.top3 { color: #c6d4df; font-weight: 700; }
+    .gifter-name { color: #c6d4df; font-weight: 500; }
+    .gift-count { color: #e3922b; font-weight: 700; }
+    .lb-empty { padding: 2rem 1rem; text-align: center; color: #898989; font-size: .85rem; }
+    .lb-more { padding: 8px 16px; display: flex; justify-content: center; border-top: 1px solid rgba(255,255,255,.04); }
+
+    /* Flash animation */
     @keyframes flash { 0%{opacity:.3} 100%{opacity:1} }
     .flash { animation: flash .4s ease-out; }
 
-    .goal-panel {
-      border: 1px solid var(--border);
-      background: var(--surface);
-      border-radius: 6px;
-      padding: .9rem 1.1rem 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .goal-panel.hidden { display: none; }
-    .goal-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: .65rem;
-    }
-    .goal-nav {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-    }
-    .goal-nav-btn {
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      justify-content: center;
-      font-size: .9rem;
-      line-height: 1;
-    }
-    .goal-jump-btn {
-      padding: 0 .7rem;
-      height: 28px;
-      font-size: .72rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-    .goal-title {
-      font-size: .72rem;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      color: var(--muted);
-    }
-    .goal-target {
-      font-size: .8rem;
-      color: var(--text);
-    }
-    .goal-target strong {
-      color: var(--green);
-      font-weight: 700;
-    }
-    .goal-name {
-      color: var(--text);
-      font-size: .9rem;
-      font-weight: 600;
-      margin-bottom: .65rem;
-      line-height: 1.45;
-    }
-    .goal-bar {
-      height: 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      overflow: hidden;
-      margin-bottom: .65rem;
-    }
-    .goal-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, color-mix(in srgb, var(--green) 78%, #ffffff 22%), var(--green));
-      transition: width .2s ease-out;
-      box-shadow: 0 0 14px color-mix(in srgb, var(--green) 24%, transparent);
-    }
-    .goal-copy {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 1rem;
-      font-size: .78rem;
-      color: var(--muted);
-    }
-    .goal-copy strong {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    .recent-sub {
-      border: 1px solid var(--border);
-      background: var(--surface);
-      border-radius: 6px;
-      padding: .8rem 1rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-    .recent-sub-label {
-      font-size: .72rem;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      color: var(--muted);
-      margin-bottom: .2rem;
-    }
-    .recent-sub-text {
-      color: var(--text);
-      font-size: .88rem;
-      font-weight: 500;
-      line-height: 1.45;
-    }
-    .recent-sub-time {
-      color: var(--muted);
-      font-size: .76rem;
-      white-space: nowrap;
-    }
-    @media(max-width:600px){
-      .recent-sub {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-
-    /* Leaderboard */
-    .leaderboard { border:1px solid var(--border); background:var(--surface); border-radius:6px; overflow:hidden; }
-    .lb-header { display:flex; align-items:center; justify-content:space-between; padding:.75rem 1.25rem; border-bottom:1px solid var(--border); background:var(--surface2); }
-    .lb-title { font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
-    .lb-title strong { color:var(--text); font-weight:700; }
-    .lb-empty { padding:2.5rem; text-align:center; color:var(--muted); font-size:.85rem; }
-    .lb-more {
-      padding: .75rem 1.25rem 1rem;
-      border-top: 1px solid color-mix(in srgb,var(--border) 50%,transparent);
-      display: flex;
-      justify-content: center;
-    }
-    table { width:100%; border-collapse:collapse; }
-    thead th { padding:.5rem 1.25rem; text-align:left; font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); border-bottom:1px solid var(--border); font-weight:500; }
-    thead th.right { text-align:right; }
-    tbody tr { border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent); transition:background .1s; }
-    tbody tr:last-child { border-bottom:none; }
-    tbody tr:hover { background:var(--surface2); }
-    tbody td { padding:.65rem 1.25rem; font-size:.85rem; }
-    tbody td.right { text-align:right; }
-    .rank-num { color:var(--muted); font-size:.75rem; width:2.5rem; }
-    .rank-num.top3 { color:var(--text); font-weight:700; }
-    .gifter-name { font-weight:500; }
-    .gift-count { color:var(--pink); font-weight:700; }
-
-    footer {
-      margin-top:1.25rem; display:flex; align-items:center; justify-content:flex-end;
-      font-size:.7rem; color:var(--dim); padding:0 .25rem;
-    }
-    .footer-actions { display:flex; gap:.5rem; align-items:center; }
-
+    /* ─── Modals ────────────────────────────────────── */
     .modal-shell {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      background: rgba(10,10,15,.78);
-      z-index: 120;
+      position: fixed; inset: 0; display: none;
+      align-items: center; justify-content: center;
+      padding: 1.5rem; background: rgba(0,0,0,.8); z-index: 120;
     }
     .modal-shell.open { display: flex; }
     .modal-card {
-      width: 100%;
-      max-width: 420px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      border-radius: 8px;
-      padding: 1rem 1rem .9rem;
-      box-shadow: 0 18px 48px rgba(0,0,0,.42);
+      width: 100%; max-width: 420px;
+      background: #1a1a1a; border: 1px solid rgba(80,80,80,.6);
+      border-radius: 3px; padding: 1.25rem 1.25rem 1rem;
+      box-shadow: 0 18px 48px rgba(0,0,0,.7);
     }
-    .modal-card.overlay-card {
-      max-width: 760px;
+    .modal-card.overlay-card { max-width: 760px; }
+    .modal-title { font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: #8f98a0; margin-bottom: .75rem; }
+    .modal-copy { color: #c6d4df; font-size: .85rem; line-height: 1.6; margin-bottom: 1.1rem; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: .5rem; }
+    .overlay-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-bottom: 1rem; }
+    .overlay-field { display: flex; flex-direction: column; gap: .35rem; }
+    .overlay-field.full { grid-column: 1 / -1; }
+    .overlay-field label { color: #8f98a0; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; }
+    .overlay-select, .overlay-input, .overlay-link {
+      width: 100%; border: 1px solid rgba(80,80,80,.6); background: #1a1a1a;
+      color: #c6d4df; border-radius: 2px; padding: .5rem .65rem;
+      font-family: inherit; font-size: .82rem; outline: none;
+      appearance: auto; -webkit-appearance: auto;
+      color-scheme: dark;
     }
-    .modal-title {
-      font-size: .76rem;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      color: var(--muted);
-      margin-bottom: .7rem;
-    }
-    .modal-copy {
-      color: var(--text);
-      font-size: .85rem;
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: .5rem;
-    }
-    .overlay-form {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: .75rem;
-      margin-bottom: 1rem;
-    }
-    .overlay-field {
-      display: flex;
-      flex-direction: column;
-      gap: .35rem;
-    }
-    .overlay-field.full {
-      grid-column: 1 / -1;
-    }
-    .overlay-field label {
-      color: var(--muted);
-      font-size: .68rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-    .overlay-select,
-    .overlay-input,
-    .overlay-link {
-      width: 100%;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      color: var(--text);
-      border-radius: 4px;
-      padding: .55rem .65rem;
-      font-family: inherit;
-      font-size: .82rem;
-      outline: none;
-    }
-    .overlay-select:focus,
-    .overlay-input:focus,
-    .overlay-link:focus {
-      border-color: var(--purple);
-    }
-    .overlay-range-row {
-      display: flex;
-      align-items: center;
-      gap: .7rem;
-    }
-    .overlay-range {
-      flex: 1;
-      accent-color: var(--purple);
-    }
-    .overlay-value {
-      color: var(--text);
-      font-size: .8rem;
-      min-width: 3rem;
-      text-align: right;
-    }
-    .overlay-preview {
-      margin-bottom: 1rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at top right, rgba(196, 167, 231, .14), transparent 34%),
-        linear-gradient(180deg, rgba(24, 25, 38, .96), rgba(12, 12, 18, .98));
-    }
-    .overlay-preview-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .75rem;
-      padding: .55rem .75rem;
-      border-bottom: 1px solid var(--border);
-      background: rgba(255,255,255,.02);
-    }
-    .overlay-preview-title {
-      color: var(--muted);
-      font-size: .68rem;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-    }
-    .overlay-preview-size {
-      color: var(--dim);
-      font-size: .72rem;
-    }
+    .overlay-select option { background: #1a1a1a; color: #c6d4df; }
+    .overlay-select:focus, .overlay-input:focus, .overlay-link:focus { border-color: rgba(140,140,140,.8); }
+    .overlay-range-row { display: flex; align-items: center; gap: .7rem; }
+    .overlay-range { flex: 1; accent-color: #67c1f5; }
+    .overlay-value { color: #c6d4df; font-size: .8rem; min-width: 3rem; text-align: right; }
+    .overlay-preview { margin-bottom: 1rem; border: 1px solid rgba(80,80,80,.6); border-radius: 3px; overflow: hidden; background: rgba(0,0,0,.4); }
+    .overlay-preview-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .55rem .75rem; border-bottom: 1px solid rgba(60,60,60,.5); background: rgba(0,0,0,.3); }
+    .overlay-preview-title { color: #8f98a0; font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; }
+    .overlay-preview-size { color: #898989; font-size: .72rem; }
     .overlay-preview-body {
-      position: relative;
-      min-height: 280px;
-      padding: 1rem;
-      background:
-        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      position: relative; min-height: 280px; padding: 1rem;
+      background: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
       background-size: 24px 24px;
     }
-    .overlay-preview-frame {
-      width: 100%;
-      height: 280px;
-      border: 0;
-      background: transparent;
-      display: block;
-    }
-    @media(max-width:600px){
-      .overlay-form {
-        grid-template-columns: 1fr;
-      }
-      .overlay-preview-body,
-      .overlay-preview-frame {
-        min-height: 220px;
-        height: 220px;
-      }
-    }
+    .overlay-preview-frame { width: 100%; height: 280px; border: 0; background: transparent; display: block; }
 
-    /* Toasts */
-    #toast-container { position:fixed; bottom:1.5rem; right:1.5rem; display:flex; flex-direction:column; gap:.5rem; z-index:100; pointer-events:none; }
-    .toast { background:var(--surface2); border:1px solid var(--border); border-left:3px solid var(--green); padding:.6rem 1rem; border-radius:4px; font-size:.78rem; color:var(--text); max-width:300px; animation:slide-in .25s ease-out, fade-out .3s ease-in 3.7s forwards; }
-    .toast.bits  { border-left-color:var(--cyan); }
-    .toast.gift  { border-left-color:var(--pink); }
-    .toast.reset { border-left-color:var(--yellow); }
+    /* ─── Toasts ────────────────────────────────────── */
+    #toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: .5rem; z-index: 200; pointer-events: none; }
+    .toast { background: #1a1a1a; border: 1px solid rgba(60,60,60,.5); border-left: 3px solid #90ba3c; padding: .6rem 1rem; border-radius: 2px; font-size: .78rem; color: #c6d4df; max-width: 300px; animation: slide-in .25s ease-out, fade-out .3s ease-in 3.7s forwards; }
+    .toast.bits { border-left-color: #67c1f5; }
+    .toast.gift { border-left-color: #e3922b; }
+    .toast.reset { border-left-color: #57cbde; }
     @keyframes slide-in { from{transform:translateX(110%);opacity:0} to{transform:translateX(0);opacity:1} }
     @keyframes fade-out { to{opacity:0;transform:translateX(110%)} }
+
+    /* ─── Responsive ────────────────────────────────── */
+    @media(max-width: 1020px) {
+      .profile_content { width: 100%; }
+      .profile_leftcol { width: calc(100% - 280px); }
+      .profile_rightcol { width: 256px; }
+    }
+    @media(max-width: 720px) {
+      .playerAvatar.profile_header_size { width: 100px; height: 100px; }
+      .persona_name { font-size: 18px; line-height: 30px; }
+      .profile_content { padding: 8px 8px 48px; }
+      .profile_leftcol { width: 100%; float: none; }
+      .profile_rightcol { width: 100%; float: none; margin-bottom: 12px; }
+      .overlay-form { grid-template-columns: 1fr; }
+      .overlay-preview-body, .overlay-preview-frame { min-height: 220px; height: 220px; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Search -->
-  <div id="search-screen">
-    <div class="search-card">
-      <button class="search-close" id="search-close" style="display:none" title="close">✕</button>
-      <div class="search-title">subathon tracker</div>
-      <div class="setup-copy">Search any Twitch streamer to open a temporary tracker in this browser.</div>
-      <div class="search-row top">
-        <input class="search-input" id="search-input" type="text" placeholder="search twitch channel" autocomplete="off" spellcheck="false" />
-        <button class="btn" id="search-btn">search</button>
-      </div>
-      <div class="search-result" id="search-result">
-        <img id="result-avatar" src="" alt="" />
-        <div>
-          <div class="result-name" id="result-name">—</div>
-          <div class="result-status" id="result-status">offline</div>
-        </div>
-        <div class="result-actions">
-          <button class="btn primary" id="result-track">track →</button>
-        </div>
-      </div>
-      <div class="search-note" id="search-note">
-        Temporary tracking does not persist for searched channels. Closing this tab will reset it unless you log in as that streamer.
-      </div>
-      <div class="search-error" id="search-error"></div>
+<!-- Search Screen -->
+<div id="search-screen">
+  <div class="search-card">
+    <button class="search-close" id="search-close" style="display:none" title="close">✕</button>
+    <div class="search-title">subathon tracker</div>
+    <div class="setup-copy">Search any Twitch streamer to open a temporary tracker.</div>
+    <div class="search-row top">
+      <input class="search-input" id="search-input" type="text" placeholder="search twitch channel" autocomplete="off" spellcheck="false" />
+      <button class="btn-grey" id="search-btn"><span>Search</span></button>
     </div>
+    <div class="search-result" id="search-result">
+      <img id="result-avatar" src="" alt="" />
+      <div>
+        <div class="result-name" id="result-name">—</div>
+        <div class="result-status" id="result-status">offline</div>
+      </div>
+      <div style="margin-left:auto">
+        <button class="btn-grey" id="result-track"><span>Track →</span></button>
+      </div>
+    </div>
+    <div class="search-note" id="search-note">
+      Temporary tracking does not persist. Closing this tab will reset it unless you log in as that streamer.
+    </div>
+    <div class="search-error" id="search-error"></div>
   </div>
+</div>
 
-  <!-- Tracker -->
-  <div id="tracker-screen">
-    <div class="app">
+<!-- Tracker Screen -->
+<div id="tracker-screen">
+<div class="no_header profile_page has_profile_background">
 
-      <header>
-        <div class="header-left">
-          <img class="channel-avatar" id="channel-avatar" src="" alt="" />
-          <div class="channel-meta">
-            <div class="channel-name" id="channel-name">—</div>
-            <div class="channel-uptime" id="channel-uptime">◷ 0:00:00</div>
-          </div>
-        </div>
-        <div class="header-right">
-          <span class="broadcaster-badge" id="broadcaster-badge">broadcaster ✓</span>
-          <div class="stream-badge">
-            <div class="stream-dot" id="stream-dot"></div>
-            <span class="stream-label" id="stream-label">offline</span>
-          </div>
-          <button class="btn" id="btn-change" style="display:none">Search</button>
-        </div>
-      </header>
+  <!-- Profile Header -->
+  <div class="profile_header_bg">
+    <div class="profile_header_bg_texture">
+      <div class="profile_header">
+        <div class="profile_header_content">
 
-      <div class="mode-strip" id="mode-strip">
-        <div class="mode-main">
-          <span class="mode-label" id="mode-label"></span>
-          <details class="mode-help" id="mode-help">
-            <summary>why?</summary>
-            <div class="mode-popover">
-              Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster's own authorized channel token. Use "track my channel" to open your own private tracker.
+          <!-- Avatar -->
+          <div class="playerAvatar profile_header_size">
+            <div class="playerAvatarAutoSizeInner">
+              <div class="profile_avatar_frame">
+                <img src="__APP_BASE_PATH__/images/avatar_frame.png" alt="" />
+              </div>
+              <img id="channel-avatar" src="" alt="" />
             </div>
-          </details>
-        </div>
-        <div class="mode-actions">
-          <button class="btn" id="btn-overlay">Goal Overlay</button>
-          <a href="__APP_BASE_PATH__/auth/twitch" class="btn" id="btn-auth" style="display:none">Track My Channel</a>
-        </div>
-      </div>
-
-      <div class="cards">
-        <div class="card subs">
-          <div class="card-label" id="label-subs">subs gained</div>
-          <div class="card-value" id="val-subs">0</div>
-        </div>
-        <div class="card bits">
-          <div class="card-label">bits cheered</div>
-          <div class="card-value" id="val-bits">0</div>
-        </div>
-        <div class="card gifts">
-          <div class="card-label">gifted subs</div>
-          <div class="card-value" id="val-gifts">0</div>
-        </div>
-      </div>
-
-      <div class="goal-panel" id="goal-panel">
-        <div class="goal-head">
-          <div class="goal-nav">
-            <button class="btn goal-nav-btn" id="goal-prev" aria-label="previous goal">←</button>
-            <div class="goal-title">subathon goal</div>
-            <button class="btn goal-jump-btn" id="goal-present">present</button>
-            <button class="btn goal-nav-btn" id="goal-next-btn" aria-label="next goal">→</button>
           </div>
-          <div class="goal-target"><strong id="goal-current">0</strong> / <span id="goal-next">50</span></div>
+
+          <!-- Center: name + status (Steam layout: name top, status below) -->
+          <div class="profile_header_centered_col">
+            <div class="profile_header_centered_persona">
+              <div class="persona_name">
+                <span class="actual_persona_name" id="channel-name">—</span>
+                <span class="broadcaster-badge" id="broadcaster-badge">broadcaster ✓</span>
+              </div>
+              <!-- Status line: "117 viewers" + "21:30:05" when live, "offline" when not -->
+              <div class="header_real_name">
+                <span id="stream-label">offline</span>
+                <span id="channel-uptime"></span>
+              </div>
+            </div>
+          </div>
+          <!-- Right: actions (Goal Overlay = Edit Profile) -->
+          <div class="profile_header_badgeinfo">
+            <div class="profile_header_actions">
+              <button class="btn_profile_action" id="btn-overlay"><span>Goal Overlay</span></button>
+              <a href="__APP_BASE_PATH__/auth/twitch" class="btn_profile_action" id="btn-auth" style="display:none"><span>Track My Channel</span></a>
+              <button class="btn_profile_action" id="btn-change" style="display:none"><span>Search</span></button>
+            </div>
+          </div>
+
         </div>
-        <div class="goal-name" id="goal-name">—</div>
-        <div class="goal-bar"><div class="goal-fill" id="goal-fill"></div></div>
-        <div class="goal-copy">
-          <span id="goal-status">50 more to next sub goal</span>
-        </div>
-      </div>
-
-      <div class="recent-sub" id="recent-sub">
-        <div>
-          <div class="recent-sub-label">most recent sub</div>
-          <div class="recent-sub-text" id="recent-sub-text">no recent sub yet</div>
-        </div>
-        <div class="recent-sub-time" id="recent-sub-time"></div>
-      </div>
-
-      <div class="leaderboard">
-        <div class="lb-header">
-          <span class="lb-title"><strong>gifter</strong> leaderboard</span>
-          <span class="lb-title" id="lb-since"></span>
-        </div>
-        <div id="lb-body"><div class="lb-empty">no gifters yet this subathon</div></div>
-      </div>
-
-      <footer>
-        <div class="footer-actions">
-          <button class="btn" id="btn-view-public" style="display:none">back to fruitberries</button>
-          <button class="btn" id="btn-logout" style="display:none">log out</button>
-          <button class="btn" id="btn-reset" style="display:none">reset timer</button>
-        </div>
-      </footer>
-
-    </div>
-  </div>
-
-  <div id="toast-container"></div>
-
-  <div class="modal-shell" id="confirm-modal">
-    <div class="modal-card">
-      <div class="modal-title" id="confirm-title">confirm action</div>
-      <div class="modal-copy" id="confirm-copy"></div>
-      <div class="modal-actions">
-        <button class="btn" id="confirm-cancel">cancel</button>
-        <button class="btn primary" id="confirm-ok">continue</button>
       </div>
     </div>
   </div>
+  <!-- Hidden JS-compat elements -->
+  <span id="stream-dot" style="display:none"></span>
+  <div id="mode-strip" style="display:none"><div class="mode-main"><span id="mode-label"></span><details id="mode-help"><summary></summary><div class="mode-popover"></div></details></div></div>
 
-  <div class="modal-shell" id="overlay-modal">
-    <div class="modal-card overlay-card">
-      <div class="modal-title">goal overlay link</div>
-      <div class="overlay-preview">
-        <div class="overlay-preview-head">
-          <div class="overlay-preview-title">preview</div>
-          <div class="overlay-preview-size" id="overlay-preview-size">live overlay</div>
+  <!-- Profile Content -->
+  <div class="profile_content has_profile_background">
+    <div class="profile_content_inner">
+
+      <!-- RIGHT COLUMN (first in HTML, floats right) -->
+      <div class="profile_rightcol">
+
+        <!-- Subathon Stats -->
+        <div class="profile_in_game" style="margin-bottom:16px;">
+          <div class="profile_in_game_header">Subathon</div>
         </div>
-        <div class="overlay-preview-body">
-          <iframe class="overlay-preview-frame" id="overlay-preview-frame" title="goal overlay preview"></iframe>
-        </div>
-      </div>
-      <div class="overlay-form">
-        <div class="overlay-field full">
-          <label for="overlay-channel">channel</label>
-          <input class="overlay-input" id="overlay-channel" type="text" spellcheck="false" autocomplete="off" />
-        </div>
-        <div class="overlay-field">
-          <label for="overlay-size">size</label>
-          <select class="overlay-select" id="overlay-size">
-            <option value="1">small</option>
-            <option value="2" selected>medium</option>
-            <option value="3">large</option>
-          </select>
-        </div>
-        <div class="overlay-field">
-          <label for="overlay-font">font</label>
-          <select class="overlay-select" id="overlay-font">
-            <option value="1">mono</option>
-            <option value="2" selected>sans</option>
-            <option value="3">display</option>
-          </select>
-        </div>
-        <div class="overlay-field">
-          <label for="overlay-accent">accent</label>
-          <select class="overlay-select" id="overlay-accent">
-            <option value="5" selected>soft white</option>
-            <option value="1">rose</option>
-            <option value="2">gold</option>
-            <option value="3">aqua</option>
-            <option value="4">lime</option>
-          </select>
-        </div>
-        <div class="overlay-field">
-          <label for="overlay-width">horizontal size</label>
-          <div class="overlay-range-row">
-            <input class="overlay-range" id="overlay-width" type="range" min="0" max="100" value="0" />
-            <span class="overlay-value" id="overlay-width-value">0%</span>
+        <div class="profile_item_links">
+          <div class="profile_count_link">
+            <span class="count_link_label" id="label-subs">Subs Gained</span>
+            <span class="profile_count_link_total" id="val-subs">0</span>
+          </div>
+          <div class="profile_count_link">
+            <span class="count_link_label">Bits Cheered</span>
+            <span class="profile_count_link_total" id="val-bits">0</span>
+          </div>
+          <div class="profile_count_link">
+            <span class="count_link_label">Gifted Subs</span>
+            <span class="profile_count_link_total" id="val-gifts">0</span>
           </div>
         </div>
-        <div class="overlay-field">
-          <label for="overlay-font-size">font size</label>
-          <div class="overlay-range-row">
-            <input class="overlay-range" id="overlay-font-size" type="range" min="80" max="140" value="100" />
-            <span class="overlay-value" id="overlay-font-size-value">100%</span>
+
+        <!-- Actions -->
+        <div class="sidebar_actions">
+          <button class="btn-grey" id="btn-view-public" style="display:none"><span>back to fruitberries</span></button>
+          <button class="btn-grey" id="btn-logout" style="display:none"><span>log out</span></button>
+          <button class="btn-grey danger" id="btn-reset" style="display:none"><span>reset timer</span></button>
+        </div>
+
+      </div>
+
+      <!-- LEFT COLUMN -->
+      <div class="profile_leftcol">
+
+        <!-- Recent Activity = Recent Sub -->
+        <div class="profile_customization" id="recent-sub">
+          <div class="profile_recentgame_header profile_customization_header">
+            <div>Recent Activity</div>
+            <div class="recentgame_recentplaytime">
+              <span id="recent-sub-time"></span>
+            </div>
+          </div>
+          <div class="profile_customization_block">
+            <div class="recent_games">
+              <div class="recent_game">
+                <div class="recent_game_content">
+                  <div class="game_name" id="recent-sub-text">no recent sub yet</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="overlay-field">
-          <label for="overlay-alpha">transparency</label>
-          <div class="overlay-range-row">
-            <input class="overlay-range" id="overlay-alpha" type="range" min="20" max="95" value="58" />
-            <span class="overlay-value" id="overlay-alpha-value">58%</span>
+
+        <!-- Goal Panel -->
+        <div class="profile_customization goal-panel" id="goal-panel">
+          <div class="goal_customization_header profile_customization_header">
+            <div>
+              <span class="goal-nav">
+                <button class="goal-nav-btn" id="goal-prev" aria-label="previous goal">&lt;</button>
+                <span style="padding: 0 6px; font-size:14px;">Subathon Goal</span>
+                <button class="goal-nav-btn" id="goal-next-btn" aria-label="next goal">&gt;</button>
+              </span>
+            </div>
+            <div class="goal-target"><strong id="goal-current">0</strong> / <span id="goal-next">50</span></div>
+          </div>
+          <div class="goal_body">
+            <div class="goal-name" id="goal-name">—</div>
+            <div class="goal-bar"><div class="goal-fill" id="goal-fill"></div></div>
+            <div class="goal-copy"><span id="goal-status">50 more to next sub goal</span></div>
           </div>
         </div>
-        <div class="overlay-field full">
-          <label for="overlay-link">overlay url</label>
-          <input class="overlay-link" id="overlay-link" type="text" readonly />
+
+        <!-- Leaderboard -->
+        <div class="profile_customization">
+          <div class="profile_customization_header">
+            <div>Gifter Leaderboard</div>
+            <div style="font-size:12px; color:#898989;" id="lb-since"></div>
+          </div>
+          <div id="lb-body"><div class="lb-empty">no gifters yet this subathon</div></div>
         </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn primary" id="overlay-copy">copy link</button>
-        <button class="btn" id="overlay-open">open</button>
-        <button class="btn" id="overlay-close">close</button>
-      </div>
+
+      </div><!-- /profile_leftcol -->
+
+    </div>
+  </div><!-- /profile_content -->
+
+</div>
+</div><!-- /tracker-screen -->
+
+<div id="toast-container"></div>
+
+<!-- Confirm Modal -->
+<div class="modal-shell" id="confirm-modal">
+  <div class="modal-card">
+    <div class="modal-title" id="confirm-title">confirm action</div>
+    <div class="modal-copy" id="confirm-copy"></div>
+    <div class="modal-actions">
+      <button class="btn-grey" id="confirm-cancel"><span>cancel</span></button>
+      <button class="btn-grey" id="confirm-ok"><span>continue</span></button>
     </div>
   </div>
+</div>
 
-  <script>
-    const BASE = '__APP_BASE_PATH__';
-    const SUBATHON_GOALS = [
-      { subs: 1, label: 'Game night with HBG' },
-      { subs: 25, label: 'Chat picks pizza toppings' },
-      { subs: 50, label: 'Fruitberries Q&A with Chat' },
-      { subs: 75, label: 'MC Event game tierlist' },
-      { subs: 100, label: 'Mine a chunk with Chat' },
-      { subs: 125, label: 'Play a Stray UHC' },
-      { subs: 150, label: 'Minecraft Lockout 1v1 vs Feinberg' },
-      { subs: 175, label: 'Attempt 5 SkyBattle wins in a row' },
-      { subs: 200, label: 'Geoguessr Ranked' },
-      { subs: 225, label: 'One mouse one keyboard MC with girlfriend' },
-      { subs: 250, label: 'Chat picks 2 Amazon items' },
-      { subs: 275, label: 'Parkour Civilization homework' },
-      { subs: 300, label: 'League with Yupplez' },
-      { subs: 325, label: 'Party games with Chat' },
-      { subs: 350, label: 'FNAF in the dark' },
-      { subs: 375, label: '1 Master Mode Hardcore Terraria attempt' },
-      { subs: 400, label: 'Win a Hypixel UHC' },
-      { subs: 425, label: 'Make a Hollowcube map' },
-      { subs: 450, label: 'Hoplite with hackingnoises' },
-      { subs: 475, label: 'Minecraft Bedrock speedrun no reset' },
-      { subs: 500, label: 'Win Bedwars solos, duos, trios, quads' },
-      { subs: 600, label: 'Chunklock Mod speedrun 1v1 w/ Boosfer' },
-      { subs: 700, label: 'Cooking stream' },
-      { subs: 800, label: 'Play 10 Hypixel UHCs' },
-      { subs: 900, label: 'Geoguessr moving 25k attempts' },
-      { subs: 1000, label: 'Go bald' },
-      { subs: 1250, label: '10 half-heart hardcore speedruns in a row' },
-      { subs: 1500, label: 'All Advancements no reset stream' },
-      { subs: 1750, label: '25 no reset speedruns' },
-      { subs: 2000, label: 'Pure Pain Marathon w/ Kaelan moral support' },
-      { subs: 2250, label: 'Wear a maid outfit for next event' },
-      { subs: 2500, label: 'Walk across my city IRL stream' },
-      { subs: 2750, label: 'Dye hair green' },
-      { subs: 3000, label: 'Solo BlazeAndCaves mod completion' },
-    ];
+<!-- Overlay Modal -->
+<div class="modal-shell" id="overlay-modal">
+  <div class="modal-card overlay-card">
+    <div class="modal-title">goal overlay link</div>
+    <div class="overlay-preview">
+      <div class="overlay-preview-head">
+        <div class="overlay-preview-title">preview</div>
+        <div class="overlay-preview-size" id="overlay-preview-size">live overlay</div>
+      </div>
+      <div class="overlay-preview-body">
+        <iframe class="overlay-preview-frame" id="overlay-preview-frame" title="goal overlay preview"></iframe>
+      </div>
+    </div>
+    <div class="overlay-form">
+      <div class="overlay-field full">
+        <label for="overlay-channel">channel</label>
+        <input class="overlay-input" id="overlay-channel" type="text" spellcheck="false" autocomplete="off" />
+      </div>
+      <div class="overlay-field">
+        <label for="overlay-size">size</label>
+        <select class="overlay-select" id="overlay-size">
+          <option value="1">small</option>
+          <option value="2" selected>medium</option>
+          <option value="3">large</option>
+        </select>
+      </div>
+      <div class="overlay-field">
+        <label for="overlay-font">font</label>
+        <select class="overlay-select" id="overlay-font">
+          <option value="1">mono</option>
+          <option value="2" selected>sans</option>
+          <option value="3">display</option>
+        </select>
+      </div>
+      <div class="overlay-field">
+        <label for="overlay-accent">accent</label>
+        <select class="overlay-select" id="overlay-accent">
+          <option value="5" selected>soft white</option>
+          <option value="1">rose</option>
+          <option value="2">gold</option>
+          <option value="3">aqua</option>
+          <option value="4">lime</option>
+        </select>
+      </div>
+      <div class="overlay-field">
+        <label for="overlay-width">horizontal size</label>
+        <div class="overlay-range-row">
+          <input class="overlay-range" id="overlay-width" type="range" min="0" max="100" value="0" />
+          <span class="overlay-value" id="overlay-width-value">0%</span>
+        </div>
+      </div>
+      <div class="overlay-field">
+        <label for="overlay-font-size">font size</label>
+        <div class="overlay-range-row">
+          <input class="overlay-range" id="overlay-font-size" type="range" min="80" max="140" value="100" />
+          <span class="overlay-value" id="overlay-font-size-value">100%</span>
+        </div>
+      </div>
+      <div class="overlay-field">
+        <label for="overlay-alpha">transparency</label>
+        <div class="overlay-range-row">
+          <input class="overlay-range" id="overlay-alpha" type="range" min="20" max="95" value="58" />
+          <span class="overlay-value" id="overlay-alpha-value">58%</span>
+        </div>
+      </div>
+      <div class="overlay-field full">
+        <label for="overlay-link">overlay url</label>
+        <input class="overlay-link" id="overlay-link" type="text" readonly />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-grey" id="overlay-copy"><span>copy link</span></button>
+      <button class="btn-grey" id="overlay-open"><span>open</span></button>
+      <button class="btn-grey" id="overlay-close"><span>close</span></button>
+    </div>
+  </div>
+</div>
 
-    function fmt(n) { return (n ?? 0).toLocaleString(); }
-    function timeAgo(u) {
-      if (!u) return '';
-      const d = Math.floor(Date.now()/1000) - u;
-      if (d < 60)   return `${d}s ago`;
-      if (d < 3600) return `${Math.floor(d/60)}m ago`;
-      const h = Math.floor(d/3600), m = Math.floor((d%3600)/60);
-      return m ? `${h}h ${m}m ago` : `${h}h ago`;
-    }
-    function streamUptime(u) {
-      if (!u) return '';
-      const d = Math.max(0, Math.floor(Date.now()/1000) - u);
-      const h = Math.floor(d/3600);
-      const m = Math.floor((d%3600)/60);
-      const s = d % 60;
-      return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    }
-    function fmtDate(u) {
-      if (!u) return '';
-      return new Date(u * 1000).toLocaleString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-      });
-    }
-    function escHtml(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-    function toast(msg, cls='') {
-      const el = document.createElement('div');
-      el.className = 'toast ' + cls;
-      el.textContent = msg;
-      document.getElementById('toast-container').appendChild(el);
-      setTimeout(() => el.remove(), 4200);
-    }
-    function flashEl(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('flash');
-      void el.offsetWidth;
-      el.classList.add('flash');
-    }
+<script>
+  const BASE = '__APP_BASE_PATH__';
+  const SUBATHON_GOALS = [
+    { subs: 1,    label: 'Game night with HBG' },
+    { subs: 25,   label: 'Chat picks pizza toppings' },
+    { subs: 50,   label: 'Fruitberries Q&A with Chat' },
+    { subs: 75,   label: 'MC Event game tierlist' },
+    { subs: 100,  label: 'Mine a chunk with Chat' },
+    { subs: 125,  label: 'Play a Stray UHC' },
+    { subs: 150,  label: 'Minecraft Lockout 1v1 vs Feinberg' },
+    { subs: 175,  label: 'Attempt 5 SkyBattle wins in a row' },
+    { subs: 200,  label: 'Geoguessr Ranked' },
+    { subs: 225,  label: 'One mouse one keyboard MC with girlfriend' },
+    { subs: 250,  label: 'Chat picks 2 Amazon items' },
+    { subs: 275,  label: 'Parkour Civilization homework' },
+    { subs: 300,  label: 'League with Yupplez' },
+    { subs: 325,  label: 'Party games with Chat' },
+    { subs: 350,  label: 'FNAF in the dark' },
+    { subs: 375,  label: '1 Master Mode Hardcore Terraria attempt' },
+    { subs: 400,  label: 'Win a Hypixel UHC' },
+    { subs: 425,  label: 'Make a Hollowcube map' },
+    { subs: 450,  label: 'Hoplite with hackingnoises' },
+    { subs: 475,  label: 'Minecraft Bedrock speedrun no reset' },
+    { subs: 500,  label: 'Win Bedwars solos, duos, trios, quads' },
+    { subs: 600,  label: 'Chunklock Mod speedrun 1v1 w/ Boosfer' },
+    { subs: 700,  label: 'Cooking stream' },
+    { subs: 800,  label: 'Play 10 Hypixel UHCs' },
+    { subs: 900,  label: 'Geoguessr moving 25k attempts' },
+    { subs: 1000, label: 'Go bald' },
+    { subs: 1250, label: '10 half-heart hardcore speedruns in a row' },
+    { subs: 1500, label: 'All Advancements no reset stream' },
+    { subs: 1750, label: '25 no reset speedruns' },
+    { subs: 2000, label: 'Pure Pain Marathon w/ Kaelan moral support' },
+    { subs: 2250, label: 'Wear a maid outfit for next event' },
+    { subs: 2500, label: 'Walk across my city IRL stream' },
+    { subs: 2750, label: 'Dye hair green' },
+    { subs: 3000, label: 'Solo BlazeAndCaves mod completion' },
+  ];
 
-    /* Screens */
-    let searchOpen = false;
-    let searchPinnedOpen = false;
-    const initialUrl = new URL(window.location.href);
+  function fmt(n) { return (n ?? 0).toLocaleString(); }
+  function timeAgo(u) {
+    if (!u) return '';
+    const d = Math.floor(Date.now()/1000) - u;
+    if (d < 60)   return `${d}s ago`;
+    if (d < 3600) return `${Math.floor(d/60)}m ago`;
+    const h = Math.floor(d/3600), m = Math.floor((d%3600)/60);
+    return m ? `${h}h ${m}m ago` : `${h}h ago`;
+  }
+  function streamUptime(u) {
+    if (!u) return '';
+    const d = Math.max(0, Math.floor(Date.now()/1000) - u);
+    return `${Math.floor(d/3600)}:${String(Math.floor((d%3600)/60)).padStart(2,'0')}:${String(d%60).padStart(2,'0')}`;
+  }
+  function fmtDate(u) {
+    if (!u) return '';
+    return new Date(u*1000).toLocaleString(undefined, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+  }
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function toast(msg, cls='') {
+    const el = document.createElement('div');
+    el.className = 'toast ' + cls;
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 4200);
+  }
+  function flashEl(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
 
-    function showSearch(canClose = false) {
-      searchOpen = true;
-      searchPinnedOpen = canClose;
-      document.getElementById('search-screen').style.display  = 'flex';
-      document.getElementById('tracker-screen').style.display = 'none';
-      document.getElementById('search-close').style.display   = canClose ? 'block' : 'none';
-      document.title = 'subathon tracker';
+  let searchOpen = false, searchPinnedOpen = false;
+  const initialUrl = new URL(window.location.href);
+
+  function showSearch(canClose = false) {
+    searchOpen = true; searchPinnedOpen = canClose;
+    document.getElementById('search-screen').style.display  = 'flex';
+    document.getElementById('tracker-screen').style.display = 'none';
+    document.getElementById('search-close').style.display   = canClose ? 'block' : 'none';
+    document.title = 'subathon tracker';
+  }
+  function showTracker() {
+    searchOpen = false; searchPinnedOpen = false;
+    document.getElementById('search-screen').style.display  = 'none';
+    document.getElementById('tracker-screen').style.display = 'block';
+  }
+
+  let latestStats = null, latestSearchResult = null, confirmResolver = null;
+  let selectedGoalIndex = null, leaderboardExpanded = false;
+
+  function overlayUrl() {
+    const url = new URL(`${BASE}/overlay/goal`, window.location.origin);
+    const ch = (document.getElementById('overlay-channel').value.trim().toLowerCase() || 'fruitberries');
+    url.searchParams.set('channel', ch);
+    url.searchParams.set('size',     document.getElementById('overlay-size').value);
+    url.searchParams.set('font',     document.getElementById('overlay-font').value);
+    url.searchParams.set('accent',   document.getElementById('overlay-accent').value);
+    url.searchParams.set('width',    document.getElementById('overlay-width').value);
+    url.searchParams.set('fontSize', document.getElementById('overlay-font-size').value);
+    url.searchParams.set('alpha',    document.getElementById('overlay-alpha').value);
+    return url.toString();
+  }
+  function overlayPreviewUrl() { const u = new URL(overlayUrl()); u.searchParams.set('preview','1'); return u.toString(); }
+  function syncOverlayUrl() {
+    const alpha = document.getElementById('overlay-alpha').value;
+    const width = document.getElementById('overlay-width').value;
+    const fontSize = document.getElementById('overlay-font-size').value;
+    document.getElementById('overlay-alpha-value').textContent = `${alpha}%`;
+    document.getElementById('overlay-width-value').textContent = `${width}%`;
+    document.getElementById('overlay-font-size-value').textContent = `${fontSize}%`;
+    document.getElementById('overlay-link').value = overlayUrl();
+    document.getElementById('overlay-preview-size').textContent =
+      `${document.getElementById('overlay-size').selectedOptions[0].textContent} · +${width}% · ${fontSize}% text`;
+    const frame = document.getElementById('overlay-preview-frame');
+    const pu = overlayPreviewUrl();
+    if (frame.dataset.src !== pu) { frame.src = pu; frame.dataset.src = pu; }
+  }
+  function openOverlayModal() {
+    document.getElementById('overlay-channel').value = (latestStats?.channel || 'fruitberries').toLowerCase();
+    syncOverlayUrl();
+    document.getElementById('overlay-modal').classList.add('open');
+  }
+  function closeOverlayModal() { document.getElementById('overlay-modal').classList.remove('open'); }
+
+  function renderTrackingTimes(stats) {
+    const t = stats?.subathonStart;
+    document.getElementById('lb-since').textContent = t ? `Since ${fmtDate(t)}` : '';
+  }
+  function renderStreamUptime(stats) {
+    const el = document.getElementById('channel-uptime');
+    const live = !!stats?.streamLive && !!stats?.streamStart;
+    el.style.display = live ? 'inline' : 'none';
+    if (live) el.textContent = streamUptime(stats.streamStart);
+  }
+  function autoGoalIndex(total) {
+    const s = Math.max(0, total||0);
+    const i = SUBATHON_GOALS.findIndex(g => s < g.subs);
+    return i === -1 ? SUBATHON_GOALS.length-1 : i;
+  }
+  function goalState(total, index=null) {
+    const s = Math.max(0, total||0);
+    const ri = index==null ? autoGoalIndex(s) : Math.max(0, Math.min(index, SUBATHON_GOALS.length-1));
+    const goal = SUBATHON_GOALS[ri];
+    const prev = ri>0 ? SUBATHON_GOALS[ri-1] : { subs:0, label:'subathon start' };
+    if (!goal) return { total:s, next:0, prev:0, progress:1, remaining:0, nextLabel:'', index:0, complete:true };
+    const complete = s >= goal.subs;
+    const span = Math.max(1, goal.subs - prev.subs);
+    const progress = complete ? 1 : Math.max(0, Math.min(1, (s - prev.subs)/span));
+    return { total:s, next:goal.subs, progress, remaining:Math.max(0,goal.subs-s), nextLabel:goal.label, index:ri, complete };
+  }
+  function renderGoal(stats) {
+    const show = (stats?.channel||'').toLowerCase() === 'fruitberries';
+    document.getElementById('goal-panel').classList.toggle('hidden', !show);
+    if (!show) return;
+    const goal = goalState((stats?.totalSubs||0)+(stats?.giftedSubs||0), selectedGoalIndex);
+    selectedGoalIndex = goal.index;
+    document.getElementById('goal-current').textContent = fmt(goal.total);
+    document.getElementById('goal-next').textContent    = fmt(goal.next);
+    document.getElementById('goal-name').textContent    = goal.nextLabel || '—';
+    document.getElementById('goal-fill').style.width   = `${goal.progress*100}%`;
+    document.getElementById('goal-status').innerHTML   = goal.complete ? 'completed' : `<strong>${fmt(goal.remaining)}</strong> more to unlock`;
+    document.getElementById('goal-prev').disabled      = goal.index <= 0;
+    document.getElementById('goal-next-btn').disabled  = goal.index >= SUBATHON_GOALS.length-1;
+  }
+  function renderRecentSub(stats) {
+    const r = stats?.recentSub;
+    document.getElementById('recent-sub-text').textContent = r?.text || 'no recent sub yet';
+    document.getElementById('recent-sub-time').textContent = r?.at ? timeAgo(r.at) : '';
+  }
+  function askConfirm(title, copy, ok='continue') {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-copy').textContent  = copy;
+    document.getElementById('confirm-ok').textContent    = ok;
+    document.getElementById('confirm-modal').classList.add('open');
+    return new Promise(resolve => { confirmResolver = resolve; });
+  }
+  function closeConfirm(result) {
+    document.getElementById('confirm-modal').classList.remove('open');
+    if (!confirmResolver) return;
+    const resolve = confirmResolver; confirmResolver = null; resolve(result);
+  }
+  function setViewUrl(stats) {
+    const url = new URL(window.location.href);
+    if (stats?.temporaryMode && stats?.channel) {
+      url.pathname = `${BASE}/search`; url.searchParams.set('channel', stats.channel);
+    } else {
+      url.pathname = `${BASE}/`; url.searchParams.delete('channel');
     }
-    function showTracker() {
-      searchOpen = false;
-      searchPinnedOpen = false;
-      document.getElementById('search-screen').style.display  = 'none';
-      document.getElementById('tracker-screen').style.display = 'block';
-    }
+    const next = `${url.pathname}${url.search}${url.hash}`;
+    const cur  = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (next !== cur) history.replaceState(null, '', next);
+  }
 
-    let latestStats = null;
-    let latestSearchResult = null;
-    let confirmResolver = null;
-    let selectedGoalIndex = null;
-    let leaderboardExpanded = false;
+  function renderStats(stats) {
+    latestStats = stats;
+    if (!stats.channel) { if (!searchOpen) showSearch(); return; }
+    if (!searchPinnedOpen) showTracker();
 
-    function overlayUrl() {
-      const url = new URL(`${BASE}/overlay/goal`, window.location.origin);
-      const channel = (document.getElementById('overlay-channel').value.trim().toLowerCase() || 'fruitberries');
-      url.searchParams.set('channel', channel);
-      url.searchParams.set('size', document.getElementById('overlay-size').value);
-      url.searchParams.set('font', document.getElementById('overlay-font').value);
-      url.searchParams.set('accent', document.getElementById('overlay-accent').value);
-      url.searchParams.set('width', document.getElementById('overlay-width').value);
-      url.searchParams.set('fontSize', document.getElementById('overlay-font-size').value);
-      url.searchParams.set('alpha', document.getElementById('overlay-alpha').value);
-      return url.toString();
-    }
+    document.getElementById('val-subs').textContent   = fmt(stats.totalSubs);
+    document.getElementById('val-bits').textContent   = fmt(stats.totalBits);
+    document.getElementById('val-gifts').textContent  = fmt(stats.giftedSubs);
+    document.getElementById('label-subs').textContent = stats.subsCardLabel || 'Subs Gained';
+    document.getElementById('channel-name').textContent = stats.channelDisplay || stats.channel;
+    if (stats.channelAvatar) document.getElementById('channel-avatar').src = stats.channelAvatar;
+    document.title = `${stats.channelDisplay || stats.channel} · subathon`;
 
-    function overlayPreviewUrl() {
-      const url = new URL(overlayUrl());
-      url.searchParams.set('preview', '1');
-      return url.toString();
-    }
+    const authed = stats.hasBroadcasterAuth;
+    const hasPrivate = !!stats.hasPrivateTracker;
+    const viewingPrivate = !!stats.viewingPrivateTracker;
+    const persistent = !!stats.privateTrackerPersistent;
+    const temp = !!stats.temporaryMode;
+    const anon = !!stats.anonymousMode;
 
-    function syncOverlayUrl() {
-      const alpha = document.getElementById('overlay-alpha').value;
-      const width = document.getElementById('overlay-width').value;
-      const fontSize = document.getElementById('overlay-font-size').value;
-      const outputUrl = overlayUrl();
-      const previewUrl = overlayPreviewUrl();
-      document.getElementById('overlay-alpha-value').textContent = `${alpha}%`;
-      document.getElementById('overlay-width-value').textContent = `${width}%`;
-      document.getElementById('overlay-font-size-value').textContent = `${fontSize}%`;
-      document.getElementById('overlay-link').value = outputUrl;
-      document.getElementById('overlay-preview-size').textContent =
-        `${document.getElementById('overlay-size').selectedOptions[0].textContent} · +${width}% width · ${fontSize}% text · ${document.getElementById('overlay-font').selectedOptions[0].textContent}`;
-      const frame = document.getElementById('overlay-preview-frame');
-      if (frame.dataset.src !== previewUrl) {
-        frame.src = previewUrl;
-        frame.dataset.src = previewUrl;
+    document.getElementById('broadcaster-badge').style.display = authed ? 'inline-block' : 'none';
+    document.getElementById('btn-auth').style.display  = authed ? 'none' : 'inline-block';
+    const authLabel = hasPrivate && persistent && !viewingPrivate ? 'My Tracker' : 'Track My Channel';
+    document.getElementById('btn-auth').querySelector('span').textContent = authLabel;
+    document.getElementById('btn-auth').dataset.mode = hasPrivate && persistent && !viewingPrivate ? 'resume' : 'login';
+    document.getElementById('btn-view-public').style.display = viewingPrivate ? 'inline-flex' : 'none';
+    document.getElementById('btn-logout').style.display = persistent ? 'inline-flex' : 'none';
+    document.getElementById('btn-reset').style.display  = authed ? 'inline-flex' : 'none';
+    document.getElementById('btn-change').style.display = authed ? 'none' : 'inline-block';
+
+    document.getElementById('mode-label').innerHTML = temp
+      ? `temporary · tracking <strong>${escHtml(stats.channelDisplay||stats.channel)}</strong>`
+      : anon
+        ? `anonymous · tracking <strong>${escHtml(stats.channelDisplay||stats.channel)}</strong>`
+        : `broadcaster · tracking <strong>${escHtml(stats.channelDisplay||stats.channel)}</strong>`;
+    document.querySelector('#mode-help .mode-popover').textContent = temp
+      ? 'Temporary tracking is not persistent. Closing this tab will reset it unless you log in as that streamer.'
+      : "Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster's own authorized channel token.";
+    document.getElementById('mode-help').style.display = (!authed || temp) ? 'block' : 'none';
+
+    renderTrackingTimes(stats);
+    renderStreamUptime(stats);
+    renderGoal(stats);
+    renderRecentSub(stats);
+    setViewUrl(stats);
+
+    const body = document.getElementById('lb-body');
+    const gifters = stats.gifters || [];
+    if (!gifters.length) {
+      body.innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
+    } else {
+      const vis = leaderboardExpanded ? gifters : gifters.slice(0, 10);
+      body.innerHTML = `
+        <table>
+          <tbody>${vis.map((g,i) => `
+            <tr>
+              <td class="rank-num ${i<3?'top3':''}">${i+1}</td>
+              <td class="gifter-name">${escHtml(g.name)}</td>
+              <td class="right gift-count">${fmt(g.gifts)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        ${gifters.length > 10 ? `
+          <div class="lb-more">
+            <button class="btn-grey" id="lb-toggle"><span>${leaderboardExpanded ? 'View Less' : 'View More'}</span></button>
+          </div>` : ''}`;
+      if (gifters.length > 10) {
+        document.getElementById('lb-toggle').addEventListener('click', () => {
+          leaderboardExpanded = !leaderboardExpanded; renderStats(latestStats||{});
+        });
       }
     }
+  }
 
-    function openOverlayModal() {
-      const currentChannel = (latestStats?.channel || 'fruitberries').toLowerCase();
-      document.getElementById('overlay-channel').value = currentChannel;
-      syncOverlayUrl();
-      document.getElementById('overlay-modal').classList.add('open');
+  function renderStream(d) {
+    if (!d) return;
+    const lbl = document.getElementById('stream-label');
+    const uptime = document.getElementById('channel-uptime');
+    if (d.live) {
+      lbl.className = 'live';
+      lbl.textContent = d.viewers ? `${fmt(d.viewers)} viewers` : 'live';
+    } else {
+      lbl.className = '';
+      lbl.textContent = 'offline';
+      if (uptime) uptime.style.display = 'none';
     }
+  }
 
-    function closeOverlayModal() {
-      document.getElementById('overlay-modal').classList.remove('open');
+  document.getElementById('search-close').addEventListener('click', () => showTracker());
+  document.getElementById('btn-overlay').addEventListener('click', openOverlayModal);
+  document.getElementById('btn-change').addEventListener('click', () => showSearch(true));
+
+  function showSearchError(msg='') {
+    const el = document.getElementById('search-error');
+    el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+  }
+  function renderSearchResult(r) {
+    latestSearchResult = r;
+    document.getElementById('search-result').classList.add('visible');
+    document.getElementById('result-avatar').src = r.avatarUrl || '';
+    document.getElementById('result-name').textContent = r.displayName || r.login;
+    const s = document.getElementById('result-status');
+    s.textContent = r.live ? 'live' : 'offline';
+    s.className = `result-status ${r.live?'live':'offline'}`;
+    document.getElementById('search-note').classList.toggle('visible', r.login !== 'fruitberries');
+  }
+  async function searchChannel() {
+    const q = document.getElementById('search-input').value.trim();
+    if (!q) return;
+    showSearchError('');
+    try {
+      const res = await fetch(`${BASE}/api/channel?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'channel not found');
+      renderSearchResult(data);
+    } catch (err) {
+      latestSearchResult = null;
+      document.getElementById('search-result').classList.remove('visible');
+      document.getElementById('search-note').classList.remove('visible');
+      showSearchError(err.message || 'channel not found');
     }
+  }
+  async function refreshStats() {
+    const stats = await fetch(`${BASE}/api/stats`).then(r => r.json());
+    renderStats(stats);
+    if (stats.channel) renderStream({ live: !!stats.streamLive, viewers: stats.streamViewers||0 });
+  }
+  function reconnectSSE() { if (sse) sse.close(); reconnectDelay = 1000; connect(); }
 
-    function renderTrackingTimes(stats) {
-      const t = stats?.subathonStart;
-      document.getElementById('lb-since').textContent =
-        t ? `tracking since ${fmtDate(t)}` : '';
-    }
-
-    function renderStreamUptime(stats) {
-      const el = document.getElementById('channel-uptime');
-      const live = !!stats?.streamLive && !!stats?.streamStart;
-      el.style.display = live ? 'inline-flex' : 'none';
-      if (live) el.textContent = `◷ ${streamUptime(stats.streamStart)}`;
-    }
-
-    function autoGoalIndex(total) {
-      const safeTotal = Math.max(0, total || 0);
-      const nextIndex = SUBATHON_GOALS.findIndex((goal) => safeTotal < goal.subs);
-      return nextIndex === -1 ? SUBATHON_GOALS.length - 1 : nextIndex;
-    }
-
-    function goalState(total, index = null) {
-      const safeTotal = Math.max(0, total || 0);
-      const resolvedIndex = index == null ? autoGoalIndex(safeTotal) : Math.max(0, Math.min(index, SUBATHON_GOALS.length - 1));
-      const goal = SUBATHON_GOALS[resolvedIndex];
-      const prevGoal = resolvedIndex > 0 ? SUBATHON_GOALS[resolvedIndex - 1] : { subs: 0, label: 'subathon start' };
-      const complete = safeTotal >= goal.subs;
-      if (!goal) {
-        return {
-          total: safeTotal,
-          next: 0,
-          prev: 0,
-          progress: 1,
-          remaining: 0,
-          nextLabel: '',
-          currentLabel: '',
-          index: 0,
-          complete: true,
-        };
-      }
-      const span = Math.max(1, goal.subs - prevGoal.subs);
-      const progress = complete ? 1 : Math.max(0, Math.min(1, (safeTotal - prevGoal.subs) / span));
-      return {
-        total: safeTotal,
-        next: goal.subs,
-        prev: prevGoal.subs,
-        progress,
-        remaining: Math.max(0, goal.subs - safeTotal),
-        nextLabel: goal.label,
-        currentLabel: prevGoal.label,
-        index: resolvedIndex,
-        complete,
-      };
-    }
-
-    function renderGoal(stats) {
-      const showGoal = (stats?.channel || '').toLowerCase() === 'fruitberries';
-      document.getElementById('goal-panel').classList.toggle('hidden', !showGoal);
-      if (!showGoal) return;
-      const goal = goalState((stats?.totalSubs || 0) + (stats?.giftedSubs || 0), selectedGoalIndex);
-      selectedGoalIndex = goal.index;
-      document.getElementById('goal-current').textContent = fmt(goal.total);
-      document.getElementById('goal-next').textContent = fmt(goal.next);
-      document.getElementById('goal-name').textContent = goal.nextLabel || '—';
-      document.getElementById('goal-fill').style.width = `${goal.progress * 100}%`;
-      document.getElementById('goal-status').innerHTML = goal.complete
-        ? 'completed'
-        : `<strong>${fmt(goal.remaining)}</strong> more to unlock`;
-      document.getElementById('goal-prev').disabled = goal.index <= 0;
-      document.getElementById('goal-next-btn').disabled = goal.index >= SUBATHON_GOALS.length - 1;
-    }
-
-    function renderRecentSub(stats) {
-      const recent = stats?.recentSub;
-      document.getElementById('recent-sub-text').textContent = recent?.text || 'no recent sub yet';
-      document.getElementById('recent-sub-time').textContent = recent?.at ? timeAgo(recent.at) : '';
-    }
-
-    function askConfirm(title, copy, ok = 'continue') {
-      document.getElementById('confirm-title').textContent = title;
-      document.getElementById('confirm-copy').textContent = copy;
-      document.getElementById('confirm-ok').textContent = ok;
-      document.getElementById('confirm-modal').classList.add('open');
-      return new Promise((resolve) => {
-        confirmResolver = resolve;
-      });
-    }
-
-    function closeConfirm(result) {
-      document.getElementById('confirm-modal').classList.remove('open');
-      if (!confirmResolver) return;
-      const resolve = confirmResolver;
-      confirmResolver = null;
-      resolve(result);
-    }
-
-    function setViewUrl(stats) {
-      const url = new URL(window.location.href);
-      if (stats?.temporaryMode && stats?.channel) {
-        url.pathname = `${BASE}/search`;
-        url.searchParams.set('channel', stats.channel);
-      } else {
-        url.pathname = `${BASE}/`;
-        url.searchParams.delete('channel');
-      }
-      const next = `${url.pathname}${url.search}${url.hash}`;
-      const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      if (next !== current) history.replaceState(null, '', next);
-    }
-
-    /* Render */
-    function renderStats(stats) {
-      latestStats = stats;
-      if (!stats.channel) {
-        if (!searchOpen) showSearch();
-        return;
-      }
-      if (!searchPinnedOpen) showTracker();
-
-      document.getElementById('val-subs').textContent  = fmt(stats.totalSubs);
-      document.getElementById('val-bits').textContent  = fmt(stats.totalBits);
-      document.getElementById('val-gifts').textContent = fmt(stats.giftedSubs);
-      document.getElementById('label-subs').textContent = stats.subsCardLabel || 'subs gained';
-
-      document.getElementById('channel-name').textContent = stats.channelDisplay || stats.channel;
-      if (stats.channelAvatar) document.getElementById('channel-avatar').src = stats.channelAvatar;
-      document.title = `${stats.channelDisplay || stats.channel} · subathon`;
-
-      const authed = stats.hasBroadcasterAuth;
-      const anonymousMode = !!stats.anonymousMode;
-      const hasPrivateTracker = !!stats.hasPrivateTracker;
-      const viewingPrivateTracker = !!stats.viewingPrivateTracker;
-      const privateTrackerPersistent = !!stats.privateTrackerPersistent;
-      const temporaryMode = !!stats.temporaryMode;
-      document.getElementById('broadcaster-badge').style.display = authed ? 'inline-block' : 'none';
-      document.getElementById('btn-auth').style.display = authed ? 'none' : 'inline-flex';
-      document.getElementById('btn-auth').textContent = hasPrivateTracker && privateTrackerPersistent && !viewingPrivateTracker ? 'My Tracker' : 'Track My Channel';
-      document.getElementById('btn-auth').dataset.mode = hasPrivateTracker && privateTrackerPersistent && !viewingPrivateTracker ? 'resume' : 'login';
-      document.getElementById('btn-view-public').style.display = viewingPrivateTracker ? 'inline-flex' : 'none';
-      document.getElementById('btn-logout').style.display = privateTrackerPersistent ? 'inline-flex' : 'none';
-      document.getElementById('btn-reset').style.display  = authed ? 'inline-flex' : 'none';
-      document.getElementById('btn-change').style.display = authed ? 'none' : 'inline-flex';
-      document.getElementById('mode-label').innerHTML = temporaryMode
-        ? `temporary mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`
-        : anonymousMode
-          ? `anonymous mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`
-          : `broadcaster mode · tracking <strong>${escHtml(stats.channelDisplay || stats.channel)}</strong>`;
-      document.querySelector('#mode-help .mode-popover').textContent = temporaryMode
-        ? 'Temporary tracking for searched channels is not persistent. Closing this tab will reset it unless you log in as that streamer.'
-        : 'Anonymous mode stays on fruitberries because Twitch only exposes accurate subscriber totals to the broadcaster\'s own authorized channel token. Use "track my channel" to open your own private tracker.';
-      document.getElementById('mode-help').style.display = (!authed || temporaryMode) ? 'block' : 'none';
-
-      renderTrackingTimes(stats);
-      renderStreamUptime(stats);
-      renderGoal(stats);
-      renderRecentSub(stats);
-      setViewUrl(stats);
-
-      const body = document.getElementById('lb-body');
-      const gifters = stats.gifters || [];
-      if (!gifters.length) {
-        body.innerHTML = '<div class="lb-empty">no gifters yet this subathon</div>';
-      } else {
-        const visibleGifters = leaderboardExpanded ? gifters : gifters.slice(0, 10);
-        body.innerHTML = `
-          <table>
-            <thead><tr><th>#</th><th>user</th><th class="right">gifts</th></tr></thead>
-            <tbody>${visibleGifters.map((g,i) => `
-              <tr>
-                <td class="rank-num ${i<3?'top3':''}">${i+1}</td>
-                <td class="gifter-name">${escHtml(g.name)}</td>
-                <td class="right gift-count">${fmt(g.gifts)}</td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-          ${gifters.length > 10 ? `
-            <div class="lb-more">
-              <button class="btn" id="lb-toggle">${leaderboardExpanded ? 'show less' : `view more (${gifters.length - 10})`}</button>
-            </div>` : ''}`;
-        if (gifters.length > 10) {
-          document.getElementById('lb-toggle').addEventListener('click', () => {
-            leaderboardExpanded = !leaderboardExpanded;
-            renderStats(latestStats || {});
-          });
-        }
-      }
-    }
-
-    function renderStream(d) {
-      if (!d) return;
-      const dot = document.getElementById('stream-dot');
-      const lbl = document.getElementById('stream-label');
-      if (d.live) {
-        dot.className = 'stream-dot live';
-        lbl.className = 'stream-label live';
-        lbl.textContent = d.viewers ? `${fmt(d.viewers)} viewers` : 'live';
-      } else {
-        dot.className = 'stream-dot';
-        lbl.className = 'stream-label';
-        lbl.textContent = 'offline';
-      }
-    }
-
-    document.getElementById('search-close').addEventListener('click', () => {
-      showTracker();
+  document.getElementById('btn-auth').addEventListener('click', async (e) => {
+    if (e.currentTarget.dataset.mode !== 'resume') return;
+    e.preventDefault();
+    await fetch(`${BASE}/api/view/private`, { method:'POST' });
+    await refreshStats(); reconnectSSE();
+  });
+  document.getElementById('btn-view-public').addEventListener('click', async () => {
+    await fetch(`${BASE}/api/view/public`, { method:'POST' });
+    await refreshStats(); reconnectSSE();
+  });
+  document.getElementById('search-btn').addEventListener('click', searchChannel);
+  document.getElementById('goal-prev').addEventListener('click', () => {
+    selectedGoalIndex = Math.max(0, (selectedGoalIndex ?? autoGoalIndex((latestStats?.totalSubs||0)+(latestStats?.giftedSubs||0))) - 1);
+    renderGoal(latestStats||{});
+  });
+document.getElementById('goal-next-btn').addEventListener('click', () => {
+    selectedGoalIndex = Math.min(SUBATHON_GOALS.length-1, (selectedGoalIndex ?? autoGoalIndex((latestStats?.totalSubs||0)+(latestStats?.giftedSubs||0))) + 1);
+    renderGoal(latestStats||{});
+  });
+  document.getElementById('search-input').addEventListener('keydown', e => { if (e.key==='Enter') searchChannel(); });
+  document.getElementById('result-track').addEventListener('click', async () => {
+    if (!latestSearchResult) return;
+    const res = await fetch(`${BASE}/api/channel`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ login: latestSearchResult.login }),
     });
-    document.getElementById('btn-overlay').addEventListener('click', openOverlayModal);
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok) { showSearchError(data.error || 'could not start tracking'); return; }
+    showTracker(); await refreshStats(); reconnectSSE();
+  });
+  document.getElementById('btn-reset').addEventListener('click', async () => {
+    const ok = await askConfirm('reset timer', 'Resetting will clear the current tracked subs, bits, gifts, and restart the timer from now.', 'reset');
+    if (!ok) return;
+    await fetch(`${BASE}/api/start`, { method:'POST' });
+  });
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    const ok = await askConfirm('log out', 'Logging out will delete this saved private tracker and its tracked data for this browser session.', 'log out');
+    if (!ok) return;
+    window.location.href = `${BASE}/auth/logout`;
+  });
+  document.getElementById('confirm-cancel').addEventListener('click', () => closeConfirm(false));
+  document.getElementById('confirm-ok').addEventListener('click',    () => closeConfirm(true));
+  document.getElementById('confirm-modal').addEventListener('click', e => { if (e.target.id==='confirm-modal') closeConfirm(false); });
+  document.getElementById('overlay-close').addEventListener('click', closeOverlayModal);
+  document.getElementById('overlay-open').addEventListener('click',  () => { window.open(document.getElementById('overlay-link').value,'_blank','noopener,noreferrer'); });
+  document.getElementById('overlay-copy').addEventListener('click',  async () => {
+    const link = document.getElementById('overlay-link').value;
+    try { await navigator.clipboard.writeText(link); toast('overlay link copied','reset'); }
+    catch { document.getElementById('overlay-link').focus(); document.getElementById('overlay-link').select(); }
+  });
+  document.getElementById('overlay-modal').addEventListener('click', e => { if (e.target.id==='overlay-modal') closeOverlayModal(); });
+  ['overlay-channel','overlay-size','overlay-font','overlay-accent','overlay-width','overlay-font-size','overlay-alpha'].forEach(id => {
+    document.getElementById(id).addEventListener(['overlay-alpha','overlay-width','overlay-font-size'].includes(id)?'input':'change', syncOverlayUrl);
+  });
+  document.getElementById('overlay-channel').addEventListener('input', syncOverlayUrl);
 
-    document.getElementById('btn-change').addEventListener('click', () => {
-      showSearch(true);
-    });
-
-    function showSearchError(message = '') {
-      const el = document.getElementById('search-error');
-      el.textContent = message;
-      el.style.display = message ? 'block' : 'none';
-    }
-
-    function renderSearchResult(result) {
-      latestSearchResult = result;
-      document.getElementById('search-result').classList.add('visible');
-      document.getElementById('result-avatar').src = result.avatarUrl || '';
-      document.getElementById('result-name').textContent = result.displayName || result.login;
-      const status = document.getElementById('result-status');
-      status.textContent = result.live ? 'live' : 'offline';
-      status.className = `result-status ${result.live ? 'live' : 'offline'}`;
-      document.getElementById('search-note').classList.toggle('visible', result.login !== 'fruitberries');
-    }
-
-    async function searchChannel() {
-      const q = document.getElementById('search-input').value.trim();
-      if (!q) return;
-      showSearchError('');
-      try {
-        const res = await fetch(`${BASE}/api/channel?q=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'channel not found');
-        renderSearchResult(data);
-      } catch (err) {
-        latestSearchResult = null;
-        document.getElementById('search-result').classList.remove('visible');
-        document.getElementById('search-note').classList.remove('visible');
-        showSearchError(err.message || 'channel not found');
+  let sse, reconnectDelay = 1000;
+  function connect() {
+    sse = new EventSource(`${BASE}/api/events`);
+    sse.onopen = () => { reconnectDelay = 1000; };
+    sse.onmessage = (e) => {
+      let msg; try { msg = JSON.parse(e.data); } catch { return; }
+      if (msg.stats)  renderStats(msg.stats);
+      if (msg.stream) renderStream(msg.stream);
+      switch (msg.type) {
+        case 'sub':         flashEl('val-subs'); toast(`✦ ${msg.userName} subscribed`); break;
+        case 'resub':       flashEl('val-subs'); toast(`↺ ${msg.userName} resubscribed`); break;
+        case 'gift':        flashEl('val-gifts'); flashEl('val-subs'); toast(`♡ ${msg.gifterName} gifted ${msg.total} sub${msg.total!==1?'s':''}`, 'gift'); break;
+        case 'bits':        flashEl('val-bits'); toast(`◈ ${fmt(msg.bits)} bits cheered`, 'bits'); break;
+        case 'stream_live': toast(`● ${msg.stats?.channelDisplay||'stream'} is live`, 'reset'); break;
+        case 'channel_set': renderStats(msg.stats); break;
+        case 'reset':       flashEl('val-subs'); flashEl('val-bits'); flashEl('val-gifts'); toast('⊙ timer reset','reset'); break;
       }
-    }
+    };
+    sse.onerror = () => { sse.close(); setTimeout(connect, reconnectDelay); reconnectDelay = Math.min(reconnectDelay*2, 15000); };
+  }
 
-    async function refreshStats() {
-      const stats = await fetch(`${BASE}/api/stats`).then(r => r.json());
-      renderStats(stats);
-      if (stats.channel) {
-        renderStream({ live: !!stats.streamLive, viewers: stats.streamViewers || 0 });
-      }
-    }
+  setInterval(() => { if (latestStats) renderStreamUptime(latestStats); }, 1000);
+  setInterval(async () => { try { await refreshStats(); } catch {} }, 30_000);
 
-    function reconnectSSE() {
-      if (sse) sse.close();
-      reconnectDelay = 1000;
-      connect();
-    }
-
-    document.getElementById('btn-auth').addEventListener('click', async (e) => {
-      if (e.currentTarget.dataset.mode !== 'resume') return;
-      e.preventDefault();
-      await fetch(`${BASE}/api/view/private`, { method: 'POST' });
+  async function initApp() {
+    try {
       await refreshStats();
-      reconnectSSE();
-    });
-
-    document.getElementById('btn-view-public').addEventListener('click', async () => {
-      await fetch(`${BASE}/api/view/public`, { method: 'POST' });
-      await refreshStats();
-      reconnectSSE();
-    });
-
-    document.getElementById('search-btn').addEventListener('click', searchChannel);
-    document.getElementById('goal-prev').addEventListener('click', () => {
-      selectedGoalIndex = Math.max(0, (selectedGoalIndex ?? autoGoalIndex((latestStats?.totalSubs || 0) + (latestStats?.giftedSubs || 0))) - 1);
-      renderGoal(latestStats || {});
-    });
-    document.getElementById('goal-present').addEventListener('click', () => {
-      selectedGoalIndex = autoGoalIndex((latestStats?.totalSubs || 0) + (latestStats?.giftedSubs || 0));
-      renderGoal(latestStats || {});
-    });
-    document.getElementById('goal-next-btn').addEventListener('click', () => {
-      selectedGoalIndex = Math.min(SUBATHON_GOALS.length - 1, (selectedGoalIndex ?? autoGoalIndex((latestStats?.totalSubs || 0) + (latestStats?.giftedSubs || 0))) + 1);
-      renderGoal(latestStats || {});
-    });
-    document.getElementById('search-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') searchChannel();
-    });
-    document.getElementById('result-track').addEventListener('click', async () => {
-      if (!latestSearchResult) return;
-      const res = await fetch(`${BASE}/api/channel`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login: latestSearchResult.login }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        showSearchError(data.error || 'could not start tracking');
-        return;
+      const reqCh = initialUrl.searchParams.get('channel')?.trim().toLowerCase();
+      if (reqCh && (!latestStats?.channel || latestStats.channel !== reqCh || !latestStats.temporaryMode)) {
+        const res = await fetch('/api/channel', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ login: reqCh }),
+        });
+        if (res.ok) await refreshStats();
       }
-      showTracker();
-      await refreshStats();
-      reconnectSSE();
-    });
-
-    /* Reset */
-    document.getElementById('btn-reset').addEventListener('click', async () => {
-      const ok = await askConfirm(
-        'reset timer',
-        'Resetting will clear the current tracked subs, bits, gifts, and restart the timer from now.',
-        'reset'
-      );
-      if (!ok) return;
-      await fetch(`${BASE}/api/start`, { method: 'POST' });
-    });
-
-    document.getElementById('btn-logout').addEventListener('click', async () => {
-      const ok = await askConfirm(
-        'log out',
-        'Logging out will delete this saved private tracker and its tracked data for this browser session.',
-        'log out'
-      );
-      if (!ok) return;
-      window.location.href = `${BASE}/auth/logout`;
-    });
-
-    document.getElementById('confirm-cancel').addEventListener('click', () => closeConfirm(false));
-    document.getElementById('confirm-ok').addEventListener('click', () => closeConfirm(true));
-    document.getElementById('confirm-modal').addEventListener('click', (e) => {
-      if (e.target.id === 'confirm-modal') closeConfirm(false);
-    });
-    document.getElementById('overlay-close').addEventListener('click', closeOverlayModal);
-    document.getElementById('overlay-open').addEventListener('click', () => {
-      window.open(document.getElementById('overlay-link').value, '_blank', 'noopener,noreferrer');
-    });
-    document.getElementById('overlay-copy').addEventListener('click', async () => {
-      const link = document.getElementById('overlay-link').value;
-      try {
-        await navigator.clipboard.writeText(link);
-        toast('overlay link copied', 'reset');
-      } catch {
-        document.getElementById('overlay-link').focus();
-        document.getElementById('overlay-link').select();
-      }
-    });
-    document.getElementById('overlay-modal').addEventListener('click', (e) => {
-      if (e.target.id === 'overlay-modal') closeOverlayModal();
-    });
-    ['overlay-channel', 'overlay-size', 'overlay-font', 'overlay-accent', 'overlay-width', 'overlay-font-size', 'overlay-alpha'].forEach((id) => {
-      document.getElementById(id).addEventListener((id === 'overlay-alpha' || id === 'overlay-width' || id === 'overlay-font-size') ? 'input' : 'change', syncOverlayUrl);
-    });
-    document.getElementById('overlay-channel').addEventListener('input', syncOverlayUrl);
-
-    /* SSE */
-    let sse, reconnectDelay = 1000;
-    function connect() {
-      sse = new EventSource(`${BASE}/api/events`);
-      sse.onopen = () => { reconnectDelay = 1000; };
-      sse.onmessage = (e) => {
-        let msg; try { msg = JSON.parse(e.data); } catch { return; }
-        if (msg.stats)  renderStats(msg.stats);
-        if (msg.stream) renderStream(msg.stream);
-        switch (msg.type) {
-          case 'sub':         flashEl('val-subs'); toast(`✦ ${msg.userName} subscribed`); break;
-          case 'resub':       flashEl('val-subs'); toast(`↺ ${msg.userName} resubscribed`); break;
-          case 'gift':        flashEl('val-gifts'); flashEl('val-subs'); toast(`♡ ${msg.gifterName} gifted ${msg.total} sub${msg.total!==1?'s':''}`, 'gift'); break;
-          case 'bits':        flashEl('val-bits'); toast(`◈ ${fmt(msg.bits)} bits cheered`, 'bits'); break;
-          case 'stream_live': toast(`● ${msg.stats?.channelDisplay||'stream'} is live`, 'reset'); break;
-          case 'channel_set': renderStats(msg.stats); break;
-          case 'reset':       flashEl('val-subs'); flashEl('val-bits'); flashEl('val-gifts'); toast('⊙ timer reset', 'reset'); break;
-        }
-      };
-      sse.onerror = () => { sse.close(); setTimeout(connect, reconnectDelay); reconnectDelay = Math.min(reconnectDelay*2,15000); };
-    }
-
-    /* Refresh */
-    setInterval(() => {
-      if (latestStats) renderStreamUptime(latestStats);
-    }, 1000);
-
-    setInterval(async () => {
-      try { await refreshStats(); } catch {}
-    }, 30_000);
-
-    async function initApp() {
-      try {
-        await refreshStats();
-        const requestedChannel = initialUrl.searchParams.get('channel')?.trim().toLowerCase();
-        if (requestedChannel && (!latestStats?.channel || latestStats.channel !== requestedChannel || !latestStats.temporaryMode)) {
-          const res = await fetch('/api/channel', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ login: requestedChannel }),
-          });
-          if (res.ok) {
-            await refreshStats();
-          }
-        }
-      } catch {
-        showSearch();
-      }
-      connect();
-    }
-
-    initApp();
-  </script>
+    } catch { showSearch(); }
+    connect();
+  }
+  initApp();
+</script>
 </body>
 </html>

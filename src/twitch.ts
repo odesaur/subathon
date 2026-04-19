@@ -272,6 +272,20 @@ export function connectIRC(broadcast: BroadcastFn) {
   };
 }
 
+export async function lookupChannelById(userId: string): Promise<string | null> {
+  if (!appToken) return null;
+  try {
+    const res = await fetch(`https://api.twitch.tv/helix/users?id=${userId}`, {
+      headers: { "Client-ID": CLIENT_ID, Authorization: `Bearer ${appToken}` },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { data?: { profile_image_url: string }[] };
+    return data.data?.[0]?.profile_image_url ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function lookupChannel(login: string): Promise<{ id: string; login: string; displayName: string; avatarUrl: string } | null> {
   if (!appToken) return null;
   try {
